@@ -1,22 +1,23 @@
 # ADR-0014: Monorepo layout
 
-- Status: Proposed
+- Status: Proposed (revised after review 2026-11-24)
 
 ## Decision
 
 ```text
 cmd/market/              main: PocketBase app, plugins, wiring
-internal/platform/       ports, money, authz, signer, idempotency (platform-baas)
-internal/platform/pb/    PocketBase adapters (only PocketBase importer besides main)
+internal/platform/       Tx, Clock, IDs, Outbox, Audit, money, authz, signer (platform-baas; no repositories)
+internal/platform/pb/    PocketBase adapters, repositories, write-protection hooks (only PocketBase importer besides main)
 internal/migrations/     Go migrations (collections, indexes, seeds: GoDudY, license types)
 internal/sellers/
 internal/catalog/
-internal/ordering/
-internal/payments/       port, registry, state machine
+internal/ordering/       order aggregate, transitions; money-flow use cases: checkout, return, inbox apply, reconciliation, refund
+internal/payments/       Gateway port, registry, payment transitions, webhook verify + inbox insert
 internal/payments/yookassa/ | tbank/ | cloudpayments/ | robokassa/
-internal/fiscal/         receipt builder (54-FZ fields)
+internal/fiscal/         receipt DTO, pure builder, receipt status machine (imports no domain package)
 internal/licensing/      entitlements, purchase codes, download tokens
-internal/ledger/
+internal/ledger/         entries, deterministic txn ids, posting rules
+internal/trust/          reviews (phase 2)
 internal/web/            router, middleware (CSRF, metrics), handlers
 internal/web/viewmodel/  records -> Codex records + view structs
 internal/web/screens/    app layer templ pages
@@ -32,6 +33,10 @@ deploy/                  Caddyfile, systemd unit, litestream.yml
 .project/                plan, ADRs, SLO
 ```
 
+- Import direction: `web -> ordering -> {payments, fiscal, licensing,
+  ledger}`, `payments -> fiscal`; `fiscal`, `licensing`, `ledger` import no
+  domain package. No cycles: `payments` never imports `ordering`.
+  Each package declares the interfaces it consumes.
 - One Go module at the root. A `package.json` only for UI tooling (Tailwind,
   ui8kit CLI, ui8px), with the `ui8kit` zones field.
 - No Cyrillic in code, comments, docs or fixtures.
@@ -40,3 +45,8 @@ deploy/                  Caddyfile, systemd unit, litestream.yml
 
 Domain packages are flat and discoverable; the layout scales to the seller
 portal (`internal/web/screens/seller`) without moves.
+
+## Review 2026-11-24 (BalunMY)
+
+Added `internal/trust`; checkout use case in `ordering`; receipt DTO in
+`fiscal`; no repositories in `platform`; import direction stated.

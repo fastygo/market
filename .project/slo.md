@@ -1,8 +1,12 @@
 # SLO
 
-Targets for production, phase 1 (single node). Status "Target" until the
-measurement exists; "Measured" once the SLI is on the dashboard. Window:
-30 rolling days unless noted. Time in UTC.
+Targets for production, phase 1 (single node, one SQLite writer). Status
+"Target" until the measurement exists; "Measured" once the SLI is on the
+dashboard. Window: 30 rolling days unless noted. Time in UTC.
+
+Rule for money-path objectives: the time limits count while the process is
+up ("process-up time"). Node outages are covered by availability, RTO and the
+reconciliation that runs at start-up; no objective promises 100%.
 
 ## Objectives
 
@@ -11,17 +15,31 @@ measurement exists; "Measured" once the SLI is on the dashboard. Window:
 | Storefront availability (GET `/`, category, product; non-5xx, external probe from RF every 60 s) | 99.5% | 3 h 36 min | Operator | Target |
 | SSR latency, catalog and product pages (origin, server time) | p95 <= 300 ms, p99 <= 800 ms | 5% of requests over 300 ms | Dev | Target |
 | Checkout start (POST `/checkout` to provider redirect, non-5xx) | 99.5% success, p95 <= 1.5 s | 0.5% | Dev | Target |
-| Webhook intake (verified event stored and 2xx returned) | 99.9%, p95 <= 200 ms | 0.1% | Dev | Target |
-| Paid to entitlement (provider `succeeded` time to `entitlements.granted_at`) | 99.9% within 2 min, 100% within 30 min (reconciliation) | 0.1% | Dev | Target |
-| Purchase email sent (entitlement to outbox `done`) | 99% within 10 min | 1% | Dev | Target |
-| Fiscal receipt registered (payment success to receipt `registered`) | 99.9% within 15 min, 100% same day | 0.1% | Operator | Target |
+| Webhook intake (verified event stored and 2xx returned) | 99.9% success; latency target set after the first month of measurements (single writer shared with checkout, workers, Litestream, FTS) | 0.1% | Dev | Target |
+| Paid to entitlement (provider `succeeded` to `granted_at`) | 99.9% within 5 min of process-up time; the rest within one reconciliation pass after recovery | 0.1% | Dev | Target |
+| Purchase email sent (entitlement to outbox `done`) | 99% within 10 min of process-up time | 1% | Dev | Target |
 | Download start (authorized request to first byte, non-5xx) | 99.9% success, p95 TTFB <= 1 s | 0.1% | Dev | Target |
 | Backup freshness | Litestream lag <= 5 min; full backup age <= 24 h | none | Operator | Target |
 | Restore drill | RTO <= 4 h, RPO <= 15 min, quarterly | none | Operator | Target |
 
-Excluded from the error budget: 4xx (auth, validation, 404), provider-side
-outages proven by provider status (counted separately as "provider
-availability"), planned maintenance announced 24 h ahead (max 2 h a month).
+Excluded from error budgets: 4xx (auth, validation, 404), provider-side
+outages proven by provider status (tracked as "provider availability"),
+planned maintenance announced 24 h ahead (max 2 h a month).
+
+## Fiscal receipts: obligation, not a budget
+
+Receipt registration (54-FZ) is a legal duty, so it has no error budget.
+Target: registered within 15 min of process-up time. Any receipt that is
+`failed` after the retry cap, or still `pending` after 1 h of process-up
+time, is a page alert and an operator task the same day. Reported monthly as
+a count of incidents, not as a percentage.
+
+## Single-writer guardrails
+
+- Webhook intake is one insert in its own short transaction.
+- `busy_timeout` set; exactly one inbox worker and one outbox worker; cron
+  jobs use short transactions and batch limits.
+- Metrics export reads only; no write per scrape.
 
 ## How measured
 
@@ -30,24 +48,33 @@ availability"), planned maintenance announced 24 h ahead (max 2 h a month).
   Prometheus or VictoriaMetrics.
 - External probe (Uptime Kuma or a hosted RF checker) for availability.
 - Business SLIs are SQL over our own tables: `payments.updated` vs
-  `entitlements.granted_at`, `outbox` attempts and age, `fiscal_receipts`
-  status age. A cron job exports them as gauges every minute.
+  `entitlements.granted_at`, `outbox` and `payment_events` status and age,
+  `fiscal_receipts` status age. A cron exports them as gauges every minute.
 - Logs: PocketBase request logs + structured `slog` JSON; no personal data in
   logs (email hashed, IP hashed).
 
-## Alerts (burn rate)
+## Alerts
 
-- Page: 2% of the 30-day budget burned in 1 h (fast burn, 14.4x).
-- Ticket: 5% burned in 6 h (6x).
-- Direct alerts: any `payment_events` unprocessed > 10 min; any paid order
-  without entitlement > 30 min; any receipt `failed`; backup lag > 15 min.
+- Burn rate page: 2% of the 30-day budget burned in 1 h (14.4x).
+- Burn rate ticket: 5% burned in 6 h (6x).
+- Direct pages: `payment_events` not processed > 10 min; inbox or outbox row
+  `dead`; paid order without entitlement or ledger txn > 15 min; receipt
+  `failed` or `pending` > 1 h; backup lag > 15 min.
 
 ## Error budget policy
 
-When a budget is spent: feature work stops for that surface, fixes and
-reliability work only, until the 30-day window is back under budget. Money
-paths (webhook, entitlement, receipt) have priority over catalog.
+When a budget is spent: feature work stops for that surface, only fixes and
+reliability work, until the window is back under budget. Money paths have
+priority over catalog.
 
-## Phase 2+ targets
+## Phase 2+
 
-Availability 99.9% after a warm standby with Litestream restore is drilled.
+Availability 99.9% after a warm standby is drilled: a Litestream replica that
+can be promoted. It is still one writer, not multi-master; RTO target then
+<= 30 min.
+
+## Review 2026-11-24 (BalunMY)
+
+Applied P1-10: removed "100% within 30 min / same day" (contradicted RTO
+4 h), dropped the unmeasured webhook p95 200 ms, fiscal moved out of error
+budgets (P0-5), standby described as promote, not multi-master.

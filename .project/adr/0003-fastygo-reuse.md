@@ -1,6 +1,6 @@
 # ADR-0003: fastygo reuse: Codex yes, backend no, FormSet later
 
-- Status: Proposed
+- Status: Accepted (direction confirmed by review 2026-11-24)
 
 ## Context
 
@@ -33,3 +33,8 @@ JSON validated by Codex schema. Never both for the same field.
 
 - One small, dependency-free fastygo import; no second storage or auth.
 - Codex version bumps follow UI8Kit contract bumps; pin, no `replace`.
+
+## Review 2026-11-24 (BalunMY)
+
+Accepted as written: Codex narrowly (view models, canonical JCS, validation
+codes); no backend; FormSet not in phase 1.

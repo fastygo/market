@@ -1,6 +1,6 @@
 # ADR-0001: PocketBase as a Go framework (extend mode), one binary
 
-- Status: Proposed
+- Status: Accepted (direction confirmed by review 2026-11-24)
 
 ## Context
 
@@ -15,7 +15,9 @@ for payments, ledger, templ rendering and tests.
   migrations (`internal/migrations`), automigrate off in production.
 - Pin PocketBase `v0.40.x` (latest `v0.40.6`), Go 1.27. Upgrade one minor at a
   time behind the test suite; read the changelog for breaking notes.
-- PocketBase admin UI (`/_/`) is the operator back office in phases 1 and 2.
+- PocketBase admin UI (`/_/`) is the operator back office in phases 1 and 2,
+  read-mostly for money: money and fulfilment collections are written only by
+  Go, and Go hooks block ledger and published-release edits (ADR-0005).
 - SQLite WAL on local disk; Litestream for continuous backup.
 
 ## Consequences
@@ -25,3 +27,7 @@ for payments, ledger, templ rendering and tests.
   behind `internal/platform` (ADR-0002) and vendor-check each upgrade.
 - Vertical scaling only (one SQLite writer). Fine for a storefront; exit path
   in ADR-0002.
+
+## Review 2026-11-24 (BalunMY)
+
+Direction accepted. Admin UI is read-mostly for money collections (P0-7).

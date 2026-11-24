@@ -1,6 +1,6 @@
 # ADR-0012: Design principles
 
-- Status: Proposed
+- Status: Accepted (direction confirmed by review 2026-11-24)
 
 ## Decision
 
@@ -32,3 +32,9 @@ Order of priority when they conflict: correctness of money > KISS > the rest.
 
 Reviewers can reject a change citing a principle by name; new abstractions
 need a second real use.
+
+## Review 2026-11-24 (BalunMY)
+
+Accepted: "correctness of money > KISS > the rest", rule of two for
+`platform`, rule of three for templates. Added: interfaces are declared by
+the consumer package; no hidden application layer.

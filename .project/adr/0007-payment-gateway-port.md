@@ -1,44 +1,130 @@
-# ADR-0007: Payment gateway port with adapters, webhook inbox, outbox
+# ADR-0007: Payment gateway port, checkout protocol, inbox and outbox
 
-- Status: Proposed
+- Status: Proposed (revised after review 2026-11-24)
 
 ## Context
 
 Sales only in Russia, several methods (card, SBP, SberPay, T-Pay, Mir Pay,
-wallets) and several providers: YooKassa, T-Bank Internet Acquiring,
-CloudPayments, Robokassa. SBP is reached through the acquiring provider.
-Foreign providers are out.
+wallets) and providers: YooKassa, T-Bank Internet Acquiring, CloudPayments,
+Robokassa. SBP is reached through the acquiring provider. Foreign providers
+are out. One SQLite writer.
 
 ## Decision
 
-Port (declared in `internal/payments`), one adapter package per provider:
+### Port (declared in `internal/payments`), one adapter package per provider
 
 ```go
 type Gateway interface {
     Code() ProviderCode
     Methods() []Method
-    CreatePayment(ctx context.Context, req CreatePaymentRequest) (CreatePaymentResult, error) // req carries IdempotencyKey and Receipt
-    ParseWebhook(ctx context.Context, r *http.Request) (Event, error)                         // verify, no side effects
+    CreatePayment(ctx context.Context, req CreatePaymentRequest) (CreatePaymentResult, error) // IdempotencyKey, Receipt payload from fiscal
     FetchPayment(ctx context.Context, providerPaymentID string) (Status, error)                // source of truth
-    Refund(ctx context.Context, req RefundRequest) (RefundResult, error)
+    CancelPayment(ctx context.Context, providerPaymentID, idempotencyKey string) (Status, error)
+    Refund(ctx context.Context, req RefundRequest) (RefundResult, error)                      // IdempotencyKey, return receipt payload
+    RegisterReceipt(ctx context.Context, req ReceiptRequest) (ReceiptResult, error)           // retry or standalone receipt
+    FetchReceipt(ctx context.Context, providerReceiptID string) (ReceiptStatus, error)
+    ParseWebhook(ctx context.Context, r *http.Request) (Event, error)                         // verify only, no side effects
 }
 ```
 
-- `Registry` maps method -> provider by config (phase 2: fallback order).
-- Verification per provider: YooKassa (IP allowlist, then `FetchPayment`),
-  T-Bank (`Token` SHA-256 with the terminal password), CloudPayments
-  (`Content-HMAC`), Robokassa (`SignatureValue` with password 2). In all cases
-  the final status is confirmed by `FetchPayment`, never trusted from the body.
-- Inbox: verified events go to `payment_events` (unique provider + event_id),
-  2xx returned at once. Outbox worker processes them, applies the payment
-  state machine and writes effects in one transaction.
-- Idempotency: order key on `POST /checkout`; payment key sent to the
-  provider; effects are keyed so a replay is a no-op.
-- Reconciliation cron re-fetches stale `pending` payments.
-- Sandbox first; adapters tested with recorded fixtures (ADR-0013).
+Receipt DTO and builder live in `internal/fiscal` (`fiscal.Receipt`,
+`fiscal.Line`, pure `fiscal.Build`). Import direction has no cycle:
+`ordering -> payments -> fiscal` and `ordering -> fiscal`; `fiscal` imports
+neither. The checkout use case maps order items to `fiscal.Line`, builds the
+receipt and passes it in `CreatePaymentRequest`.
+
+Phase 1 creates payments with immediate capture; no `CapturePayment` until a
+provider needs two-step capture. `Registry` maps method -> provider by config
+(phase 2: fallback order).
+
+### Checkout protocol (use case in `internal/ordering`)
+
+1. `Idempotency-Key` is required on `POST /checkout` (header or form field
+   generated when the checkout page renders). One DB transaction: order +
+   items + payment `created`; payment key = `pay:{order_key}:{provider}`
+   (deterministic). No network call inside the transaction.
+2. `CreatePayment` with the payment key.
+3. Store `provider_payment_id`, `confirmation_url`; payment `pending`, order
+   `awaiting_payment`.
+4. Retry with the same order key: order `awaiting_payment` -> repeat 2-3 (the
+   provider returns the same payment for the same key); order `paid` -> show
+   it; never create a second order or payment. A crash between 2 and 3 is
+   healed by the retry or by reconciliation.
+
+### Cancel and late success
+
+- The timeout cron (30 min) only requests `CancelPayment` via the outbox.
+  The order becomes `cancelled` only after the provider confirms (response or
+  `FetchPayment`).
+- If the provider reports `succeeded` for a `cancelled` or timed-out order,
+  `Transition` moves it to `paid` with the normal effects. This edge is in the
+  transition table and in the tests.
+
+### Effects
+
+- In the same DB transaction as the status change: entitlement insert,
+  ledger entries with deterministic `txn_id` (ADR-0006), receipt row
+  `pending`, inbox row `processed`.
+- In the outbox (written in that transaction): only external effects:
+  purchase email, `RegisterReceipt` retry, `CancelPayment`, `Refund` calls.
+  Each with a deterministic `idempotency_key`.
+
+### Inbox and outbox workers
+
+Ownership: `payments` verifies webhooks and inserts inbox rows; the inbox
+apply step, return URL, reconciliation and refund command are use cases in
+`internal/ordering`, because they change the order, entitlements and ledger
+in one transaction (`payments` never imports `ordering`).
+
+- Webhook handler: verify -> one insert into `payment_events` -> 2xx. Unique
+  conflict on `(provider, event_id)` = already accepted, 2xx.
+- Verification: YooKassa (IP allowlist), T-Bank (`Token` SHA-256 with the
+  terminal password), CloudPayments (`Content-HMAC`), Robokassa
+  (`SignatureValue` with password 2). The status is always confirmed with
+  `FetchPayment`, never taken from the body.
+- Exactly one inbox worker and one outbox worker per process. Claim: atomic
+  update `received|pending -> processing` with `locked_until`; expired leases
+  return to the queue; after N attempts -> `dead` + alert, the queue moves on.
+- Status updates are conditional (`WHERE status = ? AND status_version = ?`),
+  so webhook, return URL and reconciliation can race safely.
+- Return URL `GET /checkout/return/{order}` calls `FetchPayment` ->
+  `Transition`, ignoring query parameters.
+
+### Reconciliation (cron every 5 min, same `Transition`, no second path)
+
+1. Payments `created`/`pending` older than 10 min -> `FetchPayment`.
+2. Orders `awaiting_payment` or `cancelled` with a provider payment id ->
+   `FetchPayment` (late success).
+3. Orders `paid` without an entitlement or without the ledger `txn_id` ->
+   replay the in-transaction effects (idempotent by uniques).
+4. Receipts not `registered`/`not_required` -> `FetchReceipt`, then outbox
+   `RegisterReceipt`, up to the attempt cap, then page alert and operator
+   task.
+
+### Refunds and disputes
+
+- Refund (phase 1: full only): `refunds` row `pending` with its key ->
+  `Gateway.Refund` -> on confirmation one tx: payment and order `refunded`,
+  ledger reversal, entitlement `refunded`, `income_return` receipt `pending`.
+- Dispute / chargeback: provider event -> `FetchPayment` -> payment
+  `disputed`, entitlement `disputed` (downloads stop). Lost -> `refunded`
+  path (reversal, entitlement `refunded`, return receipt if the law requires
+  it for that flow); won -> back to `succeeded`/`active`.
+
+### Shutdown
+
+Workers stop claiming on `OnTerminate`, finish or release leases within the
+context deadline.
 
 ## Consequences
 
-- Adding a provider is one package + config, no domain change (open/closed
-  where it pays).
-- Provider SDKs are not used unless official and small; plain `net/http`.
+- Adding a provider is one package + config, no domain change.
+- Plain `net/http` adapters, tested with recorded fixtures (ADR-0013).
+
+## Review 2026-11-24 (BalunMY)
+
+Applied P0-1 (checkout protocol), P0-2 (cancel only after provider confirms,
+late success, `CancelPayment`), P0-3 (in-tx effects vs outbox, leases, single
+workers), P0-4 (wider reconciliation), P0-5 (receipt methods), P1-1
+(disputes), P1-2 (full refunds only), P1-4 (return URL), P1-7 (conditional
+updates, duplicate webhook = 2xx), P2 (no `waiting_for_capture`, shutdown).
