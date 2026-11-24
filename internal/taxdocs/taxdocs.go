@@ -56,6 +56,10 @@ type Document struct {
 	BuyerEmail     string `json:"buyer_email"`
 	Lines          []Line `json:"lines"`
 	IdempotencyKey string `json:"idempotency_key"`
+	// ProviderRef is the provider payment id (sale) or refund id (return)
+	// the document belongs to, for issuers that register documents together
+	// with the payment (RU: receipts sent with the YooKassa payment).
+	ProviderRef string `json:"provider_ref,omitempty"`
 }
 
 // Result of Issue or Fetch.

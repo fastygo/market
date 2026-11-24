@@ -508,6 +508,37 @@ func (s *Orders) insertTaxDoc(app core.App, kind taxdocs.Kind, op string, r payR
 	return outbox(app, ordering.TopicTaxDoc, key, map[string]any{"doc_id": rec.Id}, now)
 }
 
+// SaleDocument implements ordering.Store: the sale tax document built from
+// the order snapshot (read only), sent with the payment to providers that
+// register it inline. nil when the region needs no document.
+func (s *Orders) SaleDocument(ctx context.Context, orderID string) (*taxdocs.Document, error) {
+	if s.TaxDocs == nil {
+		return nil, nil
+	}
+	kind, op, ok := s.TaxDocs.ForSale()
+	if !ok {
+		return nil, nil
+	}
+	ord, items, err := loadOrder(s.App, orderID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ordering.ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	src := make([]taxdocs.SourceLine, len(items))
+	for i, it := range items {
+		src[i] = taxdocs.SourceLine{Title: it.Title, Qty: it.Qty, Price: it.UnitPrice, Amount: it.LineMinor, TaxMode: it.TaxMode,
+			TaxCode: it.TaxCode, TaxMinor: it.TaxMinor, Agent: it.SaleModel == string(ordering.Agent)}
+	}
+	doc, err := taxdocs.Build(s.TaxDocs, kind, op, ord.Currency, ord.Email, ord.Total, src)
+	if err != nil {
+		return nil, err
+	}
+	doc.IdempotencyKey = "taxdoc:order:" + orderID
+	return &doc, nil
+}
+
 // ReplayEffects implements ordering.Store (reconciliation step 3).
 func (s *Orders) ReplayEffects(ctx context.Context, orderID string, now time.Time) (ordering.Applied, error) {
 	var a ordering.Applied
@@ -705,9 +736,12 @@ func (s *Orders) TaxDocument(ctx context.Context, id string) (ordering.TaxDoc, e
 		Total    int64  `db:"total_minor"`
 		Currency string `db:"currency"`
 		Email    string `db:"buyer_email"`
+		Ref      string `db:"provider_ref"`
 	}
-	err := s.App.DB().NewQuery(`SELECT id, kind, operation, status, external_id, lines, total_minor, currency, buyer_email
-		FROM tax_documents WHERE id = {:id}`).Bind(dbx.Params{"id": id}).One(&r)
+	err := s.App.DB().NewQuery(`SELECT d.id, d.kind, d.operation, d.status, d.external_id, d.lines, d.total_minor, d.currency, d.buyer_email,
+		CASE WHEN d.refund != '' THEN COALESCE(r.provider_refund_id, '') ELSE COALESCE(p.provider_payment_id, '') END AS provider_ref
+		FROM tax_documents d LEFT JOIN payments p ON p.id = d.payment LEFT JOIN refunds r ON r.id = d.refund
+		WHERE d.id = {:id}`).Bind(dbx.Params{"id": id}).One(&r)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ordering.TaxDoc{}, ordering.ErrNotFound
 	}
@@ -715,7 +749,7 @@ func (s *Orders) TaxDocument(ctx context.Context, id string) (ordering.TaxDoc, e
 		return ordering.TaxDoc{}, err
 	}
 	d := taxdocs.Document{ID: r.ID, Kind: taxdocs.Kind(r.Kind), Operation: r.Op, Currency: r.Currency, Total: r.Total,
-		BuyerEmail: r.Email, IdempotencyKey: "taxdoc:" + r.ID}
+		BuyerEmail: r.Email, IdempotencyKey: "taxdoc:" + r.ID, ProviderRef: r.Ref}
 	if err := json.Unmarshal([]byte(r.Lines), &d.Lines); err != nil {
 		return ordering.TaxDoc{}, err
 	}

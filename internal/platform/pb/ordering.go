@@ -324,6 +324,12 @@ func (s *Orders) OrderForBuyer(ctx context.Context, orderID, buyerID string) (or
 	return v, nil
 }
 
+// Order implements ordering.Store: an order by id without an owner check
+// (the public return page shows only its status).
+func (s *Orders) Order(ctx context.Context, orderID string) (ordering.OrderView, error) {
+	return orderView(s.App, orderID)
+}
+
 // AcceptEvent implements ordering.Store: one short insert into the inbox.
 func (s *Orders) AcceptEvent(ctx context.Context, provider string, ev payments.Event, now time.Time) (bool, error) {
 	dup := false

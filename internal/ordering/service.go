@@ -122,6 +122,11 @@ type Store interface {
 	ApplyPayment(ctx context.Context, provider string, st payments.Status, now time.Time) (Applied, error)
 	ReplayEffects(ctx context.Context, orderID string, now time.Time) (Applied, error)
 	OrderForBuyer(ctx context.Context, orderID, buyerID string) (OrderView, error)
+	// Order reads an order without an owner check (public return page).
+	Order(ctx context.Context, orderID string) (OrderView, error)
+	// SaleDocument builds the sale tax document of an order from its
+	// snapshot (read only); nil when the region needs none.
+	SaleDocument(ctx context.Context, orderID string) (*taxdocs.Document, error)
 	AcceptEvent(ctx context.Context, provider string, ev payments.Event, now time.Time) (duplicate bool, err error)
 	ClaimEvent(ctx context.Context, now time.Time, lease time.Duration) (InboxItem, bool, error)
 	FinishEvent(ctx context.Context, id string, procErr error, now time.Time, maxAttempts int) error
@@ -323,9 +328,17 @@ func (s *Service) ensurePayment(ctx context.Context, v OrderView) (OrderView, er
 	if s.ReturnURL != nil {
 		ret = s.ReturnURL(v.OrderID)
 	}
+	doc, err := s.Store.SaleDocument(ctx, v.OrderID)
+	if err != nil {
+		return v, err
+	}
+	desc := v.Number
+	if desc == "" {
+		desc = v.OrderID
+	}
 	res, err := gw.CreatePayment(ctx, payments.CreatePaymentRequest{
 		IdempotencyKey: v.PaymentKey, Amount: v.Total, Method: payments.Method(v.Method),
-		Description: v.Number, ReturnURL: ret,
+		Description: desc, ReturnURL: ret, OrderID: v.OrderID, Document: doc,
 	})
 	if err != nil {
 		return v, err
@@ -364,6 +377,22 @@ func (s *Service) Return(ctx context.Context, buyerID, orderID string) (OrderVie
 		}
 	}
 	return s.Store.OrderForBuyer(ctx, orderID, buyerID)
+}
+
+// ReturnPublic handles the browser return from the provider without a
+// signed-in buyer (guest checkout, or the session cookie is not sent): the
+// payment is confirmed with the provider and only the status is shown.
+func (s *Service) ReturnPublic(ctx context.Context, orderID string) (OrderView, error) {
+	v, err := s.Store.Order(ctx, orderID)
+	if err != nil {
+		return v, err
+	}
+	if v.ProviderPaymentID != "" {
+		if _, err := s.Apply(ctx, v.Provider, v.ProviderPaymentID); err != nil {
+			return v, err
+		}
+	}
+	return s.Store.Order(ctx, orderID)
 }
 
 // AcceptWebhook verifies and stores one provider event (one short insert).

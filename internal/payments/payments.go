@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/fastygo/market/internal/platform/money"
+	"github.com/fastygo/market/internal/taxdocs"
 )
 
 // ProviderCode names an adapter, e.g. "fake".
@@ -45,7 +46,12 @@ type CreatePaymentRequest struct {
 	Amount         money.Money
 	Method         Method
 	Description    string
-	ReturnURL      string
+	ReturnURL      string // absolute URL the provider sends the buyer back to
+	OrderID        string // provider metadata only; never trusted on the way back
+	// Document is the sale tax document (region pack, taxdocs.Build) for
+	// providers that register it with the payment (RU: receipts sent with
+	// the payment); nil when the region needs none.
+	Document *taxdocs.Document
 }
 
 // CreatePaymentResult carries the provider id and the buyer redirect.
@@ -60,6 +66,10 @@ type RefundRequest struct {
 	IdempotencyKey    string
 	ProviderPaymentID string
 	Amount            money.Money
+	// Document is the return tax document for providers that register it
+	// with the refund; nil when the region needs none or the provider
+	// issues it automatically.
+	Document *taxdocs.Document
 }
 
 // RefundResult of a refund call: State is succeeded, pending (provider
@@ -93,4 +103,7 @@ type Gateway interface {
 var (
 	ErrNotFound         = errors.New("payments: payment not found at the provider")
 	ErrInvalidSignature = errors.New("payments: webhook signature is invalid")
+	// ErrPermanent wraps provider answers that a retry cannot fix (bad
+	// credentials, invalid request); the outbox stops after its cap.
+	ErrPermanent = errors.New("payments: provider rejected the request")
 )
