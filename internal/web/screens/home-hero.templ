@@ -1,0 +1,42 @@
+package screens
+
+import (
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/icons"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/link"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+)
+
+type perk struct{ icon, key string }
+
+var homePerks = []perk{{"download", "ui.home.perk_download"}, {"refresh-ccw", "ui.home.perk_updates"}, {"shield-check", "ui.home.perk_secure"}}
+
+templ HomeHero(s Shell) {
+	@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "section", Class: "flex flex-col gap-8"}}) {
+		@compose.Stack(compose.StackProps{Gap: "6", BoxProps: box.BoxProps{Class: "rounded-2xl bg-secondary p-8 md:p-16"}}) {
+			@compose.Title(compose.TitleProps{As: "1", Size: "4xl", Weight: "bold", TextProps: text.TextProps{Class: "leading-tight tracking-tight text-secondary-foreground md:text-5xl"}}) {
+				{ s.Brand }
+			}
+			@compose.Text(compose.TextProps{Size: "lg", TextProps: text.TextProps{Class: "max-w-2xl text-secondary-foreground"}}) {
+				{ s.T("ui.home.lead") }
+			}
+			@compose.LinkButton(compose.LinkButtonProps{Size: "lg", LinkProps: link.LinkProps{Href: "/catalog", Class: "gap-2"}}) {
+				@icons.LucideIcon(icons.LucideIconProps{Name: "shopping-bag", Size: 20})
+				{ s.T("ui.home.shop_now") }
+			}
+		}
+		@compose.List(compose.ListProps{BoxProps: box.BoxProps{Class: "grid gap-4 md:grid-cols-3"}}) {
+			for _, p := range homePerks {
+				@compose.ListItem(compose.ListItemProps{BoxProps: box.BoxProps{Class: "flex items-center gap-4 rounded-xl border border-border bg-card p-4"}}) {
+					@compose.Inline(compose.InlineProps{TextProps: text.TextProps{Class: "text-primary"}}) {
+						@icons.LucideIcon(icons.LucideIconProps{Name: p.icon, Size: 24})
+					}
+					@compose.Inline(compose.InlineProps{TextProps: text.TextProps{Class: "text-sm"}}) {
+						{ s.T(p.key) }
+					}
+				}
+			}
+		}
+	}
+}

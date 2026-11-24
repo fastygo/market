@@ -1,0 +1,27 @@
+package screens
+
+import (
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/link"
+)
+
+func chipVariant(on bool) string {
+	if on {
+		return "default"
+	}
+	return "outline"
+}
+
+templ CatalogFilter(s Shell, activeSlug string) {
+	@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "nav", Class: "flex flex-wrap gap-2", Attrs: templ.Attributes{"aria-label": s.T("ui.catalog.categories")}}}) {
+		@compose.LinkButton(compose.LinkButtonProps{Variant: chipVariant(activeSlug == ""), Size: "sm", LinkProps: link.LinkProps{Href: "/catalog", AriaCurrent: current(activeSlug == "")}}) {
+			{ s.T("ui.catalog.all") }
+		}
+		for _, c := range s.Categories {
+			@compose.LinkButton(compose.LinkButtonProps{Variant: chipVariant(activeSlug == c.Slug), Size: "sm", LinkProps: link.LinkProps{Href: CategoryHref(c.Slug), AriaCurrent: current(activeSlug == c.Slug)}}) {
+				{ c.Title }
+			}
+		}
+	}
+}

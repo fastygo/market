@@ -1,0 +1,98 @@
+package screens
+
+import (
+	"github.com/fastygo/market/internal/catalog"
+	"github.com/ui8kit/codegen/generated/templ/blocks"
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/icons"
+	uiutils "github.com/ui8kit/codegen/generated/templ/orgutils"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/link"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+)
+
+// DownloadHref is the download entry of the plain product type (ADR-0019);
+// phase 1 checks the entitlement and redirects to a signed URL (ADR-0009).
+func DownloadHref(slug string) string { return "/products/" + slug + "/download" }
+
+func crumbs(s Shell, p catalog.Product) []any {
+	out := []any{map[string]any{"name": s.T("ui.catalog.title"), "href": "/catalog"}}
+	if p.Category.Slug != "" {
+		out = append(out, map[string]any{"name": p.Category.Title, "href": CategoryHref(p.Category.Slug)})
+	}
+	return append(out, map[string]any{"name": p.Title})
+}
+
+// ProductPage is the default (plain) product type page: media, title,
+// seller, price, Download and Preview (latte-shop views/pages/product.latte,
+// cart form replaced by the plain type actions).
+templ ProductPage(s Shell, p catalog.Product) {
+	@Layout(s) {
+		@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "article", Class: "flex flex-col gap-8 py-12", Attrs: templ.Attributes{"data-product-type": p.ProductType}}}) {
+			@blocks.PageCrumbs(blocks.PageCrumbsProps{Label: s.T("ui.product.breadcrumb"), Crumbs: crumbs(s, p)})
+			@compose.Grid(compose.GridProps{Cols: "1-2", BoxProps: box.BoxProps{Class: "gap-8 md:gap-16"}}) {
+				@compose.Box(compose.BoxProps{BoxProps: box.BoxProps{Class: "overflow-hidden rounded-2xl border border-border bg-muted"}}) {
+					@blocks.MediaFrame(blocks.MediaFrameProps{Alt: p.Title, Src: p.CoverURL, Ratio: "1/1"})
+				}
+				@compose.Stack(compose.StackProps{Gap: "6"}) {
+					@compose.Stack(compose.StackProps{Gap: "4"}) {
+						@compose.Title(compose.TitleProps{As: "1", Size: "3xl", Weight: "bold", TextProps: text.TextProps{Class: "tracking-tight md:text-4xl"}}) {
+							{ p.Title }
+						}
+						@compose.Text(compose.TextProps{Size: "sm", TextProps: text.TextProps{Class: "flex items-center gap-2 text-muted-foreground"}}) {
+							@icons.LucideIcon(icons.LucideIconProps{Name: "user", Size: 16})
+							{ s.T("ui.product.by") }
+							@compose.Inline(compose.InlineProps{TextProps: text.TextProps{Class: "font-semibold text-foreground"}}) {
+								{ p.SellerName }
+							}
+						}
+						if p.HasOffer {
+							@compose.Text(compose.TextProps{Size: "3xl", Weight: "semibold", TextProps: text.TextProps{Attrs: templ.Attributes{"data-slot": "price"}}}) {
+								{ uiutils.Money(float64(p.Price.Minor), p.Price.Currency) }
+							}
+						}
+						if p.Excerpt != "" {
+							@compose.Text(compose.TextProps{TextProps: text.TextProps{Class: "text-muted-foreground"}}) {
+								{ p.Excerpt }
+							}
+						}
+					}
+					@compose.Group(compose.GroupProps{Gap: "4", BoxProps: box.BoxProps{Class: "flex-wrap rounded-xl border border-border bg-card p-6"}}) {
+						@compose.LinkButton(compose.LinkButtonProps{Size: "lg", LinkProps: link.LinkProps{Href: DownloadHref(p.Slug), Class: "gap-2", Attrs: templ.Attributes{"data-action": "download"}}}) {
+							@icons.LucideIcon(icons.LucideIconProps{Name: "download", Size: 20})
+							{ s.T("ui.product.download") }
+						}
+						if p.DemoURL != "" {
+							@compose.LinkButton(compose.LinkButtonProps{Variant: "outline", Size: "lg", LinkProps: link.LinkProps{Href: p.DemoURL, External: true, Class: "gap-2", Attrs: templ.Attributes{"data-action": "preview"}}}) {
+								@icons.LucideIcon(icons.LucideIconProps{Name: "eye", Size: 20})
+								{ s.T("ui.product.preview") }
+							}
+						}
+					}
+					@compose.List(compose.ListProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-2 text-sm text-muted-foreground"}}) {
+						@compose.ListItem(compose.ListItemProps{BoxProps: box.BoxProps{Class: "flex items-center gap-2"}}) {
+							@icons.LucideIcon(icons.LucideIconProps{Name: "download", Size: 16})
+							{ s.T("ui.product.instant_download") }
+						}
+						@compose.ListItem(compose.ListItemProps{BoxProps: box.BoxProps{Class: "flex items-center gap-2"}}) {
+							@icons.LucideIcon(icons.LucideIconProps{Name: "refresh-ccw", Size: 16})
+							{ s.T("ui.product.updates_included") }
+						}
+					}
+					if p.Description != "" {
+						@compose.Stack(compose.StackProps{Gap: "4", BoxProps: box.BoxProps{Class: "border-t border-border pt-6"}}) {
+							@compose.Title(compose.TitleProps{As: "2", Size: "lg", TextProps: text.TextProps{}}) {
+								{ s.T("ui.product.description") }
+							}
+							for _, para := range paragraphs(p.Description) {
+								@compose.Text(compose.TextProps{TextProps: text.TextProps{Class: "text-muted-foreground"}}) {
+									{ para }
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

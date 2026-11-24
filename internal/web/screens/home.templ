@@ -1,0 +1,19 @@
+package screens
+
+import (
+	"github.com/fastygo/market/internal/catalog"
+	"github.com/ui8kit/codegen/generated/templ/blocks"
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+)
+
+// HomePage: hero with perks, featured products (latte-shop
+// views/pages/front-page.latte; product cards from the UI8Kit product-grid).
+templ HomePage(s Shell, featured []catalog.Product) {
+	@Layout(s) {
+		@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-8 py-8"}}) {
+			@HomeHero(s)
+			@blocks.ProductGrid(blocks.ProductGridProps{Title: s.T("ui.home.featured"), Products: cards(featured), Labels: cardLabels(s), Cols: "1-3", Rating: "hide", Action: "none"})
+		}
+	}
+}

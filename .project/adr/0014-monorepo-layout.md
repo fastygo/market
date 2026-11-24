@@ -74,3 +74,19 @@ and PayPal adapter slots; `scripts/verify.sh` exists with hygiene checks.
 Phase 1 layout: `internal/region/ru` Go module instead of a plugin;
 `modules/` and the sandbox come with the ADR-0017 later phase; no EU or
 Stripe/PayPal packages before phase 4.
+
+## Revision 2026-11-24 (phase 0 code)
+
+- `ui/kit/` is a nested Go module (`github.com/ui8kit/codegen/generated/templ`)
+  installed by the pinned UI8Kit CLI (`scripts/ui8kit.sh`, registry
+  `registry.buildy.tw/templ`) and referenced from the root `go.mod` with a
+  `replace`. It is generated code: never edited by hand. This is the one
+  exception to "one Go module at the root".
+- Generated files are committed: `*_templ.go` (app screens and kit) and
+  `internal/web/static/app.css` (Tailwind build). Reason: `go build` works on
+  a clean clone with Go only, and the deploy builds a single binary
+  off-server. `scripts/verify.sh` regenerates with `templ generate` (when
+  installed) and fails if `*_templ.go` differ; CSS is rebuilt by `make css`.
+- App screens live in `internal/web/screens` (UI8Kit layer "apps"):
+  primitives and kit blocks only, texts from `ui/dict/en.json`; verify.sh
+  checks raw tags and literal text there.

@@ -110,7 +110,7 @@ name with placeholder legal data; real data is entered in admin.
 | --- | --- | --- |
 | `categories` | slug, parent, title, sort, `attribute_schema` (json, phase 3) | slug |
 | `tags` | slug, title | slug |
-| `products` | seller, slug, kind (`site`,`template`,`design`,`extension`,`module`), category, tags, title, excerpt, description, status (`draft`,`in_review`,`published`,`unlisted`,`archived`), cover, gallery, demo_url, attributes (json), rating_avg, rating_count, sales_count, published_at | slug unique globally (one storefront); counters are cache, recomputed by Go cron, never used for money |
+| `products` | seller, slug, product_type (default `plain`, ADR-0019), category, tags, title, excerpt, description, status (`draft`,`in_review`,`published`,`unlisted`,`archived`), cover, gallery, demo_url, attributes (json), rating_avg, rating_count, sales_count, published_at | slug unique globally (one storefront); counters are cache, recomputed by Go cron, never used for money |
 | `product_releases` | product, seller, version (semver), changelog, file or storage_key, size, sha256, status (`draft`,`published`,`yanked`), released_at | (product, version); file/sha256/size immutable once published |
 | `license_types` | code (`regular`,`extended`), title, terms_version, terms, allows_end_product_sale, max_end_products | code |
 | `offers` | product, seller, license_type, price_minor, currency, tax_category (region-defined code, e.g. `standard`, `software_exempt`, `digital_service`), support_months, active | (product, license_type, currency); price in the storefront's `tax_display` convention |

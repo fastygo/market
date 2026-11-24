@@ -1,0 +1,22 @@
+package screens
+
+import (
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/link"
+)
+
+// SiteHeader: skip link, brand, main navigation (ported from
+// wpfasty-market views/layout/parts/brand.latte; header actions of
+// latte-shop header-actions.latte are phase 1: account, cart).
+templ SiteHeader(s Shell) {
+	@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "header", Class: "border-b border-border bg-card"}}) {
+		@compose.Link(compose.LinkProps{LinkProps: link.LinkProps{Href: "#main-content", Class: "sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-background focus:px-4 focus:py-2"}}) {
+			{ s.T("ui.site.skip") }
+		}
+		@compose.Group(compose.GroupProps{Gap: "4", Justify: "between", BoxProps: box.BoxProps{Class: "mx-auto w-full max-w-6xl flex-wrap px-4 py-4 md:px-6"}}) {
+			@Brand(s)
+			@HeaderNav(s)
+		}
+	}
+}

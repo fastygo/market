@@ -160,3 +160,17 @@ A3 decided (Go region rules in phase 1). Product types are modules with a
 plain default page (ADR-0019); phase 0 builds only the plain type with
 Download and Preview actions. Host profile, memory budget and load-test plan
 added (`slo.md`). Release files never pass through the app (ADR-0009).
+
+## Phase 0 status 2026-11-24
+
+Done: `go.mod` (PocketBase v0.40.6, templ v0.3.1070), `cmd/market`,
+`internal/platform/money`, `internal/platform/pb` (catalog and storefront
+readers), Go migrations for storefronts, sellers, categories, products,
+product_releases, offers with a placeholder seed, templ SSR pages (home,
+catalog, category, plain product page with Download and Preview), locale-en
+dictionary, Tailwind build, tests (money, i18n, migrations and seed,
+repository, handlers end to end). Measured on the dev box (production
+build, `GOMEMLIMIT` default 512 MiB): RSS 43 MB idle, 54 MB after 3000
+product page requests at 16 in parallel (peak 56 MB); binary 28 MB.
+Open in phase 0: `platform.Tx` (`BEGIN IMMEDIATE`, explicit
+`busy_timeout`), module registry, deploy files, write-protection hooks.

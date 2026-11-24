@@ -1,2 +1,6 @@
 .manual/*
 !.manual/.gitkeep
+node_modules/
+pb_data/
+/bin/
+*.test

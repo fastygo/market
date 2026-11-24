@@ -1,0 +1,29 @@
+package screens
+
+import (
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+)
+
+// SiteFooter: brand and about, catalog links, copyright (ported from
+// wpfasty-market views/layout/parts/footer.latte; the legal documents menu
+// and seller requisites come from operator data in phase 1, ADR-0016).
+templ SiteFooter(s Shell) {
+	@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "footer", Class: "mt-16 border-t border-border bg-card py-12"}}) {
+		@compose.Stack(compose.StackProps{Gap: "8", BoxProps: box.BoxProps{Class: "mx-auto w-full max-w-6xl px-4 md:px-6"}}) {
+			@compose.Grid(compose.GridProps{Cols: "1-2", BoxProps: box.BoxProps{Class: "w-full gap-8"}}) {
+				@compose.Stack(compose.StackProps{Gap: "4"}) {
+					@Brand(s)
+					@compose.Text(compose.TextProps{Size: "sm", TextProps: text.TextProps{Class: "max-w-xs text-muted-foreground"}}) {
+						{ s.T("ui.site.footer_about") }
+					}
+				}
+				@FooterCatalogNav(s)
+			}
+			@compose.Text(compose.TextProps{Size: "xs", TextProps: text.TextProps{Class: "w-full border-t border-border pt-6 text-muted-foreground"}}) {
+				{ s.copyright() }
+			}
+		}
+	}
+}

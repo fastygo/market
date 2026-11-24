@@ -1,0 +1,22 @@
+package screens
+
+import (
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/link"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+)
+
+// NoticePage renders a short message page (not found, not yet available).
+templ NoticePage(s Shell, messageKey string) {
+	@Layout(s) {
+		@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "section", Class: "flex flex-col items-center gap-6 py-16 text-center"}}) {
+			@compose.Title(compose.TitleProps{As: "1", Size: "2xl", TextProps: text.TextProps{}}) {
+				{ s.T(messageKey) }
+			}
+			@compose.LinkButton(compose.LinkButtonProps{Variant: "outline", LinkProps: link.LinkProps{Href: "/"}}) {
+				{ s.T("ui.error.back_home") }
+			}
+		}
+	}
+}

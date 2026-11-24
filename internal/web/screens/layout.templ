@@ -1,0 +1,28 @@
+package screens
+
+import (
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+)
+
+// Layout is the document shell. html, head and body have no UI8Kit
+// primitive (recorded exception, as in ui8kit/site); everything inside body
+// is primitives.
+templ Layout(s Shell) {
+	<!DOCTYPE html>
+	<html lang={ s.Lang }>
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>{ s.pageTitle() }</title>
+			<link rel="stylesheet" href={ s.CSSHref }/>
+		</head>
+		<body class="min-h-screen bg-background text-foreground">
+			@SiteHeader(s)
+			@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "main", Class: "mx-auto w-full max-w-6xl px-4 md:px-6", Attrs: templ.Attributes{"id": "main-content"}}}) {
+				{ children... }
+			}
+			@SiteFooter(s)
+		</body>
+	</html>
+}

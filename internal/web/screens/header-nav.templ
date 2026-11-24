@@ -1,0 +1,18 @@
+package screens
+
+import (
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/link"
+)
+
+templ HeaderNav(s Shell) {
+	@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "nav", Class: "flex items-center gap-4", Attrs: templ.Attributes{"aria-label": s.T("ui.site.nav")}}}) {
+		@compose.Link(compose.LinkProps{Variant: "nav", Size: "sm", LinkProps: link.LinkProps{Href: "/", AriaCurrent: current(s.Current == "home")}}) {
+			{ s.T("ui.site.home") }
+		}
+		@compose.Link(compose.LinkProps{Variant: "nav", Size: "sm", LinkProps: link.LinkProps{Href: "/catalog", AriaCurrent: current(s.Current == "catalog")}}) {
+			{ s.T("ui.site.catalog") }
+		}
+	}
+}

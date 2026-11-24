@@ -1,0 +1,20 @@
+package screens
+
+import (
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/icons"
+	"github.com/ui8kit/codegen/generated/templ/ui/link"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+)
+
+// Brand lockup: signal mark + wordmark (brand.latte).
+templ Brand(s Shell) {
+	@compose.Link(compose.LinkProps{LinkProps: link.LinkProps{Href: "/", Class: "inline-flex items-center gap-2 text-foreground no-underline hover:text-primary"}}) {
+		@compose.Inline(compose.InlineProps{TextProps: text.TextProps{Class: "inline-flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground", Attrs: templ.Attributes{"aria-hidden": "true"}}}) {
+			@icons.LucideIcon(icons.LucideIconProps{Name: "sparkles", Size: 16})
+		}
+		@compose.Inline(compose.InlineProps{TextProps: text.TextProps{Class: "text-lg font-bold tracking-tight"}}) {
+			{ s.Brand }
+		}
+	}
+}

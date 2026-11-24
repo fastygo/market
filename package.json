@@ -1,0 +1,19 @@
+{
+  "name": "market-ui-tooling",
+  "private": true,
+  "description": "Build-time UI tooling only (Tailwind CSS, ui8kit CLI). Never needed at runtime (slo.md: single Go binary).",
+  "license": "Apache-2.0",
+  "ui8kit": {
+    "runtime": "templ",
+    "kit": ["ui/kit"],
+    "composition": ["internal/web/screens"],
+    "blockRoot": ["internal/web/screens/home.templ", "internal/web/screens/catalog.templ", "internal/web/screens/product.templ", "internal/web/screens/notice.templ"]
+  },
+  "scripts": {
+    "css": "tailwindcss -i ui/styles/app.src.css -o internal/web/static/app.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "tailwindcss": "4.3.3"
+  }
+}

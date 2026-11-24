@@ -1,0 +1,6 @@
+/* Tailwind v4 entry of the storefront. Built off-server into internal/web/static/app.css (make css). */
+@import "./theme.css";
+@import "./kit.css";
+@import "./skins/godudy.css";
+@source "../kit";
+@source "../../internal/web/screens";

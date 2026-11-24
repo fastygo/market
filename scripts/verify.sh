@@ -34,9 +34,26 @@ if [ -d pb_hooks ]; then
   hit "goja hook touches money collection" '(orders|order_items|payments|payment_events|refunds|tax_documents|ledger_entries|entitlements|downloads|outbox|payouts)' -w pb_hooks
 fi
 
+# UI8Kit rules on app screens (rule 02 raw tags; rule 04 literal text). The document
+# shell (html, head, meta, title, link, body) in layout.templ has no primitive.
+if [ -d internal/web/screens ]; then
+  raw=$(grep -nE '<[a-z][a-z0-9]*[ />]' internal/web/screens/*.templ \
+    | grep -vE '^internal/web/screens/layout\.templ:[0-9]+:\s*</?(html|head|meta|title|link|body)[ >/]' || true)
+  if [ -n "$raw" ]; then echo "verify: raw HTML tag in screens (use UI8Kit primitives)"; echo "$raw"; fail=1; fi
+  lit=$(grep -nE '^\s+[A-Za-z][A-Za-z ,.!?]*$' internal/web/screens/*.templ \
+    | grep -vE ':\s+(else|default|case|return|break|continue)$' || true)
+  if [ -n "$lit" ]; then echo "verify: literal text in screens (use the dictionary)"; echo "$lit"; fail=1; fi
+fi
+
 # Go and templ (once code exists)
 if [ -f go.mod ]; then
-  test -z "$(gofmt -l . | grep -v '_templ.go' || true)" || { echo "verify: gofmt"; gofmt -l .; fail=1; }
+  if command -v templ >/dev/null 2>&1; then
+    templ generate >/dev/null 2>&1
+    stale=$(git diff --name-only -- '*_templ.go' || true)
+    if [ -n "$stale" ]; then echo "verify: *_templ.go out of date (run make generate and commit)"; echo "$stale"; fail=1; fi
+  fi
+  unformatted=$(gofmt -l cmd internal ui/dict | grep -v '_templ.go' || true)
+  test -z "$unformatted" || { echo "verify: gofmt"; echo "$unformatted"; fail=1; }
   go vet ./... || fail=1
   go test -race -count=1 ./... || fail=1
 fi
