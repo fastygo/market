@@ -10,7 +10,7 @@
     "blockRoot": ["internal/web/screens/home.templ", "internal/web/screens/catalog.templ", "internal/web/screens/product.templ", "internal/web/screens/notice.templ"]
   },
   "scripts": {
-    "css": "tailwindcss -i ui/styles/app.src.css -o internal/web/static/app.css --minify"
+    "css": "make css"
   },
   "devDependencies": {
     "@tailwindcss/cli": "4.3.3",

@@ -32,6 +32,6 @@ Migrations (collections and a placeholder seed) apply on start.
 | Test | `make test` | Go 1.27 |
 | Gate before push | `make verify` | |
 
-Generated code is committed (`*_templ.go`, `internal/web/static/app.css`,
+Generated code is committed (`*_templ.go`, `internal/web/static/skins/*.css`,
 `ui/kit/`), so a clean clone builds with Go alone; regenerate with the
 commands above, never edit generated files (ADR-0014).

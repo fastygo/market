@@ -93,8 +93,19 @@ func (h *Handler) shell(ctx context.Context, title, current string) (screens.She
 	}
 	return screens.Shell{
 		Dict: h.Dict, Lang: h.Dict.Locale, Brand: sf.BrandName, Year: h.Now().Year(),
-		Title: title, Current: current, CSSHref: "/static/app.css", Categories: cats,
+		Title: title, Current: current, CSSHref: skinHref(sf.Skin), Categories: cats,
 	}, sf, nil
+}
+
+// skinHref is the compiled stylesheet of a storefront skin; unknown or
+// empty skins fall back to the neutral default.
+func skinHref(skin string) string {
+	if skin != "" {
+		if _, err := fs.Stat(Static(), "skins/"+skin+".css"); err == nil {
+			return "/static/skins/" + skin + ".css"
+		}
+	}
+	return "/static/skins/default.css"
 }
 
 func (h *Handler) render(w http.ResponseWriter, r *http.Request, status int, c templ.Component) {

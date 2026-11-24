@@ -1,0 +1,6 @@
+/* Build entry of the "default" skin (ADR-0018): skin first (it imports Tailwind), then the kit CSS.
+   Compiled off-server to internal/web/static/skins/default.css by make css. */
+@import "../skins/default.css";
+@import "../kit.css";
+@source "../../kit";
+@source "../../../internal/web/screens";

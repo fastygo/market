@@ -113,7 +113,9 @@ func TestPagesEndToEnd(t *testing.T) {
 		{"/products/aurora-theme", 200, `data-action="preview"`},
 		{"/products/aurora-theme/download", 501, "phase 1"},
 		{"/products/missing", 404, "Page not found."},
-		{"/static/app.css", 200, ""},
+		{"/static/skins/godudy.css", 200, "Istok Web"},
+		{"/", 200, `href="/static/skins/godudy.css"`},
+		{"/static/fonts/istok-web-400-latin.woff2", 200, ""},
 	}
 	for _, c := range cases {
 		rec := httptest.NewRecorder()

@@ -8,6 +8,7 @@ import "context"
 type Storefront struct {
 	Code          string
 	BrandName     string
+	Skin          string // UI8Kit skin of the storefront (ADR-0018), e.g. "godudy"
 	Currency      string
 	DefaultLocale string
 	CommerceMode  string

@@ -161,10 +161,11 @@ func (c *Catalog) Storefront(ctx context.Context, code string) (storefront.Store
 	}
 	brand := struct {
 		Name string `json:"name"`
+		Skin string `json:"skin"`
 	}{}
 	_ = rec.UnmarshalJSONField("brand", &brand)
 	return storefront.Storefront{
-		Code: rec.GetString("code"), BrandName: brand.Name, Currency: rec.GetString("currency"),
+		Code: rec.GetString("code"), BrandName: brand.Name, Skin: brand.Skin, Currency: rec.GetString("currency"),
 		DefaultLocale: rec.GetString("default_locale"), CommerceMode: rec.GetString("commerce_mode"),
 	}, nil
 }

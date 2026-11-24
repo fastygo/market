@@ -9,8 +9,10 @@ all: generate css build test
 generate:            ## templ -> *_templ.go (app screens and the installed kit, from the repo root)
 	$(TEMPL) generate
 
-css:                 ## Tailwind v4 -> internal/web/static/app.css (needs npm ci once)
-	npx --no-install tailwindcss -i ui/styles/app.src.css -o internal/web/static/app.css --minify
+SKINS ?= default godudy
+
+css:                 ## Tailwind v4: one stylesheet per skin -> internal/web/static/skins/<skin>.css (needs npm ci once)
+	for s in $(SKINS); do npx --no-install tailwindcss -i ui/styles/entries/$$s.css -o internal/web/static/skins/$$s.css --minify || exit 1; done
 
 ui8kit:              ## reinstall the pinned UI8Kit templ kit from the registry
 	scripts/ui8kit.sh
