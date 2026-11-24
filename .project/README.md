@@ -44,6 +44,9 @@ the repo.
 | [0022](adr/0022-moderation-releases-and-licensing.md) | Item submission, moderation queue, releases, licensing | Proposed |
 | [0023](adr/0023-referral-attribution-seam.md) | Referral attribution and affiliate commissions (seam only) | Proposed |
 | [0024](adr/0024-digital-refund-and-anti-abuse-policy.md) | Digital goods refund and anti-abuse policy behind a region `RefundPolicy`; evidence logs, watermark seam | Proposed |
+| [0025](adr/0025-yookassa-adapter.md) | YooKassa adapter: redirect one-stage payments, 54-FZ receipts, verified notifications, refunds | Accepted |
+| [0026](adr/0026-mail-transport.md) | Transactional mail over HTTP APIs (Unisender Go for RU), outbox retries, file mailer for dev | Accepted |
+| [0027](adr/0027-buyer-cabinet.md) | Buyer cabinet: magic link and password sign-in, cookie session, CSRF, SSR checkout | Accepted |
 
 ADR format: Status, Context, Decision, Consequences. Status values: Proposed,
 Accepted, Superseded. "Accepted" means the direction was confirmed by the
@@ -135,3 +138,9 @@ seam for a later affiliate partner site in ADR-0023; owner questions in
 ADR-0024: digital goods refund and anti-abuse policy (region
 `RefundPolicy`, RU defaults marked needs counsel), evidence logs for
 chargebacks, watermark seam; open questions C8 to C13.
+
+## Decision 2026-11-24 (owner t235u, t236u)
+
+ADR-0025 YooKassa adapter (live keys pending; fake gateway emulates the
+flow), ADR-0026 mail transport (Unisender Go recommended), ADR-0027 buyer
+cabinet and SSR checkout.

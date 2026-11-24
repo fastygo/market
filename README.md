@@ -49,8 +49,8 @@ window.
 
 ## Try the money path locally (fake gateway)
 
-Phase 1 ships no real payment provider. With `MARKET_FAKE_GATEWAY=1` the
-fake gateway plays the provider; downloads redirect to a locally signed URL
+With `MARKET_FAKE_GATEWAY=1` the fake gateway plays the provider (same
+redirect, return and webhook sequence as YooKassa); downloads redirect to a locally signed URL
 unless `MARKET_S3_*` is set (see `deploy/market.env.example`).
 
 ```sh
@@ -67,6 +67,33 @@ curl -H "Authorization: $TOKEN" $B/checkout/return/{order_id}                 # 
 curl -i -H "Authorization: $TOKEN" $B/products/aurora-theme/download          # 302 /dl/{token}
 curl -i $B/dl/{token}                                                         # 302 pre-signed URL
 ```
+
+### In the browser
+
+Open `/products/aurora-theme`, enter an email in the buy form and accept the
+terms: the fake payment page opens, "Pay" returns to
+`/checkout/return/{order}`. The purchase mail (with a cabinet magic link)
+lands in `pb_data/mail/*.eml` unless a mail provider is configured
+(ADR-0026). The cabinet lives at `/account` (orders, downloads, sign out).
+Set `MARKET_SESSION_SECRET` and `MARKET_PUBLIC_URL` for stable links.
+
+## YooKassa (ADR-0025)
+
+1. In the YooKassa personal account choose "Add store" and create a test
+   store.
+2. Integration, API keys: issue a secret key. Put the shop id and the key
+   into `MARKET_YOOKASSA_SHOP_ID` and `MARKET_YOOKASSA_SECRET_KEY` (env or
+   secrets file, never the command line).
+3. Integration, HTTP notifications: URL
+   `https://<public host>/hooks/pay/yookassa`, events `payment.succeeded`,
+   `payment.canceled`, `refund.succeeded`.
+4. Settings, Online cash register: enable the receipt test mode, or run with
+   `MARKET_YOOKASSA_RECEIPTS=0`.
+5. Set `MARKET_PUBLIC_URL`; behind a proxy or tunnel also
+   `MARKET_CLIENT_IP_HEADER=X-Forwarded-For`. Test card
+   5555 5555 5555 4477 (any future date, any CVC).
+
+Going live changes only the shop id and the secret key.
 
 ## Develop
 

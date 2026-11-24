@@ -166,3 +166,8 @@ P1-1 (Stripe/PayPal moved to a phase 4 note), P1-2 (`refunds.provider`),
 P1-3 (auto-refund branch for paid-but-uncompletable), mapping item 10
 trimmed (no per-order lock), mapping item 2 deferred (no `requires_more`
 status; adapter-level event enum only).
+
+## Note 2026-11-24
+
+First real adapter: YooKassa (ADR-0025). Purchase mail is sent from the
+outbox through the mail port (ADR-0026).
