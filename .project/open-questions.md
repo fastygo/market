@@ -98,16 +98,28 @@ before phase 3.
 2. ANSWERED 2026-11-24 (owner t237u): no exclusivity; one common
    non-exclusive license, sellers may sell anywhere (as on Envato after its
    recent update).
-3. Hold period in days before earnings become payable (trade-off: refund
-   window and card chargeback risk vs. author cash flow); optional rolling
-   reserve for risky sellers.
+3. ANSWERED 2026-11-24 (owner t238u, as on Envato Market): no separate
+   hold period or reserve by default; earnings stay on the seller balance
+   until paid out, a month's earnings become payable on a fixed close day
+   (default 8th), payout once the balance reaches the minimum; refunds and
+   chargebacks after a payout make the balance negative and are netted
+   against future earnings (ADR-0021). `hold_days` stays a seam at 0; the
+   rolling reserve stays optional and off.
 4. PARTLY ANSWERED 2026-11-24 (owner t237u): payouts are monthly. Still
-   open: minimum amount, payout methods (bank transfer, card, wallet), and
-   whether two operators must approve.
-5. Who pays the acquiring fee and the chargeback fee: platform out of its
-   commission, or the seller.
-6. On a refund, does the platform return its commission together with the
-   sale (default) or keep it as a non-refundable fee?
+   open: the final minimum amount per currency (placeholder 5000 RUB,
+   owner-tunable; Envato uses USD 50), payout methods (bank transfer,
+   card, wallet), and whether two operators must approve.
+5. ANSWERED 2026-11-24 (owner t238u, as on Envato Market): the seller
+   bears refunds, chargebacks, payment agent fees on them and unauthorised
+   transactions on its items (deducted from the balance); payout fees
+   default to the seller (config); the ordinary acquiring fee of a sale is
+   covered by the platform's 50% author fee. Buyer fee and handling fee
+   exist as config, default 0 (see E14).
+6. ANSWERED 2026-11-24 (owner t238u, as on Envato Market): a refund by the
+   seller or under the refund rules reverses the whole sale, commission
+   included (buyer fee and handling fee reversed with a correction
+   document); a goodwill refund at the platform's discretion is a platform
+   expense and does not touch the seller balance.
 7. PARTLY ANSWERED 2026-11-24 (owner t237u): all seller forms are accepted
    (LLC, sole proprietor, self-employed). Still open, needs counsel: agency
    (operator sells as agent, 54-FZ agent receipts, monthly agent reports)
@@ -134,6 +146,12 @@ before phase 3.
     (ADR-0005 invariant, plan phase 1 step 11). Needs counsel: whether an
     agent receipt must show the supplier's real name and tax id, and what
     that means for the pseudonym.
+14. Buyer fee (owner, after t238u): Envato adds a fixed buyer fee per
+    category on top of the item price (list price = item price + buyer
+    fee) and sometimes a handling fee per order. Both are modelled as
+    config, default 0. Do we charge a buyer fee (and how much per
+    category), and a handling fee per order? If yes, counsel confirms how
+    it appears on the receipt and in the offer.
 
 ## F. Affiliate program (ADR-0023, seam only)
 

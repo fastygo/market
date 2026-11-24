@@ -115,9 +115,13 @@ module. Owner answers needed first: `open-questions.md` E (and C2, C3).
 3a. Money base: `commission_rules`, `price_rules`, order item snapshots
     (`commission_bps`, `earnings_minor`, `hold_until`), accounts
     `seller_pending`/`seller_available` (rename of `seller_payable`),
-    release cron, refund and dispute attribution, negative balance rule;
-    ledger tests with odd amounts, hold boundaries, refund before and after
-    release, lost dispute after release.
+    monthly earnings close cron (`earnings_close_day`, `hold_days` 0),
+    refund and dispute attribution (`bearer` seller or platform goodwill),
+    seller-borne agent fees, optional buyer fee and handling fee (default
+    0), payout minimum and payout fee payer, negative balance rule; ledger
+    tests with odd amounts, close-day boundaries, refund before and after
+    close and after payout (negative balance), goodwill refund leaving the
+    seller balance untouched, lost dispute after release.
 3b. Seller lifecycle: applications, KYC-lite documents (private storage),
     region verification module (RU registry and self-employed checks behind
     a port), approval, suspension, closure, audit; 289-FZ notice and appeal
@@ -325,3 +329,14 @@ Plan consequences:
   self-employed receipts per counsel) moves into phase 1 before the launch
   (ADR-0005 invariant, step 11 above).
 - Phase 2 step 0 adds `purchase_restrictions` and the checkout check.
+
+## Decisions 2026-11-24 (owner t238u)
+
+"As on Envato Market" for E3, E5, E6 (ADR-0021): no hold by default,
+monthly close on the 8th and payout above a per-currency minimum (RUB
+placeholder 5000), seller bears refunds, chargebacks and their agent fees
+and payout fees by default, full sale reversal on a seller-borne refund,
+goodwill refunds as platform expense, optional buyer fee and handling fee
+(default 0, owner question E14). Affiliate commissions stay in the
+platform share. Plan consequence: phase 3a scope above; the minimal
+marketplace part for GoDudY at go-live uses the same rules.

@@ -40,7 +40,7 @@ the repo.
 | [0018](adr/0018-i18n-and-white-label.md) | Locale modules and white-label branding | Proposed |
 | [0019](adr/0019-product-types-as-modules.md) | Product types as modules; plain product page by default | Accepted |
 | [0020](adr/0020-vendor-model.md) | Vendor model (Envato style): seller lifecycle, profiles, portfolio, discovery; brand as config | Proposed |
-| [0021](adr/0021-seller-earnings-and-payouts.md) | Commission, seller earnings ledger, hold period, refunds and disputes, payouts | Proposed |
+| [0021](adr/0021-seller-earnings-and-payouts.md) | Commission, seller earnings ledger, monthly earnings close, refunds, disputes and deductions, payouts | Proposed |
 | [0022](adr/0022-moderation-releases-and-licensing.md) | Item submission, moderation queue, releases, licensing | Proposed |
 | [0023](adr/0023-referral-attribution-seam.md) | Referral attribution and affiliate commissions (seam only) | Proposed |
 | [0024](adr/0024-digital-refund-and-anti-abuse-policy.md) | Digital goods refund and anti-abuse policy behind a region `RefundPolicy`; evidence logs, watermark seam | Proposed |
