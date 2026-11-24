@@ -81,3 +81,10 @@ documents, INN/OGRN/KPP rules, checkout fields) ship as the plugin module
 `modules/region-ru`; 54-FZ issuing calls and the provider adapter are Go
 modules. Russian texts are the `locale-ru` module (ADR-0018). 289-FZ duties
 apply only in `marketplace` mode with third-party sellers.
+
+## Review r2 2026-11-24 (BalunMY)
+
+Phase 1 packaging: the RU rules are the Go module `internal/region/ru`
+(dated VAT table, receipt field mapping, consent docs, INN/OGRN/KPP rules,
+checkout fields) with table tests; the `modules/region-ru` plugin form comes
+with the ADR-0017 later phase and must pass the same test vectors.

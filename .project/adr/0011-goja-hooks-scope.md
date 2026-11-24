@@ -48,3 +48,9 @@ per-call timeout (default 50 ms), input/output size caps, pure functions with
 `now` passed in, output validated by Go against the capability schema,
 contract tests in `go test` and at start-up. Neither runtime writes money
 collections, calls providers or reads secrets.
+
+## Review r2 2026-11-24 (BalunMY)
+
+Phase 0-1 has only the PocketBase `pb_hooks` runtime (glue). The engine
+policy sandbox is deferred until its trigger (ADR-0017); when built, it runs
+outside write transactions and never on the money-apply path.

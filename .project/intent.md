@@ -45,5 +45,5 @@ UI by UI8Kit rules and contracts (`ui8kit/contract`).
 On the RU deployment a buyer finds a product, pays, gets the tax document the
 region requires (fiscal receipt in RU) by email, sees the purchase in the
 account and downloads the file, on production, with the SLOs in `slo.md`
-measured. The EU pack exists as a described stub with compile-time
-interfaces satisfied.
+measured. The region interfaces are satisfied at compile time by a fake
+region in tests (no shipped EU pack before an EU deployment is planned).

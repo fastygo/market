@@ -91,3 +91,14 @@ plus Go modules for providers and document issuing. `internal/region/*`
 becomes `modules/region-*` (plugins) and provider adapters under
 `internal/payments/*`. Commerce mode (single store or marketplace) is
 orthogonal to the region (ADR-0017).
+
+## Review r2 2026-11-24 (BalunMY)
+
+- Phase 1 ships `region-ru` as a Go module (`internal/region/ru`) behind the
+  same interfaces; the plugin form is the later phase of ADR-0017.
+- `TaxPolicy` is batch: `ResolveLines(ctx, items, context) ([]TaxLine,
+  error)` (declared by `ordering`), even for one buy-now line.
+- `storefronts.countries` added (where the storefront sells), used by
+  `TaxPolicy` and `ConsentPolicy`.
+- The EU pack is a compile-time fake in tests only; no `region-eu` package
+  ships before an EU deployment is planned.

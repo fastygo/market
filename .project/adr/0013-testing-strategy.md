@@ -70,3 +70,14 @@ Added region conformance and hygiene checks; tax documents replace receipts.
 - Manifest tests: version ranges, capability cardinality, load-order cycles.
 - Mode tests: the money-path suite runs in `single_store` and `marketplace`
   modes; switching modes needs no migration.
+
+## Review r2 2026-11-24 (BalunMY)
+
+- Rule zero test: a fake gateway that blocks asserts no write transaction is
+  open during provider calls (the Tx helper exposes an "in tx" flag).
+- Auto-refund test: provider `succeeded`, order not completable ->
+  `refund_pending` -> full refund through the operator refund path.
+- Sale model invariant test: `agent` seller rejected in `single_store`.
+- RU tax table vectors (`internal/region/ru`) are the future contract tests
+  for the goja plugin form.
+- Plugin sandbox tests move to the ADR-0017 later phase.

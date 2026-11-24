@@ -1,7 +1,7 @@
 # ADR-0004: Domain model and data structures
 
-- Status: Proposed (revised 2026-11-24: review, then region-neutral core;
-  no longer blocked)
+- Status: Proposed (revised 2026-11-24: review r1, region-neutral core,
+  review r2: data structures agreed for phase 1)
 
 ## Context
 
@@ -28,13 +28,22 @@ Bounded contexts, one Go package each:
 
 Key choices:
 
+0. Money source of truth: `ledger_entries` plus the `Transition` that wrote
+   them. Amounts and statuses on `orders`, `order_items`, `payments` are
+   snapshots written in the same transaction as the transition. There is no
+   `payment_collections`, `order_transactions` or other rollup aggregate;
+   "how much was paid or refunded" is a query over `payments`, `refunds` or
+   the ledger, never a separately stored number.
 1. Offer is the SKU: `(product, license_type, currency) -> price_minor,
-   tax_category, support_months`. Rates are not stored on offers; the region
-   `TaxPolicy` resolves them at checkout and the line snapshots the result.
+   tax_category, support_months`. The price lives on the offer (no `prices`
+   table); a second currency is a second offer. Rates are not stored on
+   offers; the region `TaxPolicy` resolves them at checkout (batch
+   `ResolveLines`) and the line snapshots the result in its `tax_*` columns
+   (one tax per line; no `order_item_tax_lines` table).
 2. Order items snapshot everything needed later: title, unit price, unit
    discount, line amount, tax category, rate, mode, code and amount,
-   currency, seller, sale model, commission,
-   `support_months`, `license_terms_version`. Orders never read live offers
+   currency, seller, sale model, commission, `support_months`,
+   `license_terms_version`, `product_slug`, `license_title`. Orders never read live offers
    after creation. `snapshot_digest` = Codex JCS sha256 of the snapshot.
 3. Money invariants (ADR-0006): one currency per order; inclusive
    `total = subtotal - discount = sum(line)`, exclusive adds line tax;
@@ -104,3 +113,23 @@ Removed RUB, VAT 22% and RU field names from the core model; added
 `storefront` and operator data; tax as resolved line data; `fiscal`
 renamed `taxdocs` (receipts, invoices); sale model as seller data with both
 models implemented. No longer blocked on the GoDudY sale model (ADR-0015).
+
+## Review r2 2026-11-24 (BalunMY)
+
+Data structures for phase 1 agreed with the reviewer:
+
+- P0-B: ledger + `Transition` are the single money SoT; Medusa-style
+  `payment_collections` and `order_transactions` rejected.
+- Mapping decisions (`../reference/medusa-mapping.md`): `prices` rejected
+  until a consumer; `order_changes`/`order_summaries` rejected (order
+  versioning only when post-payment order edits exist); tax lines as rows
+  trimmed to a batch `ResolveLines` with columns on the line; `translations`
+  rejected as a second contour (Codex per-locale records + `ui_messages`);
+  line snapshot trimmed to `product_slug` and `license_title`; refund reason
+  as a typed code + note, not a collection; storefront gets `countries`
+  only.
+- Not added in phase 1: `payment_collections`, `order_changes`,
+  `order_change_actions`, `order_summaries`, `order_transactions`, `prices`,
+  `product_storefronts`, `translations`, `order_item_tax_lines`,
+  `refund_reasons`, `api_keys`. Business keys used for lookup or dedupe are
+  real columns, never fields inside json.

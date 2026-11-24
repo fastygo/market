@@ -92,3 +92,18 @@ implemented, so the posting scheme is no longer blocked.
 In `single_store` mode every line is `principal`, so only the principal
 posting rule runs; `agent` postings, commission and `seller_payable` are
 active only with the `marketplace` module.
+
+## Review r2 2026-11-24 (BalunMY)
+
+- P0-B: `ledger_entries` + `Transition` are the single money SoT; order and
+  payment amounts are snapshots in the same tx; no rollup aggregates.
+- Indexes: `(txn_id, account)` unique, `(account, currency, created)`,
+  `(seller, currency, created)`, `(ref_type, ref_id)`.
+- Balances are never computed per page request or per SSR render. They are
+  computed on demand (payout, report, reconciliation) with the indexes
+  above. If that becomes slow, add a derived `ledger_balances` cache
+  (account, currency, through_entry_id, amount) updated in the same tx as
+  new entries or rebuilt from entries; it is a projection, never SoT, and
+  is not built in phase 1.
+- P0-8 note: posting rules for both sale models stay in code and tests; in
+  `single_store` only the principal rule runs (ADR-0005 invariant).

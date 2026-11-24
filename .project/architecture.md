@@ -13,7 +13,7 @@ store or as a multi-vendor marketplace (commerce mode).
 | Commerce modules (product, cart, order, payment, tax, region...) | core bounded contexts (`catalog`, `ordering`, `payments`, `taxdocs`, `licensing`, `ledger`, `trust`, `storefront`) | Go packages in one binary, not separately deployable |
 | Region (countries, currency, tax, payment providers) | storefront `region` + `currency` + region plugin module + enabled providers | one region per deployment for data residency |
 | Sales channel | storefront (hosts, brand, currency, modules); offers per currency | phase 1: one storefront per instance |
-| Payment / tax / notification providers | Go modules (`Gateway` adapters, document issuers) and plugin modules (`tax.rules`) | money-critical code only in Go |
+| Payment / tax / notification providers | Go modules (`Gateway` adapters, document issuers) and region policy Go modules (phase 1); goja policy plugins later (ADR-0017) | money-critical code only in Go |
 | Workflows with compensation | use cases in `ordering` + inbox/outbox + reconciliation | no workflow engine; explicit state machines |
 | Module links | denormalized `seller` and references in PocketBase collections | one SQLite database |
 | Marketplace recipe | native `seller` column + `marketplace` module | same schema for single store and marketplace |
@@ -33,9 +33,9 @@ ADR-0016).
  browser ── HTTPS ── reverse proxy (Caddy) ── market binary
                                               ├─ web (templ SSR, handlers, view models -> Codex records)
                                               ├─ core domain: storefront, sellers, catalog, ordering, payments, taxdocs, licensing, ledger, trust
-                                              ├─ modules: registry + manifests; Go modules (payment adapters, document issuers, marketplace);
-                                              │   goja policy plugins (region-ru, region-eu stub, locale formats) in a sandbox
-                                              ├─ policy adapters: TaxPolicy, DocumentIssuer, ConsentPolicy, LegalProfile (Go, validate plugin output)
+                                              ├─ modules: registry; Go modules: payment adapter (one RU provider), document issuing,
+                                              │   region policy `internal/region/ru` (TaxPolicy, DocumentIssuer mapping, ConsentPolicy, LegalProfile);
+                                              │   later: goja policy plugins in a sandbox (ADR-0017 trigger), marketplace module (phase 3)
                                               ├─ platform (Tx, Clock, IDs, Outbox, Audit, money, authz)
                                               ├─ platform/pb (PocketBase adapters; repositories implement domain-declared interfaces)
                                               ├─ PocketBase core (collections, auth, files, admin UI, cron)
@@ -83,10 +83,10 @@ seller-relevant row so scoping never needs a join (ADR-0005).
 
 | Collection | Key fields | Unique / invariants |
 | --- | --- | --- |
-| `storefronts` | code, hosts, commerce_mode (`single_store`,`marketplace`), region (`ru`,`eu`,...), currency, default_locale, locales, tax_display (`inclusive`,`exclusive`), operator, modules (json: module id -> config), enabled_providers (json: method -> provider), brand (name, logo, favicon, skin, token overrides, email sender name), legal_docs (relations to pages), order_number_prefix | code; one row in phase 1 |
+| `storefronts` | code, hosts, commerce_mode (`single_store`,`marketplace`), region (`ru`,`eu`,...), countries (ISO 3166 list where it sells), currency, default_locale, locales, tax_display (`inclusive`,`exclusive`), operator, modules (json: module id -> config), enabled_providers (json: method -> provider), brand (name, logo, favicon, skin, token overrides, email sender name), legal_docs (relations to pages), order_number_prefix | code; one row in phase 1 |
 | `operators` | legal_name, country, legal_ids (json, e.g. `{"inn":...}` or `{"vat_id":...}`), address, support_email, tax_registered (bool), tax_registrations (json) | entered in admin only; validated by the region `LegalProfile`; never seeded with real data |
 | `users` (auth) | email, name, locale, `pd_consent_version`, `marketing_opt_in` | API: self update of profile fields only |
-| `sellers` | slug, display_name, is_operator (bool), country, legal_name, legal_ids (json), tax_profile (json, region-defined, e.g. `{"regime":"usn"}`), sale_model (`principal`,`agent`), commission_bps, status (`draft`,`pending_review`,`active`,`suspended`), contract_version | slug unique; cannot become `active` without sale_model and the legal data the region `LegalProfile` requires |
+| `sellers` | slug, display_name, is_operator (bool), country, legal_name, legal_ids (json), tax_profile (json, region-defined, e.g. `{"regime":"usn"}`), sale_model (`principal`,`agent`), commission_bps, status (`draft`,`pending_review`,`active`,`suspended`), contract_version | slug unique; cannot become `active` without sale_model and the legal data the region `LegalProfile` requires; invariant: `sale_model = agent` only when the storefront runs `marketplace` (Go hook) |
 | `seller_members` | seller, user, role (`owner`,`editor`,`support`) | (seller, user) |
 | `consents` | user or email, document (code from the region `ConsentPolicy`, e.g. `terms`, `privacy`, `marketing`, `seller_contract`), version, accepted_at, ip_hash | |
 
@@ -120,10 +120,10 @@ name with placeholder legal data; real data is entered in admin.
 | Collection | Key fields | Unique / invariants |
 | --- | --- | --- |
 | `orders` | number (storefront prefix from config, e.g. `M-2026-000123`), buyer (user, required), buyer_email (snapshot), status, currency, storefront, region, subtotal_minor, discount_minor, tax_minor, total_minor, tax_display, buyer_country (evidence, if the region needs it), idempotency_key, terms_version, snapshot_digest, paid_at, cancelled_at, cancel_reason (`timeout_requested`,`provider_canceled`,`buyer`,`operator`) | number; idempotency_key; money invariants below |
-| `order_items` | order, seller, product, offer, license_type, title_snapshot, unit_price_minor, unit_discount_minor (0 in phase 1), qty (1), line_minor, tax_category, tax_rate_bp, tax_mode (`inclusive`,`exclusive`,`exempt`,`reverse_charge`,`none`), tax_code (region code for documents), tax_minor, sale_model, support_months, license_terms_version, currency, commission_minor, agent_info (json: seller legal snapshot for agent documents) | (order, offer) in phase 1; qty >= 1; never recomputed from live offers |
+| `order_items` | order, seller, product, offer, license_type, title_snapshot, product_slug, license_title, unit_price_minor, unit_discount_minor (0 in phase 1), qty (1), line_minor, tax_category, tax_rate_bp, tax_mode (`inclusive`,`exclusive`,`exempt`,`reverse_charge`,`none`), tax_code (region code for documents), tax_minor, sale_model, support_months, license_terms_version, currency, commission_minor, agent_info (json: seller legal snapshot for agent documents) | (order, offer) in phase 1; qty >= 1; never recomputed from live offers |
 | `payments` | order, seller (single-seller order), provider, method (provider-neutral code from config, e.g. `card`, `sbp`, `paypal`, `wallet`), provider_payment_id, status, amount_minor, idempotency_key, confirmation_url, status_version, next_reconcile_at, raw (redacted) | idempotency_key; (provider, provider_payment_id) when set; at most one `succeeded` per order |
 | `payment_events` (inbox) | provider, event_id, type, payload, verified, status (`received`,`processing`,`processed`,`ignored`,`dead`), locked_until, attempts, received_at, processed_at, error | (provider, event_id) |
-| `refunds` | payment, seller, amount_minor, reason, idempotency_key, provider_refund_id, status (`pending`,`succeeded`,`failed`), requested_by | idempotency_key; (provider, provider_refund_id) when set; phase 1: amount = payment amount (full only) |
+| `refunds` | payment, seller, amount_minor, provider, reason_code (`buyer_request`,`not_completable`,`dispute_lost`,`operator`), note, idempotency_key, provider_refund_id, status (`pending`,`succeeded`,`failed`), requested_by | idempotency_key; (provider, provider_refund_id) when set; phase 1: amount = payment amount (full only) |
 | `tax_documents` | payment xor refund, seller, region, kind (`receipt`,`receipt_return`,`invoice`,`credit_note`), issuer (region pack + provider), external_id, number, status (`pending`,`issued`,`failed`,`not_required`), lines (json, after discount allocation), attrs (json, region-specific: e.g. RU fiscal fn/fd/fpd, EU invoice number), attempts, last_error, issued_at | (issuer, external_id) when set; at most one live document per payment and per refund for each kind. Single source of truth for document state. Rows exist only if the region `DocumentIssuer` requires them (`not_required` otherwise) |
 
 ### Fulfilment and trust
@@ -145,7 +145,20 @@ name with placeholder legal data; real data is entered in admin.
 
 Indexes (in migrations): orders(buyer, status), payments(status,
 next_reconcile_at), payment_events(status, locked_until),
-outbox(status, next_attempt_at), entitlements(user), every `seller` column.
+outbox(status, next_attempt_at), entitlements(user), every `seller` column;
+ledger_entries (txn_id, account) unique, (account, currency, created),
+(seller, currency, created), (ref_type, ref_id). Balances are computed on
+demand (payout, report, reconciliation), never per page request.
+
+Money source of truth (review r2 P0-B): `ledger_entries` plus the
+`Transition` that wrote them. Amounts and statuses on orders, items and
+payments are snapshots written in the same transaction. No rollup tables
+(`payment_collections`, `order_transactions`); paid/refunded totals are
+queries.
+
+SQLite write discipline (ADR-0001, ADR-0007 rule zero): `BEGIN IMMEDIATE`,
+explicit `busy_timeout`, short transactions, no network or goja inside a
+write transaction; claim, call and apply are separate steps.
 
 ### Money invariants (ADR-0006, ADR-0015)
 
@@ -168,12 +181,14 @@ outbox(status, next_attempt_at), entitlements(user), every `seller` column.
 
 ## Modules, region packs and configuration (ADR-0015 to ADR-0018)
 
-Interfaces are declared by the consuming core package; Go policy adapters
-implement them by calling the region plugin module and validating its data:
+Interfaces are declared by the consuming core package. Phase 1 implements
+them in the Go module `internal/region/ru`; the goja plugin form is a later
+phase with the same contract (ADR-0017). The EU column is a design target
+only (compile-time fake in tests, phase 4):
 
-| Interface | Declared in | RU (`modules/region-ru` plugin + RU Go provider module) | EU (`modules/region-eu` stub + Stripe/PayPal Go modules) |
+| Interface | Declared in | RU (phase 1: Go module `internal/region/ru` + one RU provider module) | EU (phase 4 target: EU policy + Stripe/PayPal modules) |
 | --- | --- | --- | --- |
-| `TaxPolicy` | `ordering` | VAT 22% inclusive, `software_exempt` 0% (registry software), `none` for non-VAT operators/sellers | VAT by buyer country (OSS), evidence of country, reverse charge for valid VAT ids (later) |
+| `TaxPolicy` (batch `ResolveLines`) | `ordering` | VAT 22% inclusive, `software_exempt` 0% (registry software), `none` for non-VAT operators/sellers | VAT by buyer country (OSS), evidence of country, reverse charge for valid VAT ids (later) |
 | `DocumentIssuer` | `taxdocs` | 54-FZ receipts through the provider cloud register; agent attributes for `agent` lines | invoices and credit notes with sequential numbering (own generator or provider invoicing) |
 | `ConsentPolicy` | `web` / `sellers` | 152-FZ consent documents and versions | GDPR: terms, privacy, marketing opt-in, cookie consent; export and erasure requests |
 | `LegalProfile` | `storefront` / `sellers` | INN/OGRN/KPP format and checksum, required fields, operator footer data | VAT id, company number, address requirements |
@@ -183,8 +198,9 @@ Payment adapters implement `payments.Gateway` and are enabled per storefront
 Adapters that can carry a tax document inside the payment (RU cloud
 registers) also implement the optional `payments.InlineDocumentGateway`.
 
-Plugins never write collections, call providers or see secrets; they run
-in the engine sandbox with timeouts and return data (ADR-0011, ADR-0017).
+When the plugin runtime exists, plugins never write collections, call
+providers or see secrets, and run outside write transactions with timeouts
+(ADR-0011, ADR-0017).
 Locales are modules: `en` in core, `ru` as `locale-ru` with strings in the
 database (ADR-0018). Brand is storefront config plus a UI8Kit skin.
 
@@ -204,7 +220,8 @@ Order:
 
 ```text
 pending -> awaiting_payment -> paid -> fulfilled
-                |   ^            |-> refunded            (full refund, phase 1)
+                |   ^    |       |-> refunded            (full refund, phase 1)
+                |   |    '-> refund_pending -> refunded  (provider succeeded but order not completable: auto full refund)
                 |   | late       |-> disputed -> refunded | paid (dispute won)
                 v   | succeeded
          cancelled -'  (only after the provider confirms cancel; a later
@@ -249,14 +266,15 @@ Effects split in two classes (ADR-0007):
   4. redirect. A retry with the same key reuses the order: `awaiting_payment`
      -> repeat 2-3 (the provider returns the same payment); `paid` -> show
      the order; never a second order or payment.
-- Return (`GET /checkout/return/{order}`): `FetchPayment` -> `Transition`
-  (same path as the inbox worker); query parameters are ignored.
+- Return (`GET /checkout/return/{order}`): `FetchPayment` (no tx) -> apply
+  tx with `Transition` (same path as the inbox worker); query parameters are
+  ignored.
 - Webhook (`POST /hooks/pay/{provider}`): verify -> one insert into
   `payment_events` -> 2xx; unique conflict = already accepted, 2xx.
-- Inbox worker (one per process): claim `received` rows (-> `processing`,
-  `locked_until`), `FetchPayment`, apply `Transition` and in-tx effects,
-  mark `processed`; expired locks return to `received`; after N attempts ->
-  `dead` + alert.
+- Inbox worker (one per process), three steps: claim tx (`received` ->
+  `processing`, `locked_until`, commit); `FetchPayment` outside any tx;
+  apply tx (`Transition`, in-tx effects, `processed`, commit). Expired locks
+  return to `received`; after N attempts -> `dead` + alert.
 - Outbox worker (one per process): same claim/lease protocol, external
   effects only, keyed by `idempotency_key`.
 - Timeout (cron): `awaiting_payment` older than 30 min -> outbox
@@ -269,8 +287,12 @@ Effects split in two classes (ADR-0007):
      the in-tx effects (idempotent);
   4. tax documents not `issued`/`not_required` -> `DocumentIssuer.Fetch`,
      then retry `Issue` via outbox, up to the attempt cap, then page alert
-     and operator task.
-- Refund (operator command, phase 1 full only): row `refunds` `pending` ->
+     and operator task;
+  5. provider `succeeded` but the order cannot be completed (offer removed,
+     invariant fails, amount mismatch) -> order `refund_pending` -> the same
+     full-refund command as the operator refund, plus an alert.
+- Refund (operator command or auto-refund, phase 1 full only): tx: row
+  `refunds` `pending` (provider, key, reason code, note), commit ->
   `Gateway.Refund` with its key -> on confirmation one tx: payment/order
   `refunded`, ledger reversal, entitlement `refunded`, return tax document
   (`receipt_return` or `credit_note`) `pending` + outbox issue, if the region

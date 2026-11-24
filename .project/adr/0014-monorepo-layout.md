@@ -16,13 +16,11 @@ internal/payments/       Gateway port, registry, payment transitions, webhook ve
 internal/payments/yookassa/ | tbank/ | cloudpayments/ | robokassa/
 internal/storefront/     storefront and operator config, LegalProfile consumer
 internal/taxdocs/        tax document DTO (receipt, invoice, credit note), pure builder, status machine (imports no domain package)
-internal/modules/        module registry, manifests, load order, config validation, goja plugin sandbox
-internal/policy/         Go adapters TaxPolicy, DocumentIssuer, ConsentPolicy, LegalProfile that call plugins and validate
+internal/modules/        module registry (Go modules by name, manifest struct, config validation); goja sandbox later (ADR-0017)
+internal/region/ru/      phase 1 RU policy Go module: TaxPolicy, DocumentIssuer mapping, ConsentPolicy, LegalProfile
 internal/marketplace/    marketplace module: onboarding, commission, seller_payable, payouts, seller portal
-modules/region-ru/       plugin module: tax table, receipt mapping, consent docs, legal id rules, checkout fields
-modules/region-eu/       plugin module stub: VAT/OSS, invoice mapping, GDPR docs, VAT id rules
-modules/locale-ru/       locale module manifest (dictionary in DB unless owner allows it here, ADR-0018)
-internal/payments/stripe/ | paypal/   EU adapters (later)
+modules/                 later: goja policy plugin modules (region-ru plugin form, others) and locale module manifests
+(Stripe and PayPal adapters only in phase 4, ADR-0007 note)
 internal/licensing/      entitlements, purchase codes, download tokens
 internal/ledger/         entries, deterministic txn ids, posting rules
 internal/trust/          reviews (phase 2)
@@ -70,3 +68,9 @@ and PayPal adapter slots; `scripts/verify.sh` exists with hygiene checks.
 `internal/region/*` replaced by plugin modules under `modules/` and
 `internal/policy` adapters; added `internal/modules` and
 `internal/marketplace`.
+
+## Review r2 2026-11-24 (BalunMY)
+
+Phase 1 layout: `internal/region/ru` Go module instead of a plugin;
+`modules/` and the sandbox come with the ADR-0017 later phase; no EU or
+Stripe/PayPal packages before phase 4.

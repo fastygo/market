@@ -89,3 +89,22 @@ store and marketplace as a mode. Changes:
   `scripts/verify.sh`.
 - Blockers removed from ADR-0004/0006/0008: the GoDudY sale model and legal
   data are go-live configuration; `open-questions.md` reclassified.
+
+## Review r2 2026-11-24 (BalunMY): data structures agreed
+
+- Medusa proposals decided item by item (`reference/medusa-mapping.md`
+  decision table): 1, 3 rejected; 2, 5, 11 deferred; 6, 8 rejected until a
+  consumer; 4, 7, 9, 10 trimmed. No Medusa-style tables in phase 1.
+- P0-A: no network or goja inside a write transaction; claim, provider call
+  and apply are separate transactions; `BEGIN IMMEDIATE`, explicit
+  `busy_timeout` (ADR-0001, ADR-0007).
+- P0-B: `ledger_entries` + `Transition` are the single money SoT; order and
+  payment amounts are same-tx snapshots (ADR-0004, ADR-0006).
+- P0-C: phase 0-1 region policy is the Go module `internal/region/ru` behind
+  the same interfaces; the goja policy plugin runtime stays the planned
+  later phase, triggered by a second region, policy changes without a
+  release, or the owner (ADR-0017; owner decision A3).
+- P1: Stripe/PayPal as a phase 4 note in ADR-0007; `refunds.provider`,
+  `reason_code`, `note`; auto-refund of paid-but-uncompletable orders;
+  `agent` sellers rejected in `single_store`; ledger indexes and on-demand
+  balances; `storefronts.countries`; line `product_slug`, `license_title`.

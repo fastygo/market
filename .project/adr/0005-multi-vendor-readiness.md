@@ -56,3 +56,15 @@ sale model is admin data, not a blocker.
 The engine runs as `single_store` (implicit operator seller, principal only,
 no onboarding or payouts) or `marketplace` (module enabled). The `seller`
 column and scoping rules are identical in both modes.
+
+## Review r2 2026-11-24 (BalunMY)
+
+- Commerce mode and sale model are both admin data, with an enforced
+  invariant: in `single_store` every seller is `principal`; a seller cannot
+  be saved or activated as `agent` unless the storefront runs
+  `marketplace` (Go hook + domain check, test in ADR-0013).
+- Consequently, if the legal answer for GoDudY is "agent", the RU go-live
+  cannot be `single_store`: the minimal marketplace part (agent sale model,
+  agent tax documents, `seller_payable`) moves into phase 1 (plan go-live
+  checklist).
+- `marketplace` routes and modules are not registered in phase 1.

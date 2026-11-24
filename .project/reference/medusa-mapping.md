@@ -4,7 +4,7 @@ Reference: Medusa `v2.23.0` (`6369161`), summary in `medusa/` (MIT, see
 `medusa/README.md`). Our model: `../architecture.md`, ADR-0004. Codex
 (WordPress-shaped) stays the content contract (pages, posts, menus,
 settings, taxonomies); Medusa is the reference for commerce structures and
-contracts. This page proposes changes; the ADRs are not rewritten yet.
+contracts. Proposals were decided in review r2 (see the decision table at the end).
 
 Verdicts: **same** (we already have it), **rename/align** (adopt Medusa
 naming or shape), **add** (new collection or fields proposed), **later**
@@ -68,8 +68,8 @@ naming or shape), **add** (new collection or fields proposed), **later**
    `failed`, `pending`, `requires_more`, `canceled`, `not_supported`, `pending_authorization`. Our
    `Gateway` maps as: CreatePayment = initiate (+ authorize and capture in one
    step), FetchPayment = getPaymentStatus/retrievePayment, CancelPayment,
-   Refund, ParseWebhook = getWebhookActionAndData. Adopt the action enum as our
-   normalized webhook event type, and `requires_more` as a status.
+   Refund, ParseWebhook = getWebhookActionAndData. Decision r2: the enum may
+   be used inside adapters only; no `requires_more` status (deferred).
 2. **Payment collection rollups.** `authorized_amount`, `captured_amount`,
    `refunded_amount` and collection status (`not_paid`, `awaiting`,
    `authorized`, `partially_authorized`, `partially_captured`, `completed`,
@@ -107,49 +107,32 @@ naming or shape), **add** (new collection or fields proposed), **later**
    `compare_at_unit_price`, `is_tax_inclusive`, `is_discountable`,
    `is_custom_price`.
 
-## Gaps in our ADR-0004 model and proposed changes
+## Gaps in our ADR-0004 model: proposals and decisions (review r2)
 
-Proposals only; to be applied in an ADR revision after review.
+The 11 proposals below were reviewed by BalunMY (review r2, 2026-11-24).
+Decisions are applied in ADR-0004/0006/0007/0015 and `../architecture.md`;
+nothing here is carried into the model "as Medusa has it". Rule: one SQLite
+writer and `ledger_entries` + `Transition` as the single money source of
+truth; no table without a phase 1 consumer.
 
-1. **Payment collection per order** (`payment_collections` with
-   authorized/captured/refunded rollups and status) above our `payments`
-   rows; `payments` keep the provider attempt (= session). Clarifies
-   partial states, second provider and disputes.
-2. **Normalized webhook action enum and `requires_more` status** from
-   Medusa `PaymentActions`/`PaymentSessionStatus` instead of our ad hoc
-   event types; SBP QR and 3DS map to `requires_more`.
-3. **Order versioning and order changes**: `orders.version`,
-   `order_changes` + `order_change_actions` for refunds, disputes, revokes
-   and license upgrades; `order_summaries` (totals per version);
-   `order_transactions` (order balance) next to the double-entry ledger.
-4. **Tax lines as rows**: `order_item_tax_lines` (code, rate_bp,
-   provider_id, tax_rate_id) instead of one tax column set per line; make
-   `TaxPolicy` batch (`ResolveLines(items, context)`) like `getTaxLines`.
-5. **Tax data shape**: region plugin output and an optional admin override
-   table follow TaxRegion/TaxRate/TaxRateRule (country, province, code,
-   rate, default, combinable, rules by product or category).
-6. **Price sets**: `prices` rows per offer (currency, amount, quantity
-   range, rules) instead of `offers.price_minor`; keeps multi-currency and
-   multi-storefront pricing without new offers; price lists in phase 2.
-7. **Storefront as sales channel**: `product_storefronts` link and
-   publishable API keys per storefront for headless clients; storefront
-   gets `countries` (region) explicitly.
-8. **Entity translations**: `translations` collection
-   (reference, reference_id, locale_code, translations json) for product and
-   license texts; answers where Russian catalog text lives without Cyrillic
-   in the repo.
-9. **Line snapshot alignment**: add `product_handle`, `variant_title`
-   (license title), `compare_at_unit_price_minor`, `is_tax_inclusive`,
-   `is_discountable` to `order_items`; add `refund_reasons`, refund `note`
-   and `created_by`.
-10. **Checkout compensation and lock**: state in ADR-0007 that a failure
-    after provider success but before the order is `paid` triggers the same
-    recovery (reconciliation) and, if the order cannot be fulfilled, an
-    automatic cancel or refund, as Medusa's `compensatePaymentIfNeededStep`;
-    a per-order lock (lease) around completion.
-11. **Promotions shape for phase 2**: copy Promotion / ApplicationMethod /
-    PromotionRule / Campaign and per-line adjustments instead of a custom
-    coupon design.
+| # | Proposal | Decision | Applied as / reason |
+| --- | --- | --- | --- |
+| 1 | `payment_collections` (authorized/captured/refunded rollups, status) above `payments` | reject | Third status machine and a second money SoT (P0-B). "Is it paid" = `Transition` + at most one `succeeded` payment; totals are queries over `payments`/`refunds`/ledger. `payments` rows are the provider attempts |
+| 2 | Medusa webhook action enum and `requires_more` status | defer | Adapters may normalize events internally; payment status unchanged (3DS / SBP QR = `pending` + `confirmation_url`). A new status only when a different timeout or reconciliation rule needs it |
+| 3 | `orders.version`, `order_changes`, `order_change_actions`, `order_summaries`, `order_transactions` | reject | Second money SoT next to the ledger. `status_version` covers conditional updates; refunds and disputes are `refunds` rows and status machines. Order versioning only when post-payment order edits (license upgrade) exist |
+| 4 | `order_item_tax_lines` rows; batch `TaxPolicy` | trim | Accept batch `ResolveLines(items, ctx)` (ADR-0015); reject the child table: one tax per line, `tax_*` columns on `order_items` |
+| 5 | Tax data shaped as TaxRegion/TaxRate/TaxRateRule + admin override | defer | Dated rate table in `internal/region/ru` (ADR-0008) is enough; an admin rate editor has no consumer |
+| 6 | `prices` table instead of `offers.price_minor` | reject now, defer to a consumer | One currency per storefront, one price per offer; unique `(product, license_type, currency)` is the seam; price lists / quantity tiers / customer groups in phase 2+ when needed |
+| 7 | Storefront as sales channel: `product_storefronts`, publishable keys, `countries` | trim | Accept `storefronts.countries`; reject the link table and publishable keys (one storefront per instance, no headless API in phase 1) |
+| 8 | Generic `translations` collection | reject (defer) | Would diverge from Codex per-locale records and `ui_messages` (ADR-0018). Phase 1 catalog is entered in admin in the deployment language |
+| 9 | Line snapshot alignment + `refund_reasons` | trim | Add `product_slug`, `license_title` to `order_items`; skip `compare_at_unit_price`, `is_discountable`, `is_custom_price` (no discounts in phase 1); refund reason is a typed `reason_code` + `note` on `refunds`, not a collection; `requested_by` already exists |
+| 10 | Checkout compensation + per-order lock | trim (lock rejected) | Reconciliation branch: provider `succeeded`, order not completable -> `refund_pending` -> automatic full refund through the operator refund path (ADR-0007). No per-order lock: single writer + `WHERE status_version = n` |
+| 11 | Copy Promotion / Campaign / ApplicationMethod for phase 2 | defer | Coupons are phase 2; shape decided when real promotion rules exist; discount allocation already in ADR-0006 |
+
+Not added in phase 1: `payment_collections`, `order_changes`,
+`order_change_actions`, `order_summaries`, `order_transactions`, `prices`,
+`product_storefronts`, `translations`, `order_item_tax_lines`,
+`refund_reasons`, `api_keys`.
 
 Not adopted: Medusa's separate auth/customer identities (PocketBase auth
 covers it), inventory, fulfillment, shipping, returns, claims and exchanges

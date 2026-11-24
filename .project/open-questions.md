@@ -16,15 +16,26 @@ change them.
    a separate repo `fastygo/market-locale-ru`. Which one?
 2. Deployment topology (ADR-0015): one region per deployment (data
    residency), several storefronts of one region per instance later. Confirm.
-3. Region policy in goja plugins (ADR-0017): tax tables, consent and legal
-   documents, receipt field mapping, checkout fields, locale formatting are
-   goja plugins returning data validated by Go; money-critical code stays in
-   Go modules. Confirm the split.
+3. OWNER DECISION. Region policy as goja plugins (ADR-0017). New default
+   after review r2 (P0-C): phase 0-1 ships region policy (tax table, receipt
+   field mapping, consent and legal documents, legal id rules, checkout
+   fields) as the Go module `internal/region/ru` behind the same
+   `TaxPolicy`/`DocumentIssuer`/`ConsentPolicy`/`LegalProfile` interfaces;
+   the region stays a module selected by config. The goja policy plugin
+   runtime is built when it is triggered: a second live region, a need to
+   change policy without a release, or your explicit decision; the RU Go
+   tests become its contract vectors. Alternative: build the plugin runtime
+   in phase 0 as before (about +1 to 2 weeks, and the reviewer's risk: a
+   plugin error or timeout on the checkout path means a wrong receipt or a
+   failed payment). Confirm the new default or ask for the plugin runtime
+   now.
 
 ## B. Configuration or content (per deployment, later, not code)
 
 1. GoDudY `sale_model` (`principal` if a brand of the operator, `agent` if a
-   separate legal entity): seller data set in admin before go-live.
+   separate legal entity): seller data set in admin before go-live. `agent`
+   is incompatible with a `single_store` launch (admin invariant); if the
+   answer is `agent`, the minimal marketplace part ships in phase 1 first.
 2. Payment provider of the RU deployment (YooKassa, T-Bank, CloudPayments or
    Robokassa); later Stripe/PayPal for an EU deployment.
 3. License types (codes, terms, prices).
@@ -51,3 +62,9 @@ change them.
 
 OSS registration, invoice numbering scheme, VAT id validation and reverse
 charge, GDPR records and DPO need, Stripe/PayPal account setup.
+
+## Review r2 2026-11-24 (BalunMY)
+
+A3 default changed: Go region policy in phase 0-1, goja policy plugins at
+their trigger; flagged as an owner decision. B1 notes that `agent` cannot
+launch in `single_store`.

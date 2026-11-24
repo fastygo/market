@@ -1,6 +1,8 @@
 # ADR-0017: Module system: Go modules for money, goja plugins for policy
 
-- Status: Proposed (owner direction 2026-11-24: commerce engine)
+- Status: Proposed (owner direction 2026-11-24: commerce engine). Review r2:
+  the goja policy plugin runtime is a planned later phase, not phase 0-1;
+  owner decision recorded in open question A3.
 
 ## Context
 
@@ -111,3 +113,29 @@ Go validates (tax rate and mode per line), never by computing totals.
 - Policy changes (a tax rate) are a plugin version bump with contract tests.
 - Two goja runtimes exist (PocketBase hooks for glue, the engine sandbox for
   policy); ADR-0011 rules apply to both.
+
+## Review r2 2026-11-24 (BalunMY): phasing of the plugin runtime
+
+The owner wants region specifics modular, including goja plugins; the
+reviewer's P0-C is that tax policy decides the payment amount and the 54-FZ
+receipt, so a plugin runtime on the checkout path is too risky for phase 1
+without a second region as consumer. Agreed phasing:
+
+- Phase 0-1: the module seam exists, the plugin runtime does not. Region
+  policy (`TaxPolicy`, receipt field mapping, consent docs, legal id rules,
+  checkout fields) is a Go module (`internal/region/ru`) implementing the
+  same consumer-side interfaces, registered by name from config. Tax rates
+  are a dated table in that package, covered by table tests. The module
+  manifest fields (id, version, provides, config) are kept as a Go struct so
+  the later plugin form uses the same contract.
+- Later phase (goja policy plugins as described above): triggered by the
+  first of (a) a second live region deployment, (b) a need to change policy
+  without a release (for example several deployments with different rate
+  tables), (c) an explicit owner decision. Then the sandbox, manifests and
+  contract tests are built, and the RU Go policy becomes the reference
+  implementation the plugin must match (same contract test vectors).
+- Even then, goja is evaluated outside write transactions and before the
+  checkout transaction starts; its output is validated by Go; a plugin
+  failure fails the checkout request, never a payment already in progress.
+- Go modules for money-critical ports (gateway adapters, document issuers,
+  marketplace) are unchanged.

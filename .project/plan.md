@@ -19,9 +19,12 @@ and is deployable. Status: all steps Proposed until the architecture review.
 5. `AGENTS.md` for the repo; `deploy/env.example` with placeholders only.
 6. Consumer-side interfaces `TaxPolicy`, `DocumentIssuer`, `ConsentPolicy`,
    `LegalProfile`, fake pack and fake gateway for tests (ADR-0015).
-7. `internal/modules`: manifest loader, capability registry, load order,
-   config validation, goja plugin sandbox with timeouts and contract-test
-   harness (ADR-0017); `locale-en` dictionary in core (ADR-0018).
+7. `internal/modules`: registry of Go modules by name, manifest struct,
+   config validation (ADR-0017); no goja plugin sandbox in phase 0-1;
+   `locale-en` dictionary in core (ADR-0018).
+8. `platform.Tx`: `BEGIN IMMEDIATE`, explicit `busy_timeout`, bounded retry,
+   "in tx" flag used by tests to assert no provider call inside a write
+   transaction (ADR-0001, ADR-0007 rule zero).
 
 ## Phase 1. RU deployment MVP: RU pack + one RU provider (4 to 6 weeks)
 
@@ -40,13 +43,16 @@ and is deployable. Status: all steps Proposed until the architecture review.
    provider, then store the provider id; return URL; one provider adapter
    chosen by config, implementing `Gateway` and `InlineDocumentGateway`;
    card and SBP through that provider. Discount is 0.
-5a. `modules/region-ru` plugin (tax table 22% / registry exempt / none,
-   receipt field mapping, consent documents, INN/OGRN/KPP rules, checkout
-   fields) + 54-FZ issuing through the provider Go module; `locale-ru`
+5a. `internal/region/ru` Go module (dated tax table 22% / registry exempt /
+   none, batch `ResolveLines`, receipt field mapping, consent documents,
+   INN/OGRN/KPP rules, checkout fields, table tests that later become the
+   plugin contract vectors) + 54-FZ issuing through the provider Go module; `locale-ru`
    strings in the database (ADR-0018). Storefront runs in `single_store`
    mode by default; the reference brand GoDudY is a skin + config.
 5. Inbox worker and outbox worker (leases, one each), timeout cancel via the
-   provider, reconciliation (4 selections), transition tables.
+   provider, reconciliation (5 selections, including the auto-refund of
+   paid-but-uncompletable orders), transition tables; claim, provider call
+   and apply in separate transactions.
 6. Entitlements, purchase codes, signed downloads with re-check, purchase
    email.
 7. Ledger entries with deterministic txn ids in the same transaction as the
@@ -58,7 +64,10 @@ and is deployable. Status: all steps Proposed until the architecture review.
    object storage in the deployment's region (RU), `/metrics`, external
    probes, SLO dashboard.
 11. Go-live checklist (admin/env, not code): operator legal data, GoDudY
-   `sale_model` and legal data, provider credentials, RU texts and legal
+   `sale_model` and legal data (if the lawyer says `agent`, the launch
+   cannot be `single_store`: pull the minimal marketplace part from phase 3
+   into phase 1 first; the admin invariant rejects `agent` in
+   `single_store`), provider credentials, RU texts and legal
    pages, accountant and lawyer sign-off (`open-questions.md` C).
 12. Launch with sandbox then live keys.
 
@@ -93,7 +102,11 @@ module.
 
 ## Phase 4. Second region (EU pack, when a deployment is planned)
 
-1. `region/eu`: VAT by buyer country (OSS) with country evidence, invoices
+0. Trigger for the ADR-0017 goja policy plugin runtime (sandbox, manifests,
+   contract tests); RU policy ported to the plugin form must pass the
+   `internal/region/ru` vectors. May start earlier on an owner decision
+   (open question A3).
+1. EU policy: VAT by buyer country (OSS) with country evidence, invoices
    and credit notes with sequential numbering, GDPR consents, export and
    erasure, VAT id validation (reverse charge later).
 2. Stripe and PayPal adapters (`Gateway`), webhook verification, contract
@@ -123,3 +136,12 @@ added as phase 4.
 Phase 0 adds the module system and locale-en; phase 1 runs the RU region
 plugin and `locale-ru` in `single_store` mode; phase 3 is the `marketplace`
 module.
+
+## Review r2 2026-11-24 (BalunMY)
+
+Phase 0 is narrower: no goja policy sandbox, `platform.Tx` with
+`BEGIN IMMEDIATE` and `busy_timeout`. Phase 1 RU policy is the Go module
+`internal/region/ru`; no Medusa-style tables (see `reference/medusa-mapping.md`
+decisions). Reconciliation gets the auto-refund branch; go-live checklist
+has the agent-vs-single-store rule. The plugin runtime moves to its trigger
+(phase 4 or owner decision).

@@ -31,3 +31,18 @@ for payments, ledger, templ rendering and tests.
 ## Review 2026-11-24 (BalunMY)
 
 Direction accepted. Admin UI is read-mostly for money collections (P0-7).
+
+## Review r2 2026-11-24 (BalunMY): SQLite write discipline
+
+- Every write transaction starts with `BEGIN IMMEDIATE` (no deferred lock
+  upgrade deadlocks) through one `platform.Tx` helper.
+- `busy_timeout` is set explicitly in the DSN by `platform/pb` (start at
+  5000 ms, tuned by measurement); lock waits are a metric; callers retry a
+  bounded number of times through the helper, never forever.
+- No network call, goja call or heavy CPU work inside a write transaction
+  (ADR-0007 rule zero).
+- Heavy maintenance (full backup, `ANALYZE`, large imports) is scheduled
+  away from checkout peaks; WAL checkpoint and Litestream lag are watched
+  (`slo.md`).
+- Business keys used for lookup and dedupe are real columns with composite
+  unique indexes created in migrations, never fields inside json.
