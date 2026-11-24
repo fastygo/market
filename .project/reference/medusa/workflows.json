@@ -1,0 +1,331 @@
+{
+ "meta": {
+  "source": "https://github.com/medusajs/medusa",
+  "tag": "v2.23.0",
+  "commit": "6369161c5ee22c1ffc92859838d6e72b54de3fc4",
+  "license": "MIT (Enterprise Edition paths excluded)",
+  "generator": "scripts/medusa-ref.mjs"
+ },
+ "workflows": {
+  "api-key": [
+   "create-api-keys",
+   "delete-api-keys",
+   "link-sales-channels-to-api-key",
+   "revoke-api-keys",
+   "update-api-keys"
+  ],
+  "auth": [
+   "request-verification-workflow",
+   "set-auth-app-metadata-workflow"
+  ],
+  "cart": [
+   "add-shipping-method-to-cart",
+   "add-to-cart",
+   "complete-cart",
+   "confirm-item-inventory",
+   "create-cart",
+   "create-cart-credit-lines",
+   "create-payment-collection-for-cart",
+   "delete-cart-credit-lines",
+   "list-shipping-options-for-cart",
+   "list-shipping-options-for-cart-with-pricing",
+   "refresh-cart-items",
+   "refresh-cart-promotion-adjustments",
+   "refresh-cart-shipping-methods",
+   "refresh-payment-collection-for-cart",
+   "refund-payment-and-recreate-payment-session",
+   "transfer-cart-customer",
+   "update-cart",
+   "update-cart-promotions",
+   "update-line-item-in-cart",
+   "update-tax-lines",
+   "upsert-tax-lines"
+  ],
+  "common": [
+   "batch-links",
+   "create-link",
+   "dismiss-link",
+   "update-link"
+  ],
+  "customer": [
+   "create-customer-account",
+   "create-customer-addresses",
+   "create-customers",
+   "delete-customer-addresses",
+   "delete-customers",
+   "export-customers",
+   "remove-customer-account",
+   "update-customer-addresses",
+   "update-customers"
+  ],
+  "customer-group": [
+   "create-customer-groups",
+   "delete-customer-groups",
+   "link-customer-groups-to-customer",
+   "link-customers-to-customer-group",
+   "update-customer-groups"
+  ],
+  "draft-order": [
+   "add-draft-order-items",
+   "add-draft-order-promotion",
+   "add-draft-order-shipping-methods",
+   "begin-draft-order-edit",
+   "cancel-draft-order-edit",
+   "compute-draft-order-adjustments",
+   "confirm-draft-order-edit",
+   "convert-draft-order",
+   "delete-draft-order",
+   "fetch-shipping-option-for-draft-order",
+   "refresh-confirmed-draft-order-shipping-methods",
+   "refresh-draft-order-adjustments",
+   "refresh-pending-draft-order-shipping-methods",
+   "remove-draft-order-action-item",
+   "remove-draft-order-action-shipping-method",
+   "remove-draft-order-promotions",
+   "remove-draft-order-shipping-method",
+   "update-draft-order",
+   "update-draft-order-action-shipping-method",
+   "update-draft-order-item",
+   "update-draft-order-shipping-method"
+  ],
+  "file": [
+   "delete-files",
+   "upload-files"
+  ],
+  "fulfillment": [
+   "batch-shipping-option-rules",
+   "calculate-shipping-options-prices-workflow",
+   "cancel-fulfillment-workflow",
+   "create-fulfillment-workflow",
+   "create-return-fulfillment-workflow",
+   "create-service-zones-workflow",
+   "create-shipment-workflow",
+   "create-shipping-options-workflow",
+   "create-shipping-profiles-workflow",
+   "delete-fulfillment-sets-workflow",
+   "delete-service-zones-workflow",
+   "delete-shipping-options-workflow",
+   "mark-fulfillment-as-delivered-workflow",
+   "update-fulfillment-workflow",
+   "update-service-zones-workflow",
+   "update-shipping-options-workflow",
+   "update-shipping-profiles-workflow"
+  ],
+  "inventory": [
+   "batch-inventory-item-levels-workflow",
+   "bulk-create-delete-levels-workflow",
+   "create-inventory-items-workflow",
+   "create-inventory-levels-workflow",
+   "delete-inventory-item-workflow",
+   "delete-inventory-levels-workflow",
+   "export-inventory-items",
+   "update-inventory-items-workflow",
+   "update-inventory-levels-workflow"
+  ],
+  "invite": [
+   "accept-invite-workflow",
+   "create-invite-step",
+   "delete-invites-workflow",
+   "refresh-invite-tokens-workflow"
+  ],
+  "line-item": [
+   "delete-line-items"
+  ],
+  "order": [
+   "archive-order-workflow",
+   "cancel-order",
+   "cancel-order-change",
+   "cancel-order-fulfillment",
+   "complete-order-workflow",
+   "compute-adjustments-for-preview",
+   "create-or-update-order-payment-collection",
+   "create-order-change",
+   "create-order-change-actions",
+   "create-order-credit-lines",
+   "create-order-fulfillment",
+   "create-order-payment-collection",
+   "create-order-shipment",
+   "create-orders",
+   "decline-order-change",
+   "delete-order-change",
+   "delete-order-change-actions",
+   "export-orders",
+   "fetch-shipping-option",
+   "get-order-detail",
+   "get-orders-list",
+   "list-shipping-options-for-order",
+   "mark-order-fulfillment-as-delivered-workflow",
+   "maybe-refresh-shipping-methods",
+   "order-add-line-items",
+   "update-order-change",
+   "update-order-change-actions",
+   "update-order-change-workflow",
+   "update-order-tax-lines",
+   "update-order-workflow"
+  ],
+  "payment": [
+   "authorize-payment-session-for-order",
+   "capture-payment-workflow",
+   "process-payment-workflow",
+   "refund-payment-workflow",
+   "refund-payments-workflow"
+  ],
+  "payment-collection": [
+   "cancel-payment-collection",
+   "create-payment-sessions",
+   "create-refund-reasons-workflow",
+   "delete-payment-sessions",
+   "delete-refund-reasons-workflow",
+   "update-payment-session-client-data",
+   "update-refund-reasons"
+  ],
+  "price-list": [
+   "batch-price-list-prices",
+   "create-price-list-prices",
+   "create-price-lists",
+   "delete-price-lists",
+   "remove-price-list-prices",
+   "update-price-list-prices",
+   "update-price-lists"
+  ],
+  "pricing": [
+   "create-price-preferences",
+   "delete-price-preferences",
+   "update-price-preferences"
+  ],
+  "product": [
+   "batch-image-variants",
+   "batch-link-products-to-category",
+   "batch-link-products-to-collection",
+   "batch-product-variants",
+   "batch-products",
+   "batch-variant-images",
+   "create-and-link-product-options-to-product",
+   "create-collections",
+   "create-product-options",
+   "create-product-tags",
+   "create-product-types",
+   "create-product-variants",
+   "create-products",
+   "delete-collections",
+   "delete-product-option-values",
+   "delete-product-options",
+   "delete-product-tags",
+   "delete-product-types",
+   "delete-product-variants",
+   "delete-products",
+   "export-products",
+   "import-products",
+   "import-products-as-chunks",
+   "set-product-product-options",
+   "update-collections",
+   "update-product-option-values",
+   "update-product-options",
+   "update-product-tags",
+   "update-product-types",
+   "update-product-variants",
+   "update-products",
+   "upsert-variant-prices"
+  ],
+  "product-category": [
+   "create-product-categories",
+   "delete-product-categories",
+   "update-product-categories"
+  ],
+  "promotion": [
+   "add-or-remove-campaign-promotions",
+   "batch-promotion-rules",
+   "create-campaigns",
+   "create-promotion-rules-workflow",
+   "create-promotions",
+   "delete-campaigns",
+   "delete-promotion-rules-workflow",
+   "delete-promotions",
+   "update-campaigns",
+   "update-promotion-rules-workflow",
+   "update-promotions",
+   "update-promotions-status"
+  ],
+  "region": [
+   "create-regions",
+   "delete-regions",
+   "update-regions"
+  ],
+  "reservation": [
+   "create-reservations-workflow",
+   "delete-reservations",
+   "delete-reservations-by-line-items",
+   "update-reservations-workflow"
+  ],
+  "return-reason": [
+   "create-return-reasons",
+   "delete-return-reasons",
+   "update-return-reasons"
+  ],
+  "sales-channel": [
+   "create-sales-channels",
+   "delete-sales-channels",
+   "link-products-to-sales-channel",
+   "update-sales-channels"
+  ],
+  "search": [
+   "delete-search-index",
+   "reindex-search-indexes"
+  ],
+  "settings": [
+   "batch-property-labels",
+   "clear-layout-configuration",
+   "create-property-labels",
+   "create-view-configuration",
+   "delete-property-labels",
+   "set-layout-configuration",
+   "update-property-labels",
+   "update-view-configuration"
+  ],
+  "shipping-options": [
+   "create-shipping-option-types",
+   "delete-shipping-option-types",
+   "update-shipping-option-types"
+  ],
+  "shipping-profile": [
+   "delete-shipping-profile-workflow"
+  ],
+  "stock-location": [
+   "create-location-fulfillment-set",
+   "create-stock-locations-workflow",
+   "delete-stock-locations-workflow",
+   "link-sales-channels-to-stock-location",
+   "update-stock-locations-workflow"
+  ],
+  "store": [
+   "create-stores",
+   "delete-stores",
+   "update-stores"
+  ],
+  "tax": [
+   "create-tax-rate-rules",
+   "create-tax-rates",
+   "create-tax-regions",
+   "delete-tax-rate-rules",
+   "delete-tax-rates",
+   "delete-tax-regions",
+   "set-tax-rate-rules",
+   "update-tax-rates",
+   "update-tax-regions"
+  ],
+  "translation": [
+   "batch-translation-settings",
+   "batch-translations",
+   "create-translations",
+   "delete-translations",
+   "update-translations"
+  ],
+  "user": [
+   "create-user-account",
+   "create-users-workflow",
+   "delete-user",
+   "remove-user-account",
+   "update-users-workflow"
+  ]
+ }
+}

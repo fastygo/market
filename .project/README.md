@@ -13,6 +13,7 @@ the repo.
 - [SLO](slo.md): objectives, SLIs, error budgets, how measured
 - [Open questions](open-questions.md): owner and legal decisions still needed
 - [Research notes](research.md): what was read in fastygo and ui8kit, with commits
+- [Medusa reference](reference/medusa/README.md) and [Medusa mapping](reference/medusa-mapping.md): commerce structures from Medusa v2.23.0 (MIT) mapped to our collections, with proposed model changes
 
 ## ADRs (one decision each)
 

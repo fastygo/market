@@ -1,0 +1,406 @@
+{
+ "meta": {
+  "source": "https://github.com/medusajs/medusa",
+  "tag": "v2.23.0",
+  "commit": "6369161c5ee22c1ffc92859838d6e72b54de3fc4",
+  "license": "MIT (Enterprise Edition paths excluded)",
+  "generator": "scripts/medusa-ref.mjs"
+ },
+ "links": [
+  {
+   "file": "cart-payment-collection",
+   "table": "cart_payment_collection",
+   "relationships": [
+    {
+     "module": "cart",
+     "entity": "Cart",
+     "foreignKey": "cart_id"
+    },
+    {
+     "module": "payment",
+     "entity": "PaymentCollection",
+     "foreignKey": "payment_collection_id"
+    }
+   ]
+  },
+  {
+   "file": "cart-promotion",
+   "table": "cart_promotion",
+   "relationships": [
+    {
+     "module": "cart",
+     "entity": "Cart",
+     "foreignKey": "cart_id"
+    },
+    {
+     "module": "promotion",
+     "entity": "Promotion",
+     "foreignKey": "promotion_id"
+    }
+   ]
+  },
+  {
+   "file": "customer-account-holder",
+   "table": "customer_account_holder",
+   "relationships": [
+    {
+     "module": "customer",
+     "entity": "Customer",
+     "foreignKey": "customer_id"
+    },
+    {
+     "module": "payment",
+     "entity": "AccountHolder",
+     "foreignKey": "account_holder_id"
+    }
+   ]
+  },
+  {
+   "file": "fulfillment-provider-location",
+   "table": "location_fulfillment_provider",
+   "relationships": [
+    {
+     "module": "stock_location",
+     "entity": "StockLocation",
+     "foreignKey": "stock_location_id"
+    },
+    {
+     "module": "fulfillment",
+     "entity": "FulfillmentProvider",
+     "foreignKey": "fulfillment_provider_id"
+    }
+   ]
+  },
+  {
+   "file": "fulfillment-set-location",
+   "table": "location_fulfillment_set",
+   "relationships": [
+    {
+     "module": "stock_location",
+     "entity": "StockLocation",
+     "foreignKey": "stock_location_id"
+    },
+    {
+     "module": "fulfillment",
+     "entity": "FulfillmentSet",
+     "foreignKey": "fulfillment_set_id"
+    }
+   ]
+  },
+  {
+   "file": "order-cart",
+   "table": "order_cart",
+   "relationships": [
+    {
+     "module": "order",
+     "entity": "Order",
+     "foreignKey": "order_id"
+    },
+    {
+     "module": "cart",
+     "entity": "Cart",
+     "foreignKey": "cart_id"
+    }
+   ]
+  },
+  {
+   "file": "order-claim-payment-collection",
+   "table": "order_claim_payment_collection",
+   "relationships": [
+    {
+     "module": "order",
+     "entity": "OrderClaim",
+     "foreignKey": "claim_id"
+    },
+    {
+     "module": "payment",
+     "entity": "PaymentCollection",
+     "foreignKey": "payment_collection_id"
+    }
+   ]
+  },
+  {
+   "file": "order-exchange-payment-collection",
+   "table": "order_exchange_payment_collection",
+   "relationships": [
+    {
+     "module": "order",
+     "entity": "OrderExchange",
+     "foreignKey": "exchange_id"
+    },
+    {
+     "module": "payment",
+     "entity": "PaymentCollection",
+     "foreignKey": "payment_collection_id"
+    }
+   ]
+  },
+  {
+   "file": "order-fulfillment",
+   "table": "order_fulfillment",
+   "relationships": [
+    {
+     "module": "order",
+     "entity": "Order",
+     "foreignKey": "order_id"
+    },
+    {
+     "module": "fulfillment",
+     "entity": "Fulfillment",
+     "foreignKey": "fulfillment_id"
+    }
+   ]
+  },
+  {
+   "file": "order-payment-collection",
+   "table": "order_payment_collection",
+   "relationships": [
+    {
+     "module": "order",
+     "entity": "Order",
+     "foreignKey": "order_id"
+    },
+    {
+     "module": "payment",
+     "entity": "PaymentCollection",
+     "foreignKey": "payment_collection_id"
+    }
+   ]
+  },
+  {
+   "file": "order-promotion",
+   "table": "order_promotion",
+   "relationships": [
+    {
+     "module": "order",
+     "entity": "Order",
+     "foreignKey": "order_id"
+    },
+    {
+     "module": "promotion",
+     "entity": "Promotion",
+     "foreignKey": "promotion_id"
+    }
+   ]
+  },
+  {
+   "file": "order-return-fulfillment",
+   "table": "return_fulfillment",
+   "relationships": [
+    {
+     "module": "order",
+     "entity": "Return",
+     "foreignKey": "return_id"
+    },
+    {
+     "module": "fulfillment",
+     "entity": "Fulfillment",
+     "foreignKey": "fulfillment_id"
+    }
+   ]
+  },
+  {
+   "file": "product-sales-channel",
+   "table": "product_sales_channel",
+   "relationships": [
+    {
+     "module": "product",
+     "entity": "Product",
+     "foreignKey": "product_id"
+    },
+    {
+     "module": "sales_channel",
+     "entity": "SalesChannel",
+     "foreignKey": "sales_channel_id"
+    }
+   ]
+  },
+  {
+   "file": "product-shipping-profile",
+   "table": "product_shipping_profile",
+   "relationships": [
+    {
+     "module": "product",
+     "entity": "Product",
+     "foreignKey": "product_id"
+    },
+    {
+     "module": "fulfillment",
+     "entity": "ShippingProfile",
+     "foreignKey": "shipping_profile_id"
+    }
+   ]
+  },
+  {
+   "file": "product-variant-inventory-item",
+   "table": "product_variant_inventory_item",
+   "relationships": [
+    {
+     "module": "product",
+     "entity": "ProductVariant",
+     "foreignKey": "variant_id"
+    },
+    {
+     "module": "inventory",
+     "entity": "InventoryItem",
+     "foreignKey": "inventory_item_id"
+    }
+   ]
+  },
+  {
+   "file": "product-variant-price-set",
+   "table": "product_variant_price_set",
+   "relationships": [
+    {
+     "module": "product",
+     "entity": "ProductVariant",
+     "foreignKey": "variant_id"
+    },
+    {
+     "module": "pricing",
+     "entity": "PriceSet",
+     "foreignKey": "price_set_id"
+    }
+   ]
+  },
+  {
+   "file": "publishable-api-key-sales-channel",
+   "table": "publishable_api_key_sales_channel",
+   "relationships": [
+    {
+     "module": "api_key",
+     "entity": "ApiKey",
+     "foreignKey": "publishable_key_id"
+    },
+    {
+     "module": "sales_channel",
+     "entity": "SalesChannel",
+     "foreignKey": "sales_channel_id"
+    }
+   ]
+  },
+  {
+   "file": "cart-customer",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "cart-product",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "cart-region",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "cart-sales-channel",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "cart-shipping-option",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "inventory-level-stock-location",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "line-item-adjustment-promotion",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "order-customer",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "order-product",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "order-region",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "order-sales-channel",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "order-shipping-option",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "product-translation",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "store-currency",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "store-locale",
+   "table": null,
+   "relationships": []
+  },
+  {
+   "file": "region-payment-provider",
+   "table": "region_payment_provider",
+   "relationships": [
+    {
+     "module": "region",
+     "entity": "Region",
+     "foreignKey": "region_id"
+    },
+    {
+     "module": "payment",
+     "entity": "PaymentProvider",
+     "foreignKey": "payment_provider_id"
+    }
+   ]
+  },
+  {
+   "file": "sales-channel-location",
+   "table": "sales_channel_stock_location",
+   "relationships": [
+    {
+     "module": "sales_channel",
+     "entity": "SalesChannel",
+     "foreignKey": "sales_channel_id"
+    },
+    {
+     "module": "stock_location",
+     "entity": "StockLocation",
+     "foreignKey": "stock_location_id"
+    }
+   ]
+  },
+  {
+   "file": "shipping-option-price-set",
+   "table": "shipping_option_price_set",
+   "relationships": [
+    {
+     "module": "fulfillment",
+     "entity": "ShippingOption",
+     "foreignKey": "shipping_option_id"
+    },
+    {
+     "module": "pricing",
+     "entity": "PriceSet",
+     "foreignKey": "price_set_id"
+    }
+   ]
+  }
+ ]
+}

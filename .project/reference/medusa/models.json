@@ -1,0 +1,6791 @@
+{
+ "meta": {
+  "source": "https://github.com/medusajs/medusa",
+  "tag": "v2.23.0",
+  "commit": "6369161c5ee22c1ffc92859838d6e72b54de3fc4",
+  "license": "MIT (Enterprise Edition paths excluded)",
+  "generator": "scripts/medusa-ref.mjs"
+ },
+ "models": {
+  "api-key": {
+   "ApiKey": {
+    "file": "packages/modules/api-key/src/models/api-key.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "apk",
+      "primaryKey": true
+     },
+     {
+      "name": "token",
+      "type": "text"
+     },
+     {
+      "name": "salt",
+      "type": "text"
+     },
+     {
+      "name": "redacted",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "title",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "type",
+      "type": "enum",
+      "values": [
+       "publishable",
+       "secret"
+      ]
+     },
+     {
+      "name": "last_used_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text"
+     },
+     {
+      "name": "revoked_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "revoked_at",
+      "type": "dateTime",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "audit": {
+   "audit_log": {
+    "file": "packages/modules/audit/src/models/audit-log.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "audlog",
+      "primaryKey": true
+     },
+     {
+      "name": "started_at",
+      "type": "dateTime"
+     },
+     {
+      "name": "ended_at",
+      "type": "dateTime"
+     },
+     {
+      "name": "actor_type",
+      "type": "text"
+     },
+     {
+      "name": "actor_id",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "impersonator_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "action",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "resource_type",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "resource_id",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "outcome",
+      "type": "enum",
+      "values": [
+       "succeeded",
+       "denied",
+       "failed"
+      ]
+     },
+     {
+      "name": "request",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "request_data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "response_data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "auth": {
+   "auth_identity": {
+    "file": "packages/modules/auth/src/models/auth-identity.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "authid",
+      "primaryKey": true
+     },
+     {
+      "name": "provider_identities",
+      "type": "hasMany",
+      "target": "ProviderIdentity",
+      "mappedBy": "auth_identity"
+     },
+     {
+      "name": "mfa_factors",
+      "type": "hasMany",
+      "target": "AuthMfaFactor",
+      "mappedBy": "auth_identity"
+     },
+     {
+      "name": "mfa_recovery_codes",
+      "type": "hasMany",
+      "target": "AuthMfaRecoveryCode",
+      "mappedBy": "auth_identity"
+     },
+     {
+      "name": "verifications",
+      "type": "hasMany",
+      "target": "AuthVerification",
+      "mappedBy": "auth_identity"
+     },
+     {
+      "name": "password_reset_tokens",
+      "type": "hasMany",
+      "target": "AuthPasswordResetToken",
+      "mappedBy": "auth_identity"
+     },
+     {
+      "name": "app_metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "auth_mfa_factor": {
+    "file": "packages/modules/auth/src/models/auth-mfa-factor.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "authmfa",
+      "primaryKey": true
+     },
+     {
+      "name": "auth_identity",
+      "type": "belongsTo",
+      "target": "AuthIdentity",
+      "mappedBy": "mfa_factors"
+     },
+     {
+      "name": "provider",
+      "type": "text"
+     },
+     {
+      "name": "status",
+      "type": "text"
+     },
+     {
+      "name": "provider_metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "auth_mfa_recovery_code": {
+    "file": "packages/modules/auth/src/models/auth-mfa-recovery-code.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "authmfarec",
+      "primaryKey": true
+     },
+     {
+      "name": "auth_identity",
+      "type": "belongsTo",
+      "target": "AuthIdentity",
+      "mappedBy": "mfa_recovery_codes"
+     },
+     {
+      "name": "code_hash",
+      "type": "text"
+     }
+    ]
+   },
+   "auth_password_reset_token": {
+    "file": "packages/modules/auth/src/models/auth-password-reset-token.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "authprt",
+      "primaryKey": true
+     },
+     {
+      "name": "auth_identity",
+      "type": "belongsTo",
+      "target": "AuthIdentity",
+      "mappedBy": "password_reset_tokens"
+     },
+     {
+      "name": "provider_identity",
+      "type": "belongsTo",
+      "target": "ProviderIdentity",
+      "mappedBy": "password_reset_tokens"
+     },
+     {
+      "name": "entity_id",
+      "type": "text"
+     },
+     {
+      "name": "token_hash",
+      "type": "text"
+     },
+     {
+      "name": "expires_at",
+      "type": "dateTime"
+     }
+    ]
+   },
+   "auth_verification": {
+    "file": "packages/modules/auth/src/models/auth-verification.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "authver",
+      "primaryKey": true
+     },
+     {
+      "name": "auth_identity",
+      "type": "belongsTo",
+      "target": "AuthIdentity",
+      "mappedBy": "verifications"
+     },
+     {
+      "name": "entity_id",
+      "type": "text"
+     },
+     {
+      "name": "entity_type",
+      "type": "text"
+     },
+     {
+      "name": "code_provider",
+      "type": "text"
+     },
+     {
+      "name": "verified_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "requested_at",
+      "type": "dateTime"
+     },
+     {
+      "name": "provider_metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "provider_identity": {
+    "file": "packages/modules/auth/src/models/provider-identity.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "primaryKey": true
+     },
+     {
+      "name": "entity_id",
+      "type": "text"
+     },
+     {
+      "name": "provider",
+      "type": "text"
+     },
+     {
+      "name": "auth_identity",
+      "type": "belongsTo",
+      "target": "AuthIdentity",
+      "mappedBy": "provider_identities"
+     },
+     {
+      "name": "password_reset_tokens",
+      "type": "hasMany",
+      "target": "AuthPasswordResetToken",
+      "mappedBy": "provider_identity"
+     },
+     {
+      "name": "user_metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "provider_metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "cart": {
+   "Address": {
+    "table": "cart_address",
+    "file": "packages/modules/cart/src/models/address.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "caaddr",
+      "primaryKey": true
+     },
+     {
+      "name": "customer_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "company",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "first_name",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "last_name",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "address_1",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "address_2",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "city",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "country_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "province",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "postal_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "phone",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "Cart": {
+    "file": "packages/modules/cart/src/models/cart.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "cart",
+      "primaryKey": true
+     },
+     {
+      "name": "region_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "customer_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "sales_channel_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "email",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "currency_code",
+      "type": "text"
+     },
+     {
+      "name": "locale",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "completed_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "shipping_address",
+      "type": "hasOne",
+      "target": "Address",
+      "nullable": true
+     },
+     {
+      "name": "billing_address",
+      "type": "hasOne",
+      "target": "Address",
+      "nullable": true
+     },
+     {
+      "name": "items",
+      "type": "hasMany",
+      "target": "LineItem",
+      "mappedBy": "cart"
+     },
+     {
+      "name": "credit_lines",
+      "type": "hasMany",
+      "target": "CreditLine",
+      "mappedBy": "cart"
+     },
+     {
+      "name": "shipping_methods",
+      "type": "hasMany",
+      "target": "ShippingMethod",
+      "mappedBy": "cart"
+     },
+     {
+      "name": "original_item_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "original_item_subtotal",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "original_item_tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "item_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "item_subtotal",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "item_tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "original_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "original_subtotal",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "original_tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "subtotal",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "discount_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "discount_tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "gift_card_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "gift_card_tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "shipping_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "shipping_subtotal",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "shipping_tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "original_shipping_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "original_shipping_subtotal",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "original_shipping_tax_total",
+      "type": "bigNumber",
+      "computed": true
+     }
+    ]
+   },
+   "CreditLine": {
+    "file": "packages/modules/cart/src/models/credit-line.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "cacl",
+      "primaryKey": true
+     },
+     {
+      "name": "cart",
+      "type": "belongsTo",
+      "target": "Cart",
+      "mappedBy": "credit_lines"
+     },
+     {
+      "name": "reference",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "reference_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "raw_amount",
+      "type": "json"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "LineItemAdjustment": {
+    "table": "cart_line_item_adjustment",
+    "file": "packages/modules/cart/src/models/line-item-adjustment.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "caliadj",
+      "primaryKey": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "is_tax_inclusive",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "provider_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "promotion_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "item",
+      "type": "belongsTo",
+      "target": "LineItem",
+      "mappedBy": "adjustments"
+     }
+    ]
+   },
+   "LineItemTaxLine": {
+    "table": "cart_line_item_tax_line",
+    "file": "packages/modules/cart/src/models/line-item-tax-line.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "calitxl",
+      "primaryKey": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "code",
+      "type": "text"
+     },
+     {
+      "name": "rate",
+      "type": "float"
+     },
+     {
+      "name": "provider_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "tax_rate_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "item",
+      "type": "belongsTo",
+      "target": "LineItem",
+      "mappedBy": "tax_lines"
+     }
+    ]
+   },
+   "LineItem": {
+    "table": "cart_line_item",
+    "file": "packages/modules/cart/src/models/line-item.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "cali",
+      "primaryKey": true
+     },
+     {
+      "name": "title",
+      "type": "text"
+     },
+     {
+      "name": "subtitle",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "thumbnail",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "quantity",
+      "type": "number"
+     },
+     {
+      "name": "variant_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_title",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_description",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_subtitle",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_type",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_type_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_collection",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_handle",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "variant_sku",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "variant_barcode",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "variant_title",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "variant_option_values",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "requires_shipping",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "is_discountable",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "is_giftcard",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "is_tax_inclusive",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "is_custom_price",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "compare_at_unit_price",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "unit_price",
+      "type": "bigNumber"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "original_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "original_subtotal",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "original_tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "item_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "item_subtotal",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "item_tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "subtotal",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "discount_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "discount_tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "adjustments",
+      "type": "hasMany",
+      "target": "LineItemAdjustment",
+      "mappedBy": "item"
+     },
+     {
+      "name": "tax_lines",
+      "type": "hasMany",
+      "target": "LineItemTaxLine",
+      "mappedBy": "item"
+     },
+     {
+      "name": "cart",
+      "type": "belongsTo",
+      "target": "Cart",
+      "mappedBy": "items"
+     }
+    ]
+   },
+   "ShippingMethodAdjustment": {
+    "table": "cart_shipping_method_adjustment",
+    "file": "packages/modules/cart/src/models/shipping-method-adjustment.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "casmadj",
+      "primaryKey": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "provider_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "promotion_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "shipping_method",
+      "type": "belongsTo",
+      "target": "ShippingMethod",
+      "mappedBy": "adjustments"
+     }
+    ]
+   },
+   "ShippingMethodTaxLine": {
+    "table": "cart_shipping_method_tax_line",
+    "file": "packages/modules/cart/src/models/shipping-method-tax-line.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "casmtxl",
+      "primaryKey": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "code",
+      "type": "text"
+     },
+     {
+      "name": "rate",
+      "type": "float"
+     },
+     {
+      "name": "provider_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "tax_rate_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "shipping_method",
+      "type": "belongsTo",
+      "target": "ShippingMethod",
+      "mappedBy": "tax_lines"
+     }
+    ]
+   },
+   "ShippingMethod": {
+    "table": "cart_shipping_method",
+    "file": "packages/modules/cart/src/models/shipping-method.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "casm",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text"
+     },
+     {
+      "name": "description",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "is_tax_inclusive",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "shipping_option_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "original_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "original_subtotal",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "original_tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "subtotal",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "discount_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "discount_tax_total",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "cart",
+      "type": "belongsTo",
+      "target": "Cart",
+      "mappedBy": "shipping_methods"
+     },
+     {
+      "name": "tax_lines",
+      "type": "hasMany",
+      "target": "ShippingMethodTaxLine",
+      "mappedBy": "shipping_method"
+     },
+     {
+      "name": "adjustments",
+      "type": "hasMany",
+      "target": "ShippingMethodAdjustment",
+      "mappedBy": "shipping_method"
+     }
+    ]
+   }
+  },
+  "currency": {
+   "currency": {
+    "file": "packages/modules/currency/src/models/currency.ts",
+    "fields": [
+     {
+      "name": "code",
+      "type": "text",
+      "primaryKey": true,
+      "searchable": true
+     },
+     {
+      "name": "symbol",
+      "type": "text"
+     },
+     {
+      "name": "symbol_native",
+      "type": "text"
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "decimal_digits",
+      "type": "number",
+      "default": "0"
+     },
+     {
+      "name": "rounding",
+      "type": "bigNumber",
+      "default": "0"
+     }
+    ]
+   }
+  },
+  "customer": {
+   "CustomerAddress": {
+    "file": "packages/modules/customer/src/models/address.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "cuaddr",
+      "primaryKey": true
+     },
+     {
+      "name": "address_name",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "is_default_shipping",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "is_default_billing",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "company",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "first_name",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "last_name",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "address_1",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "address_2",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "city",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "country_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "province",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "postal_code",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "phone",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "customer",
+      "type": "belongsTo",
+      "target": "Customer",
+      "mappedBy": "addresses"
+     }
+    ]
+   },
+   "CustomerGroupCustomer": {
+    "file": "packages/modules/customer/src/models/customer-group-customer.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "cusgc",
+      "primaryKey": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "customer",
+      "type": "belongsTo",
+      "target": "Customer",
+      "mappedBy": "groups"
+     },
+     {
+      "name": "customer_group",
+      "type": "belongsTo",
+      "target": "CustomerGroup",
+      "mappedBy": "customers"
+     }
+    ]
+   },
+   "CustomerGroup": {
+    "file": "packages/modules/customer/src/models/customer-group.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "cusgroup",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "customers",
+      "type": "manyToMany",
+      "target": "Customer",
+      "mappedBy": "groups"
+     }
+    ]
+   },
+   "Customer": {
+    "file": "packages/modules/customer/src/models/customer.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "cus",
+      "primaryKey": true
+     },
+     {
+      "name": "company_name",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "first_name",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "last_name",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "email",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "phone",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "has_account",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "groups",
+      "type": "manyToMany",
+      "target": "CustomerGroup",
+      "mappedBy": "customers"
+     },
+     {
+      "name": "addresses",
+      "type": "hasMany",
+      "target": "CustomerAddress",
+      "mappedBy": "customer"
+     }
+    ]
+   }
+  },
+  "fulfillment": {
+   "fulfillment_address": {
+    "file": "packages/modules/fulfillment/src/models/address.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "fuladdr",
+      "primaryKey": true
+     },
+     {
+      "name": "company",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "first_name",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "last_name",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "address_1",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "address_2",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "city",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "country_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "province",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "postal_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "phone",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "fulfillment_item": {
+    "file": "packages/modules/fulfillment/src/models/fulfillment-item.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "fulit",
+      "primaryKey": true
+     },
+     {
+      "name": "title",
+      "type": "text"
+     },
+     {
+      "name": "sku",
+      "type": "text"
+     },
+     {
+      "name": "barcode",
+      "type": "text"
+     },
+     {
+      "name": "quantity",
+      "type": "bigNumber"
+     },
+     {
+      "name": "line_item_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "inventory_item_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "fulfillment",
+      "type": "belongsTo",
+      "target": "Fulfillment",
+      "mappedBy": "items"
+     }
+    ]
+   },
+   "fulfillment_label": {
+    "file": "packages/modules/fulfillment/src/models/fulfillment-label.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "fulla",
+      "primaryKey": true
+     },
+     {
+      "name": "tracking_number",
+      "type": "text"
+     },
+     {
+      "name": "tracking_url",
+      "type": "text"
+     },
+     {
+      "name": "label_url",
+      "type": "text"
+     },
+     {
+      "name": "fulfillment",
+      "type": "belongsTo",
+      "target": "Fulfillment",
+      "mappedBy": "labels"
+     }
+    ]
+   },
+   "fulfillment_provider": {
+    "file": "packages/modules/fulfillment/src/models/fulfillment-provider.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "serpro",
+      "primaryKey": true
+     },
+     {
+      "name": "is_enabled",
+      "type": "boolean",
+      "default": "true"
+     }
+    ]
+   },
+   "fulfillment_set": {
+    "file": "packages/modules/fulfillment/src/models/fulfillment-set.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "fuset",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text"
+     },
+     {
+      "name": "type",
+      "type": "text"
+     },
+     {
+      "name": "service_zones",
+      "type": "hasMany",
+      "target": "ServiceZone",
+      "mappedBy": "fulfillment_set"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "fulfillment": {
+    "file": "packages/modules/fulfillment/src/models/fulfillment.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ful",
+      "primaryKey": true
+     },
+     {
+      "name": "location_id",
+      "type": "text"
+     },
+     {
+      "name": "packed_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "shipped_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "marked_shipped_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "delivered_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "canceled_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "requires_shipping",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "items",
+      "type": "hasMany",
+      "target": "FulfillmentItem",
+      "mappedBy": "fulfillment"
+     },
+     {
+      "name": "labels",
+      "type": "hasMany",
+      "target": "FulfillmentLabel",
+      "mappedBy": "fulfillment"
+     },
+     {
+      "name": "provider",
+      "type": "hasOne",
+      "target": "FulfillmentProvider",
+      "nullable": true
+     },
+     {
+      "name": "shipping_option",
+      "type": "belongsTo",
+      "target": "ShippingOption",
+      "mappedBy": "fulfillments",
+      "nullable": true
+     },
+     {
+      "name": "delivery_address",
+      "type": "hasOne",
+      "target": "FulfillmentAddress",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "geo_zone": {
+    "file": "packages/modules/fulfillment/src/models/geo-zone.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "fgz",
+      "primaryKey": true
+     },
+     {
+      "name": "type",
+      "type": "enum",
+      "enum": "GeoZoneType",
+      "values": [
+       "country",
+       "province",
+       "city",
+       "zip"
+      ],
+      "default": "COUNTRY"
+     },
+     {
+      "name": "country_code",
+      "type": "text"
+     },
+     {
+      "name": "province_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "city",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "postal_expression",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "service_zone",
+      "type": "belongsTo",
+      "target": "ServiceZone",
+      "mappedBy": "geo_zones"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "service_zone": {
+    "file": "packages/modules/fulfillment/src/models/service-zone.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "serzo",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text"
+     },
+     {
+      "name": "fulfillment_set",
+      "type": "belongsTo",
+      "target": "FulfillmentSet",
+      "mappedBy": "service_zones"
+     },
+     {
+      "name": "geo_zones",
+      "type": "hasMany",
+      "target": "GeoZone",
+      "mappedBy": "service_zone"
+     },
+     {
+      "name": "shipping_options",
+      "type": "hasMany",
+      "target": "ShippingOption",
+      "mappedBy": "service_zone"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "shipping_option_rule": {
+    "file": "packages/modules/fulfillment/src/models/shipping-option-rule.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "sorul",
+      "primaryKey": true
+     },
+     {
+      "name": "attribute",
+      "type": "text"
+     },
+     {
+      "name": "operator",
+      "type": "enum",
+      "enum": "RuleOperator",
+      "values": [
+       "in",
+       "eq",
+       "ne",
+       "gt",
+       "gte",
+       "lt",
+       "lte",
+       "nin"
+      ]
+     },
+     {
+      "name": "value",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "shipping_option",
+      "type": "belongsTo",
+      "target": "ShippingOption",
+      "mappedBy": "rules"
+     }
+    ]
+   },
+   "shipping_option_type": {
+    "file": "packages/modules/fulfillment/src/models/shipping-option-type.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "sotype",
+      "primaryKey": true
+     },
+     {
+      "name": "label",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true,
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "code",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "shipping_options",
+      "type": "hasMany",
+      "target": "ShippingOption",
+      "mappedBy": "type"
+     }
+    ]
+   },
+   "shipping_option": {
+    "file": "packages/modules/fulfillment/src/models/shipping-option.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "so",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "price_type",
+      "type": "enum",
+      "enum": "ShippingOptionPriceType",
+      "values": [
+       "calculated",
+       "flat"
+      ],
+      "default": "FLAT"
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "service_zone",
+      "type": "belongsTo",
+      "target": "ServiceZone",
+      "mappedBy": "shipping_options"
+     },
+     {
+      "name": "shipping_profile",
+      "type": "belongsTo",
+      "target": "ShippingProfile",
+      "mappedBy": "shipping_options",
+      "nullable": true
+     },
+     {
+      "name": "provider",
+      "type": "belongsTo",
+      "target": "FulfillmentProvider",
+      "nullable": true
+     },
+     {
+      "name": "type",
+      "type": "belongsTo",
+      "target": "ShippingOptionType",
+      "mappedBy": "shipping_options"
+     },
+     {
+      "name": "rules",
+      "type": "hasMany",
+      "target": "ShippingOptionRule",
+      "mappedBy": "shipping_option"
+     },
+     {
+      "name": "fulfillments",
+      "type": "hasMany",
+      "target": "Fulfillment",
+      "mappedBy": "shipping_option"
+     }
+    ]
+   },
+   "shipping_profile": {
+    "file": "packages/modules/fulfillment/src/models/shipping-profile.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "sp",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text"
+     },
+     {
+      "name": "type",
+      "type": "text"
+     },
+     {
+      "name": "shipping_options",
+      "type": "hasMany",
+      "target": "ShippingOption",
+      "mappedBy": "shipping_profile"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "index": {
+   "IndexData": {
+    "file": "packages/modules/index/src/models/index-data.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "text",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "primaryKey": true
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "default": "{}"
+     },
+     {
+      "name": "staled_at",
+      "type": "dateTime",
+      "nullable": true
+     }
+    ]
+   },
+   "IndexMetadata": {
+    "file": "packages/modules/index/src/models/index-metadata.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "idxmeta",
+      "primaryKey": true
+     },
+     {
+      "name": "entity",
+      "type": "text"
+     },
+     {
+      "name": "fields",
+      "type": "text"
+     },
+     {
+      "name": "fields_hash",
+      "type": "text"
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "IndexMetadataStatus",
+      "default": "PENDING"
+     }
+    ]
+   },
+   "IndexRelation": {
+    "file": "packages/modules/index/src/models/index-relation.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "autoincrement",
+      "primaryKey": true
+     },
+     {
+      "name": "pivot",
+      "type": "text"
+     },
+     {
+      "name": "parent_name",
+      "type": "text"
+     },
+     {
+      "name": "parent_id",
+      "type": "text"
+     },
+     {
+      "name": "child_name",
+      "type": "text"
+     },
+     {
+      "name": "child_id",
+      "type": "text"
+     },
+     {
+      "name": "staled_at",
+      "type": "dateTime",
+      "nullable": true
+     }
+    ]
+   },
+   "IndexSync": {
+    "file": "packages/modules/index/src/models/index-sync.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "idxsync",
+      "primaryKey": true
+     },
+     {
+      "name": "entity",
+      "type": "text"
+     },
+     {
+      "name": "last_key",
+      "type": "text",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "inventory": {
+   "InventoryItem": {
+    "file": "packages/modules/inventory/src/models/inventory-item.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "iitem",
+      "primaryKey": true
+     },
+     {
+      "name": "sku",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "origin_country",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "hs_code",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "mid_code",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "material",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "unit_of_measure",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "weight",
+      "type": "number",
+      "nullable": true
+     },
+     {
+      "name": "length",
+      "type": "number",
+      "nullable": true
+     },
+     {
+      "name": "height",
+      "type": "number",
+      "nullable": true
+     },
+     {
+      "name": "width",
+      "type": "number",
+      "nullable": true
+     },
+     {
+      "name": "requires_shipping",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "title",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "thumbnail",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "location_levels",
+      "type": "hasMany",
+      "target": "InventoryLevel",
+      "mappedBy": "inventory_item"
+     },
+     {
+      "name": "reservation_items",
+      "type": "hasMany",
+      "target": "ReservationItem",
+      "mappedBy": "inventory_item"
+     },
+     {
+      "name": "reserved_quantity",
+      "type": "bigNumber",
+      "computed": true
+     },
+     {
+      "name": "stocked_quantity",
+      "type": "bigNumber",
+      "computed": true
+     }
+    ]
+   },
+   "InventoryLevel": {
+    "file": "packages/modules/inventory/src/models/inventory-level.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ilev",
+      "primaryKey": true
+     },
+     {
+      "name": "location_id",
+      "type": "text"
+     },
+     {
+      "name": "stocked_quantity",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "reserved_quantity",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "incoming_quantity",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "inventory_item",
+      "type": "belongsTo",
+      "target": "InventoryItem",
+      "mappedBy": "location_levels"
+     },
+     {
+      "name": "available_quantity",
+      "type": "bigNumber",
+      "computed": true
+     }
+    ]
+   },
+   "ReservationItem": {
+    "file": "packages/modules/inventory/src/models/reservation-item.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "resitem",
+      "primaryKey": true
+     },
+     {
+      "name": "line_item_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "allow_backorder",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "location_id",
+      "type": "text"
+     },
+     {
+      "name": "quantity",
+      "type": "bigNumber"
+     },
+     {
+      "name": "raw_quantity",
+      "type": "json"
+     },
+     {
+      "name": "external_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "inventory_item",
+      "type": "belongsTo",
+      "target": "InventoryItem",
+      "mappedBy": "reservation_items",
+      "searchable": true
+     }
+    ]
+   }
+  },
+  "notification": {
+   "notificationProvider": {
+    "file": "packages/modules/notification/src/models/notification-provider.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "notpro",
+      "primaryKey": true
+     },
+     {
+      "name": "handle",
+      "type": "text"
+     },
+     {
+      "name": "name",
+      "type": "text"
+     },
+     {
+      "name": "is_enabled",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "channels",
+      "type": "array",
+      "default": "[]"
+     },
+     {
+      "name": "notifications",
+      "type": "hasMany",
+      "target": "Notification",
+      "mappedBy": "provider"
+     }
+    ]
+   },
+   "notification": {
+    "file": "packages/modules/notification/src/models/notification.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "noti",
+      "primaryKey": true
+     },
+     {
+      "name": "to",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "from",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "channel",
+      "type": "text"
+     },
+     {
+      "name": "template",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "provider_data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "trigger_type",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "resource_id",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "resource_type",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "receiver_id",
+      "type": "text",
+      "nullable": true,
+      "index": true
+     },
+     {
+      "name": "original_notification_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "idempotency_key",
+      "type": "text",
+      "nullable": true,
+      "unique": true
+     },
+     {
+      "name": "external_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "NotificationStatus",
+      "values": [
+       "pending",
+       "success",
+       "failure"
+      ],
+      "default": "PENDING"
+     },
+     {
+      "name": "provider",
+      "type": "belongsTo",
+      "target": "NotificationProvider",
+      "mappedBy": "notifications",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "order": {
+   "OrderAddress": {
+    "file": "packages/modules/order/src/models/address.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordaddr",
+      "primaryKey": true
+     },
+     {
+      "name": "customer_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "company",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "first_name",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "last_name",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "address_1",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "address_2",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "city",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "country_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "province",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "postal_code",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "phone",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "OrderClaimItemImage": {
+    "file": "packages/modules/order/src/models/claim-item-image.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "climg",
+      "primaryKey": true
+     },
+     {
+      "name": "claim_item",
+      "type": "belongsTo",
+      "target": "OrderClaimItem",
+      "mappedBy": "images"
+     },
+     {
+      "name": "url",
+      "type": "text"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "OrderClaimItem": {
+    "file": "packages/modules/order/src/models/claim-item.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "claitem",
+      "primaryKey": true
+     },
+     {
+      "name": "reason",
+      "type": "enum",
+      "enum": "ClaimReason",
+      "values": [
+       "missing_item",
+       "wrong_item",
+       "production_failure",
+       "other"
+      ],
+      "nullable": true
+     },
+     {
+      "name": "quantity",
+      "type": "bigNumber"
+     },
+     {
+      "name": "is_additional_item",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "note",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "claim",
+      "type": "belongsTo",
+      "target": "OrderClaim",
+      "mappedBy": "additional_items"
+     },
+     {
+      "name": "item",
+      "type": "belongsTo",
+      "target": "OrderLineItem",
+      "mappedBy": "claim_items"
+     },
+     {
+      "name": "images",
+      "type": "hasMany",
+      "target": "OrderClaimItemImage",
+      "mappedBy": "claim_item"
+     }
+    ]
+   },
+   "OrderClaim": {
+    "file": "packages/modules/order/src/models/claim.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "claim",
+      "primaryKey": true
+     },
+     {
+      "name": "order_version",
+      "type": "number"
+     },
+     {
+      "name": "display_id",
+      "type": "autoincrement"
+     },
+     {
+      "name": "type",
+      "type": "enum",
+      "enum": "ClaimType",
+      "values": [
+       "refund",
+       "replace"
+      ]
+     },
+     {
+      "name": "no_notification",
+      "type": "boolean",
+      "nullable": true
+     },
+     {
+      "name": "refund_amount",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "canceled_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "order",
+      "type": "hasOne",
+      "target": "Order"
+     },
+     {
+      "name": "return",
+      "type": "hasOne",
+      "target": "Return",
+      "nullable": true
+     },
+     {
+      "name": "additional_items",
+      "type": "hasMany",
+      "target": "OrderClaimItem",
+      "mappedBy": "claim"
+     },
+     {
+      "name": "claim_items",
+      "type": "hasMany",
+      "target": "OrderClaimItem",
+      "mappedBy": "claim"
+     },
+     {
+      "name": "shipping_methods",
+      "type": "hasMany",
+      "target": "OrderShipping",
+      "mappedBy": "claim"
+     },
+     {
+      "name": "transactions",
+      "type": "hasMany",
+      "target": "OrderTransaction",
+      "mappedBy": "claim"
+     }
+    ]
+   },
+   "OrderCreditLine": {
+    "file": "packages/modules/order/src/models/credit-line.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordcl",
+      "primaryKey": true
+     },
+     {
+      "name": "version",
+      "type": "number",
+      "default": "1"
+     },
+     {
+      "name": "reference",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "reference_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "raw_amount",
+      "type": "json"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "order",
+      "type": "belongsTo",
+      "target": "Order",
+      "mappedBy": "credit_lines"
+     }
+    ]
+   },
+   "OrderExchangeItem": {
+    "file": "packages/modules/order/src/models/exchange-item.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "oexcitem",
+      "primaryKey": true
+     },
+     {
+      "name": "quantity",
+      "type": "bigNumber"
+     },
+     {
+      "name": "note",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "exchange",
+      "type": "belongsTo",
+      "target": "OrderExchange",
+      "mappedBy": "additional_items"
+     },
+     {
+      "name": "item",
+      "type": "belongsTo",
+      "target": "OrderLineItem",
+      "mappedBy": "exchange_items"
+     }
+    ]
+   },
+   "OrderExchange": {
+    "file": "packages/modules/order/src/models/exchange.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "oexc",
+      "primaryKey": true
+     },
+     {
+      "name": "order_version",
+      "type": "number"
+     },
+     {
+      "name": "display_id",
+      "type": "autoincrement"
+     },
+     {
+      "name": "no_notification",
+      "type": "boolean",
+      "nullable": true
+     },
+     {
+      "name": "difference_due",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "allow_backorder",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "canceled_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "order",
+      "type": "hasOne",
+      "target": "Order"
+     },
+     {
+      "name": "return",
+      "type": "hasOne",
+      "target": "Return",
+      "nullable": true
+     },
+     {
+      "name": "additional_items",
+      "type": "hasMany",
+      "target": "OrderExchangeItem",
+      "mappedBy": "exchange"
+     },
+     {
+      "name": "shipping_methods",
+      "type": "hasMany",
+      "target": "OrderShipping",
+      "mappedBy": "exchange"
+     },
+     {
+      "name": "transactions",
+      "type": "hasMany",
+      "target": "OrderTransaction",
+      "mappedBy": "exchange"
+     }
+    ]
+   },
+   "OrderLineItemAdjustment": {
+    "file": "packages/modules/order/src/models/line-item-adjustment.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordliadj",
+      "primaryKey": true
+     },
+     {
+      "name": "version",
+      "type": "number",
+      "default": "1"
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "promotion_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "provider_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "is_tax_inclusive",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "item",
+      "type": "belongsTo",
+      "target": "OrderLineItem",
+      "mappedBy": "adjustments"
+     }
+    ]
+   },
+   "OrderLineItemTaxLine": {
+    "file": "packages/modules/order/src/models/line-item-tax-line.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordlitxl",
+      "primaryKey": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "tax_rate_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "code",
+      "type": "text"
+     },
+     {
+      "name": "rate",
+      "type": "bigNumber"
+     },
+     {
+      "name": "provider_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "item",
+      "type": "belongsTo",
+      "target": "OrderLineItem",
+      "mappedBy": "tax_lines"
+     }
+    ]
+   },
+   "OrderLineItem": {
+    "file": "packages/modules/order/src/models/line-item.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordli",
+      "primaryKey": true
+     },
+     {
+      "name": "title",
+      "type": "text"
+     },
+     {
+      "name": "subtitle",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "thumbnail",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "variant_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_title",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_description",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_subtitle",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_type",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_type_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_collection",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product_handle",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "variant_sku",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "variant_barcode",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "variant_title",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "variant_option_values",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "requires_shipping",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "is_giftcard",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "is_discountable",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "is_tax_inclusive",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "compare_at_unit_price",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "unit_price",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "is_custom_price",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "tax_lines",
+      "type": "hasMany",
+      "target": "OrderLineItemTaxLine",
+      "mappedBy": "item"
+     },
+     {
+      "name": "adjustments",
+      "type": "hasMany",
+      "target": "OrderLineItemAdjustment",
+      "mappedBy": "item"
+     }
+    ]
+   },
+   "OrderChangeAction": {
+    "file": "packages/modules/order/src/models/order-change-action.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordchact",
+      "primaryKey": true
+     },
+     {
+      "name": "order_id",
+      "type": "text"
+     },
+     {
+      "name": "return_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "claim_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "exchange_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "ordering",
+      "type": "autoincrement"
+     },
+     {
+      "name": "version",
+      "type": "number",
+      "nullable": true
+     },
+     {
+      "name": "reference",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "reference_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "action",
+      "type": "text"
+     },
+     {
+      "name": "details",
+      "type": "json",
+      "default": "{}"
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "internal_note",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "applied",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "order_change",
+      "type": "belongsTo",
+      "target": "OrderChange",
+      "mappedBy": "actions",
+      "nullable": true
+     }
+    ]
+   },
+   "OrderChange": {
+    "file": "packages/modules/order/src/models/order-change.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordch",
+      "primaryKey": true
+     },
+     {
+      "name": "return_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "claim_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "exchange_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "version",
+      "type": "number"
+     },
+     {
+      "name": "change_type",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "OrderChangeStatus",
+      "values": [
+       "confirmed",
+       "declined",
+       "requested",
+       "pending",
+       "canceled"
+      ],
+      "nullable": true,
+      "default": "PENDING"
+     },
+     {
+      "name": "internal_note",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "requested_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "requested_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "confirmed_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "confirmed_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "declined_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "declined_reason",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "declined_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "canceled_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "canceled_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "carry_over_promotions",
+      "type": "boolean",
+      "nullable": true
+     },
+     {
+      "name": "no_notification",
+      "type": "boolean",
+      "nullable": true
+     },
+     {
+      "name": "order",
+      "type": "belongsTo",
+      "target": "Order",
+      "mappedBy": "changes"
+     },
+     {
+      "name": "actions",
+      "type": "hasMany",
+      "target": "OrderChangeAction"
+     }
+    ]
+   },
+   "OrderItem": {
+    "file": "packages/modules/order/src/models/order-item.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "orditem",
+      "primaryKey": true
+     },
+     {
+      "name": "version",
+      "type": "number",
+      "default": "1"
+     },
+     {
+      "name": "unit_price",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "compare_at_unit_price",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "quantity",
+      "type": "bigNumber"
+     },
+     {
+      "name": "fulfilled_quantity",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "delivered_quantity",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "shipped_quantity",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "return_requested_quantity",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "return_received_quantity",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "return_dismissed_quantity",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "written_off_quantity",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "order",
+      "type": "belongsTo",
+      "target": "Order",
+      "mappedBy": "items"
+     },
+     {
+      "name": "item",
+      "type": "hasOne",
+      "target": "OrderLineItem"
+     }
+    ]
+   },
+   "OrderShipping": {
+    "file": "packages/modules/order/src/models/order-shipping-method.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordspmv",
+      "primaryKey": true
+     },
+     {
+      "name": "version",
+      "type": "number",
+      "default": "1"
+     },
+     {
+      "name": "order",
+      "type": "belongsTo",
+      "target": "Order",
+      "mappedBy": "shipping_methods"
+     },
+     {
+      "name": "return",
+      "type": "belongsTo",
+      "target": "Return",
+      "mappedBy": "shipping_methods",
+      "nullable": true
+     },
+     {
+      "name": "exchange",
+      "type": "belongsTo",
+      "target": "OrderExchange",
+      "mappedBy": "shipping_methods",
+      "nullable": true
+     },
+     {
+      "name": "claim",
+      "type": "belongsTo",
+      "target": "OrderClaim",
+      "mappedBy": "shipping_methods",
+      "nullable": true
+     },
+     {
+      "name": "shipping_method",
+      "type": "hasOne",
+      "target": "OrderShippingMethod"
+     }
+    ]
+   },
+   "OrderSummary": {
+    "table": "order_summary",
+    "file": "packages/modules/order/src/models/order-summary.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordsum",
+      "primaryKey": true
+     },
+     {
+      "name": "version",
+      "type": "number",
+      "default": "1"
+     },
+     {
+      "name": "totals",
+      "type": "json"
+     },
+     {
+      "name": "order",
+      "type": "belongsTo",
+      "target": "Order",
+      "mappedBy": "summary"
+     }
+    ]
+   },
+   "Order": {
+    "file": "packages/modules/order/src/models/order.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "order",
+      "primaryKey": true
+     },
+     {
+      "name": "display_id",
+      "type": "autoincrement",
+      "searchable": true
+     },
+     {
+      "name": "custom_display_id",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "region_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "customer_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "version",
+      "type": "number",
+      "default": "1"
+     },
+     {
+      "name": "sales_channel_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "OrderStatus",
+      "values": [
+       "pending",
+       "completed",
+       "draft",
+       "archived",
+       "canceled",
+       "requires_action"
+      ],
+      "default": "PENDING"
+     },
+     {
+      "name": "is_draft_order",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "email",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "currency_code",
+      "type": "text"
+     },
+     {
+      "name": "locale",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "no_notification",
+      "type": "boolean",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "canceled_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "shipping_address",
+      "type": "hasOne",
+      "target": "OrderAddress",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "billing_address",
+      "type": "hasOne",
+      "target": "OrderAddress",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "summary",
+      "type": "hasMany",
+      "target": "OrderSummary",
+      "mappedBy": "order"
+     },
+     {
+      "name": "items",
+      "type": "hasMany",
+      "target": "OrderItem",
+      "mappedBy": "order"
+     },
+     {
+      "name": "shipping_methods",
+      "type": "hasMany",
+      "target": "OrderShipping",
+      "mappedBy": "order"
+     },
+     {
+      "name": "transactions",
+      "type": "hasMany",
+      "target": "OrderTransaction",
+      "mappedBy": "order"
+     },
+     {
+      "name": "credit_lines",
+      "type": "hasMany",
+      "target": "OrderCreditLine",
+      "mappedBy": "order"
+     },
+     {
+      "name": "returns",
+      "type": "hasMany",
+      "target": "Return",
+      "mappedBy": "order"
+     }
+    ]
+   },
+   "ReturnItem": {
+    "table": "return_item",
+    "file": "packages/modules/order/src/models/return-item.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "retitem",
+      "primaryKey": true
+     },
+     {
+      "name": "quantity",
+      "type": "bigNumber"
+     },
+     {
+      "name": "received_quantity",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "damaged_quantity",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "note",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "reason",
+      "type": "belongsTo",
+      "target": "ReturnReason",
+      "mappedBy": "return_items",
+      "nullable": true
+     },
+     {
+      "name": "return",
+      "type": "belongsTo",
+      "target": "Return",
+      "mappedBy": "items"
+     },
+     {
+      "name": "item",
+      "type": "belongsTo",
+      "target": "OrderLineItem",
+      "mappedBy": "return_items"
+     }
+    ]
+   },
+   "ReturnReason": {
+    "file": "packages/modules/order/src/models/return-reason.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "rr",
+      "primaryKey": true
+     },
+     {
+      "name": "value",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "label",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true,
+      "translatable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "parent_return_reason",
+      "type": "belongsTo",
+      "target": "_ReturnReason",
+      "mappedBy": "return_reason_children",
+      "nullable": true
+     },
+     {
+      "name": "return_reason_children",
+      "type": "hasMany",
+      "target": "_ReturnReason",
+      "mappedBy": "parent_return_reason"
+     }
+    ]
+   },
+   "Return": {
+    "file": "packages/modules/order/src/models/return.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "return",
+      "primaryKey": true
+     },
+     {
+      "name": "order_version",
+      "type": "number"
+     },
+     {
+      "name": "display_id",
+      "type": "autoincrement"
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "ReturnStatus",
+      "values": [
+       "open",
+       "requested",
+       "received",
+       "partially_received",
+       "canceled"
+      ],
+      "default": "OPEN"
+     },
+     {
+      "name": "location_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "no_notification",
+      "type": "boolean",
+      "nullable": true
+     },
+     {
+      "name": "refund_amount",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "requested_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "received_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "canceled_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "order",
+      "type": "belongsTo",
+      "target": "Order",
+      "mappedBy": "returns"
+     },
+     {
+      "name": "exchange",
+      "type": "hasOne",
+      "target": "OrderExchange",
+      "nullable": true
+     },
+     {
+      "name": "claim",
+      "type": "hasOne",
+      "target": "OrderClaim",
+      "nullable": true
+     },
+     {
+      "name": "items",
+      "type": "hasMany",
+      "target": "ReturnItem",
+      "mappedBy": "return"
+     },
+     {
+      "name": "shipping_methods",
+      "type": "hasMany",
+      "target": "OrderShipping",
+      "mappedBy": "return"
+     },
+     {
+      "name": "transactions",
+      "type": "hasMany",
+      "target": "OrderTransaction",
+      "mappedBy": "return"
+     }
+    ]
+   },
+   "OrderShippingMethodAdjustment": {
+    "table": "order_shipping_method_adjustment",
+    "file": "packages/modules/order/src/models/shipping-method-adjustment.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordsmadj",
+      "primaryKey": true
+     },
+     {
+      "name": "version",
+      "type": "number",
+      "default": "1"
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "promotion_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "provider_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "shipping_method",
+      "type": "belongsTo",
+      "target": "OrderShippingMethod",
+      "mappedBy": "adjustments"
+     }
+    ]
+   },
+   "OrderShippingMethodTaxLine": {
+    "table": "order_shipping_method_tax_line",
+    "file": "packages/modules/order/src/models/shipping-method-tax-line.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordsmtxl",
+      "primaryKey": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "tax_rate_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "code",
+      "type": "text"
+     },
+     {
+      "name": "rate",
+      "type": "bigNumber"
+     },
+     {
+      "name": "provider_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "shipping_method",
+      "type": "belongsTo",
+      "target": "OrderShippingMethod",
+      "mappedBy": "tax_lines"
+     }
+    ]
+   },
+   "OrderShippingMethod": {
+    "file": "packages/modules/order/src/models/shipping-method.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordsm",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text"
+     },
+     {
+      "name": "description",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "is_tax_inclusive",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "is_custom_amount",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "shipping_option_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "tax_lines",
+      "type": "hasMany",
+      "target": "OrderShippingMethodTaxLine",
+      "mappedBy": "shipping_method"
+     },
+     {
+      "name": "adjustments",
+      "type": "hasMany",
+      "target": "OrderShippingMethodAdjustment",
+      "mappedBy": "shipping_method"
+     }
+    ]
+   },
+   "OrderTransaction": {
+    "file": "packages/modules/order/src/models/transaction.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ordtrx",
+      "primaryKey": true
+     },
+     {
+      "name": "version",
+      "type": "number",
+      "default": "1"
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "currency_code",
+      "type": "text"
+     },
+     {
+      "name": "reference",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "reference_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "order",
+      "type": "belongsTo",
+      "target": "Order",
+      "mappedBy": "transactions"
+     },
+     {
+      "name": "return",
+      "type": "belongsTo",
+      "target": "Return",
+      "mappedBy": "transactions",
+      "nullable": true
+     },
+     {
+      "name": "exchange",
+      "type": "belongsTo",
+      "target": "OrderExchange",
+      "mappedBy": "transactions",
+      "nullable": true
+     },
+     {
+      "name": "claim",
+      "type": "belongsTo",
+      "target": "OrderClaim",
+      "mappedBy": "transactions",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "payment": {
+   "AccountHolder": {
+    "file": "packages/modules/payment/src/models/account-holder.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "acchld",
+      "primaryKey": true
+     },
+     {
+      "name": "provider_id",
+      "type": "text"
+     },
+     {
+      "name": "external_id",
+      "type": "text"
+     },
+     {
+      "name": "email",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "default": "{}"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "Capture": {
+    "file": "packages/modules/payment/src/models/capture.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "capt",
+      "primaryKey": true
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "payment",
+      "type": "belongsTo",
+      "target": "Payment",
+      "mappedBy": "captures"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     }
+    ]
+   },
+   "PaymentCollection": {
+    "file": "packages/modules/payment/src/models/payment-collection.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "pay_col",
+      "primaryKey": true
+     },
+     {
+      "name": "currency_code",
+      "type": "text"
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "authorized_amount",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "captured_amount",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "refunded_amount",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "completed_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "PaymentCollectionStatus",
+      "values": [
+       "not_paid",
+       "awaiting",
+       "authorized",
+       "partially_authorized",
+       "canceled",
+       "failed",
+       "partially_captured",
+       "completed"
+      ],
+      "default": "NOT_PAID"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "payment_providers",
+      "type": "manyToMany",
+      "target": "PaymentProvider",
+      "mappedBy": "payment_collections"
+     },
+     {
+      "name": "payment_sessions",
+      "type": "hasMany",
+      "target": "PaymentSession",
+      "mappedBy": "payment_collection"
+     },
+     {
+      "name": "payments",
+      "type": "hasMany",
+      "target": "Payment",
+      "mappedBy": "payment_collection"
+     }
+    ]
+   },
+   "PaymentProvider": {
+    "file": "packages/modules/payment/src/models/payment-provider.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "primaryKey": true
+     },
+     {
+      "name": "is_enabled",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "payment_collections",
+      "type": "manyToMany",
+      "target": "PaymentCollection",
+      "mappedBy": "payment_providers"
+     }
+    ]
+   },
+   "PaymentSession": {
+    "file": "packages/modules/payment/src/models/payment-session.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "payses",
+      "primaryKey": true
+     },
+     {
+      "name": "currency_code",
+      "type": "text"
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "provider_id",
+      "type": "text"
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "default": "{}"
+     },
+     {
+      "name": "context",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "PaymentSessionStatus",
+      "values": [
+       "authorized",
+       "captured",
+       "pending",
+       "requires_more",
+       "error",
+       "canceled",
+       "pending_authorization"
+      ],
+      "default": "PENDING"
+     },
+     {
+      "name": "authorized_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "payment_collection",
+      "type": "belongsTo",
+      "target": "PaymentCollection",
+      "mappedBy": "payment_sessions"
+     },
+     {
+      "name": "payment",
+      "type": "hasOne",
+      "target": "Payment",
+      "mappedBy": "payment_session",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "Payment": {
+    "file": "packages/modules/payment/src/models/payment.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "pay",
+      "primaryKey": true
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "currency_code",
+      "type": "text"
+     },
+     {
+      "name": "provider_id",
+      "type": "text"
+     },
+     {
+      "name": "data",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "captured_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "canceled_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "payment_collection",
+      "type": "belongsTo",
+      "target": "PaymentCollection",
+      "mappedBy": "payments"
+     },
+     {
+      "name": "payment_session",
+      "type": "belongsTo",
+      "target": "PaymentSession",
+      "mappedBy": "payment"
+     },
+     {
+      "name": "refunds",
+      "type": "hasMany",
+      "target": "Refund",
+      "mappedBy": "payment"
+     },
+     {
+      "name": "captures",
+      "type": "hasMany",
+      "target": "Capture",
+      "mappedBy": "payment"
+     }
+    ]
+   },
+   "RefundReason": {
+    "file": "packages/modules/payment/src/models/refund-reason.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "refr",
+      "primaryKey": true
+     },
+     {
+      "name": "label",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "code",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true,
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "refunds",
+      "type": "hasMany",
+      "target": "Refund",
+      "mappedBy": "refund_reason"
+     }
+    ]
+   },
+   "Refund": {
+    "file": "packages/modules/payment/src/models/refund.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ref",
+      "primaryKey": true
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "RefundStatus",
+      "values": [
+       "pending",
+       "succeeded",
+       "failed"
+      ],
+      "default": "PENDING"
+     },
+     {
+      "name": "idempotency_key",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "payment",
+      "type": "belongsTo",
+      "target": "Payment",
+      "mappedBy": "refunds"
+     },
+     {
+      "name": "refund_reason",
+      "type": "belongsTo",
+      "target": "RefundReason",
+      "mappedBy": "refunds",
+      "nullable": true
+     },
+     {
+      "name": "note",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "pricing": {
+   "PriceListRule": {
+    "file": "packages/modules/pricing/src/models/price-list-rule.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "prule",
+      "primaryKey": true
+     },
+     {
+      "name": "attribute",
+      "type": "text"
+     },
+     {
+      "name": "value",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "price_list",
+      "type": "belongsTo",
+      "target": "PriceList",
+      "mappedBy": "price_list_rules"
+     }
+    ]
+   },
+   "PriceList": {
+    "file": "packages/modules/pricing/src/models/price-list.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "plist",
+      "primaryKey": true
+     },
+     {
+      "name": "title",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "PriceListStatus",
+      "values": [
+       "active",
+       "draft"
+      ],
+      "default": "DRAFT"
+     },
+     {
+      "name": "type",
+      "type": "enum",
+      "enum": "PriceListType",
+      "values": [
+       "sale",
+       "override"
+      ],
+      "default": "SALE"
+     },
+     {
+      "name": "starts_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "ends_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "rules_count",
+      "type": "number",
+      "nullable": true,
+      "default": "0"
+     },
+     {
+      "name": "prices",
+      "type": "hasMany",
+      "target": "Price",
+      "mappedBy": "price_list"
+     },
+     {
+      "name": "price_list_rules",
+      "type": "hasMany",
+      "target": "PriceListRule",
+      "mappedBy": "price_list"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "PricePreference": {
+    "file": "packages/modules/pricing/src/models/price-preference.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "prpref",
+      "primaryKey": true
+     },
+     {
+      "name": "attribute",
+      "type": "text"
+     },
+     {
+      "name": "value",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "is_tax_inclusive",
+      "type": "boolean",
+      "default": "false"
+     }
+    ]
+   },
+   "PriceRule": {
+    "file": "packages/modules/pricing/src/models/price-rule.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "prule",
+      "primaryKey": true
+     },
+     {
+      "name": "attribute",
+      "type": "text"
+     },
+     {
+      "name": "value",
+      "type": "text"
+     },
+     {
+      "name": "operator",
+      "type": "enum",
+      "enum": "PricingRuleOperator",
+      "values": [
+       "gte",
+       "lte",
+       "gt",
+       "lt",
+       "eq"
+      ],
+      "default": "EQ"
+     },
+     {
+      "name": "priority",
+      "type": "number",
+      "default": "0"
+     },
+     {
+      "name": "price",
+      "type": "belongsTo",
+      "target": "Price",
+      "mappedBy": "price_rules"
+     }
+    ]
+   },
+   "PriceSet": {
+    "file": "packages/modules/pricing/src/models/price-set.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "pset",
+      "primaryKey": true
+     },
+     {
+      "name": "prices",
+      "type": "hasMany",
+      "target": "Price",
+      "mappedBy": "price_set"
+     }
+    ]
+   },
+   "Price": {
+    "file": "packages/modules/pricing/src/models/price.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "price",
+      "primaryKey": true
+     },
+     {
+      "name": "title",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "currency_code",
+      "type": "text"
+     },
+     {
+      "name": "amount",
+      "type": "bigNumber"
+     },
+     {
+      "name": "min_quantity",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "max_quantity",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "rules_count",
+      "type": "number",
+      "nullable": true,
+      "default": "0"
+     },
+     {
+      "name": "price_set",
+      "type": "belongsTo",
+      "target": "PriceSet",
+      "mappedBy": "prices"
+     },
+     {
+      "name": "price_rules",
+      "type": "hasMany",
+      "target": "PriceRule",
+      "mappedBy": "price"
+     },
+     {
+      "name": "price_list",
+      "type": "belongsTo",
+      "target": "PriceList",
+      "mappedBy": "prices",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "product": {
+   "ProductCategory": {
+    "file": "packages/modules/product/src/models/product-category.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "pcat",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "searchable": true,
+      "translatable": true,
+      "default": "\"\""
+     },
+     {
+      "name": "handle",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "mpath",
+      "type": "text"
+     },
+     {
+      "name": "is_active",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "is_internal",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "rank",
+      "type": "number",
+      "default": "0"
+     },
+     {
+      "name": "external_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "parent_category",
+      "type": "belongsTo",
+      "target": "ProductCategory",
+      "mappedBy": "category_children",
+      "nullable": true
+     },
+     {
+      "name": "category_children",
+      "type": "hasMany",
+      "target": "ProductCategory",
+      "mappedBy": "parent_category"
+     },
+     {
+      "name": "products",
+      "type": "manyToMany",
+      "target": "Product",
+      "mappedBy": "categories"
+     }
+    ]
+   },
+   "ProductCollection": {
+    "file": "packages/modules/product/src/models/product-collection.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "pcol",
+      "primaryKey": true
+     },
+     {
+      "name": "title",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "handle",
+      "type": "text"
+     },
+     {
+      "name": "external_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "products",
+      "type": "hasMany",
+      "target": "Product",
+      "mappedBy": "collection"
+     }
+    ]
+   },
+   "ProductImage": {
+    "table": "image",
+    "file": "packages/modules/product/src/models/product-image.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "img",
+      "primaryKey": true
+     },
+     {
+      "name": "url",
+      "type": "text"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "rank",
+      "type": "number",
+      "default": "0"
+     },
+     {
+      "name": "product",
+      "type": "belongsTo",
+      "target": "Product",
+      "mappedBy": "images"
+     },
+     {
+      "name": "variants",
+      "type": "manyToMany",
+      "target": "ProductVariant",
+      "mappedBy": "images"
+     }
+    ]
+   },
+   "ProductOptionValue": {
+    "file": "packages/modules/product/src/models/product-option-value.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "optval",
+      "primaryKey": true
+     },
+     {
+      "name": "value",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "rank",
+      "type": "number",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "option",
+      "type": "belongsTo",
+      "target": "ProductOption",
+      "mappedBy": "values",
+      "nullable": true
+     },
+     {
+      "name": "variants",
+      "type": "manyToMany",
+      "target": "ProductVariant",
+      "mappedBy": "options"
+     },
+     {
+      "name": "product_options",
+      "type": "manyToMany",
+      "target": "ProductProductOption",
+      "mappedBy": "values"
+     }
+    ]
+   },
+   "ProductOption": {
+    "file": "packages/modules/product/src/models/product-option.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "opt",
+      "primaryKey": true
+     },
+     {
+      "name": "title",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "is_exclusive",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "products",
+      "type": "manyToMany",
+      "target": "Product"
+     },
+     {
+      "name": "values",
+      "type": "hasMany",
+      "target": "ProductOptionValue",
+      "mappedBy": "option"
+     }
+    ]
+   },
+   "ProductProductOptionValue": {
+    "file": "packages/modules/product/src/models/product-product-option-value.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "prodoptval",
+      "primaryKey": true
+     },
+     {
+      "name": "product_product_option",
+      "type": "belongsTo",
+      "target": "ProductProductOption",
+      "mappedBy": "values"
+     },
+     {
+      "name": "product_option_value",
+      "type": "belongsTo",
+      "target": "ProductOptionValue",
+      "mappedBy": "product_options"
+     }
+    ]
+   },
+   "ProductProductOption": {
+    "file": "packages/modules/product/src/models/product-product-option.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "prodopt",
+      "primaryKey": true
+     },
+     {
+      "name": "product",
+      "type": "belongsTo",
+      "target": "Product",
+      "mappedBy": "options"
+     },
+     {
+      "name": "product_option",
+      "type": "belongsTo",
+      "target": "ProductOption",
+      "mappedBy": "products"
+     },
+     {
+      "name": "values",
+      "type": "manyToMany",
+      "target": "ProductOptionValue"
+     }
+    ]
+   },
+   "ProductTag": {
+    "table": "product_tag",
+    "file": "packages/modules/product/src/models/product-tag.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ptag",
+      "primaryKey": true
+     },
+     {
+      "name": "value",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "external_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "products",
+      "type": "manyToMany",
+      "target": "Product",
+      "mappedBy": "tags"
+     }
+    ]
+   },
+   "ProductType": {
+    "file": "packages/modules/product/src/models/product-type.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "ptyp",
+      "primaryKey": true
+     },
+     {
+      "name": "value",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "external_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "products",
+      "type": "hasMany",
+      "target": "Product",
+      "mappedBy": "type"
+     }
+    ]
+   },
+   "ProductVariantProductImage": {
+    "file": "packages/modules/product/src/models/product-variant-product-image.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "pvpi",
+      "primaryKey": true
+     },
+     {
+      "name": "variant",
+      "type": "belongsTo",
+      "target": "ProductVariant",
+      "mappedBy": "images"
+     },
+     {
+      "name": "image",
+      "type": "belongsTo",
+      "target": "ProductImage",
+      "mappedBy": "variants"
+     }
+    ]
+   },
+   "ProductVariant": {
+    "file": "packages/modules/product/src/models/product-variant.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "variant",
+      "primaryKey": true
+     },
+     {
+      "name": "title",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "sku",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "barcode",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "ean",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "upc",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "allow_backorder",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "manage_inventory",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "hs_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "origin_country",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "mid_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "material",
+      "type": "text",
+      "nullable": true,
+      "translatable": true
+     },
+     {
+      "name": "weight",
+      "type": "float",
+      "nullable": true
+     },
+     {
+      "name": "length",
+      "type": "float",
+      "nullable": true
+     },
+     {
+      "name": "height",
+      "type": "float",
+      "nullable": true
+     },
+     {
+      "name": "width",
+      "type": "float",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "variant_rank",
+      "type": "number",
+      "nullable": true,
+      "default": "0"
+     },
+     {
+      "name": "thumbnail",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "product",
+      "type": "belongsTo",
+      "target": "Product",
+      "mappedBy": "variants",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "images",
+      "type": "manyToMany",
+      "target": "ProductImage",
+      "mappedBy": "variants"
+     },
+     {
+      "name": "options",
+      "type": "manyToMany",
+      "target": "ProductOptionValue",
+      "mappedBy": "variants",
+      "pivotTable": "product_variant_option"
+     }
+    ]
+   },
+   "Product": {
+    "file": "packages/modules/product/src/models/product.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "prod",
+      "primaryKey": true
+     },
+     {
+      "name": "title",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "handle",
+      "type": "text"
+     },
+     {
+      "name": "subtitle",
+      "type": "text",
+      "nullable": true,
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true,
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "is_giftcard",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "ProductStatus",
+      "values": [
+       "draft",
+       "proposed",
+       "published",
+       "rejected"
+      ],
+      "default": "DRAFT"
+     },
+     {
+      "name": "thumbnail",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "weight",
+      "type": "float",
+      "nullable": true
+     },
+     {
+      "name": "length",
+      "type": "float",
+      "nullable": true
+     },
+     {
+      "name": "height",
+      "type": "float",
+      "nullable": true
+     },
+     {
+      "name": "width",
+      "type": "float",
+      "nullable": true
+     },
+     {
+      "name": "origin_country",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "hs_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "mid_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "material",
+      "type": "text",
+      "nullable": true,
+      "translatable": true
+     },
+     {
+      "name": "discountable",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "external_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "variants",
+      "type": "hasMany",
+      "target": "ProductVariant",
+      "mappedBy": "product",
+      "searchable": true
+     },
+     {
+      "name": "type",
+      "type": "belongsTo",
+      "target": "ProductType",
+      "mappedBy": "products",
+      "nullable": true
+     },
+     {
+      "name": "tags",
+      "type": "manyToMany",
+      "target": "ProductTag",
+      "mappedBy": "products",
+      "pivotTable": "product_tags"
+     },
+     {
+      "name": "options",
+      "type": "manyToMany",
+      "target": "ProductOption"
+     },
+     {
+      "name": "product_options",
+      "type": "hasMany",
+      "target": "ProductProductOption",
+      "mappedBy": "product"
+     },
+     {
+      "name": "images",
+      "type": "hasMany",
+      "target": "ProductImage",
+      "mappedBy": "product"
+     },
+     {
+      "name": "collection",
+      "type": "belongsTo",
+      "target": "ProductCollection",
+      "mappedBy": "products",
+      "nullable": true
+     },
+     {
+      "name": "categories",
+      "type": "manyToMany",
+      "target": "ProductCategory",
+      "mappedBy": "products",
+      "pivotTable": "product_category_product"
+     }
+    ]
+   }
+  },
+  "promotion": {
+   "ApplicationMethod": {
+    "table": "promotion_application_method",
+    "file": "packages/modules/promotion/src/models/application-method.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "proappmet",
+      "primaryKey": true
+     },
+     {
+      "name": "value",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "currency_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "max_quantity",
+      "type": "number",
+      "nullable": true
+     },
+     {
+      "name": "apply_to_quantity",
+      "type": "number",
+      "nullable": true
+     },
+     {
+      "name": "buy_rules_min_quantity",
+      "type": "number",
+      "nullable": true
+     },
+     {
+      "name": "type",
+      "type": "enum",
+      "enum": "ApplicationMethodType",
+      "values": [
+       "fixed",
+       "percentage"
+      ],
+      "index": true
+     },
+     {
+      "name": "target_type",
+      "type": "enum",
+      "enum": "ApplicationMethodTargetType",
+      "values": [
+       "order",
+       "shipping_methods",
+       "items"
+      ],
+      "index": true
+     },
+     {
+      "name": "allocation",
+      "type": "enum",
+      "enum": "ApplicationMethodAllocation",
+      "values": [
+       "each",
+       "across",
+       "once"
+      ],
+      "nullable": true,
+      "index": true
+     },
+     {
+      "name": "target_selection_strategy",
+      "type": "enum",
+      "enum": "ApplicationMethodTargetSelectionStrategy",
+      "values": [
+       "most_expensive_first",
+       "cheapest_first"
+      ],
+      "default": "MOST_EXPENSIVE_FIRST"
+     },
+     {
+      "name": "promotion",
+      "type": "belongsTo",
+      "target": "Promotion",
+      "mappedBy": "application_method"
+     },
+     {
+      "name": "target_rules",
+      "type": "manyToMany",
+      "target": "PromotionRule",
+      "mappedBy": "method_target_rules",
+      "pivotTable": "application_method_target_rules"
+     },
+     {
+      "name": "buy_rules",
+      "type": "manyToMany",
+      "target": "PromotionRule",
+      "mappedBy": "method_buy_rules",
+      "pivotTable": "application_method_buy_rules"
+     }
+    ]
+   },
+   "CampaignBudgetUsage": {
+    "table": "promotion_campaign_budget_usage",
+    "file": "packages/modules/promotion/src/models/campaign-budget-usage.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "probudgus",
+      "primaryKey": true
+     },
+     {
+      "name": "attribute_value",
+      "type": "text"
+     },
+     {
+      "name": "used",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "budget",
+      "type": "belongsTo",
+      "target": "CampaignBudget",
+      "mappedBy": "usages"
+     }
+    ]
+   },
+   "CampaignBudget": {
+    "table": "promotion_campaign_budget",
+    "file": "packages/modules/promotion/src/models/campaign-budget.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "probudg",
+      "primaryKey": true
+     },
+     {
+      "name": "type",
+      "type": "enum",
+      "enum": "CampaignBudgetType",
+      "values": [
+       "spend",
+       "usage",
+       "use_by_attribute",
+       "spend_by_attribute"
+      ],
+      "index": true
+     },
+     {
+      "name": "currency_code",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "limit",
+      "type": "bigNumber",
+      "nullable": true
+     },
+     {
+      "name": "used",
+      "type": "bigNumber",
+      "default": "0"
+     },
+     {
+      "name": "campaign",
+      "type": "belongsTo",
+      "target": "Campaign",
+      "mappedBy": "budget"
+     },
+     {
+      "name": "attribute",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "usages",
+      "type": "hasMany",
+      "target": "CampaignBudgetUsage",
+      "mappedBy": "budget"
+     }
+    ]
+   },
+   "Campaign": {
+    "table": "promotion_campaign",
+    "file": "packages/modules/promotion/src/models/campaign.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "procamp",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "campaign_identifier",
+      "type": "text"
+     },
+     {
+      "name": "starts_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "ends_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "budget",
+      "type": "hasOne",
+      "target": "CampaignBudget",
+      "mappedBy": "campaign",
+      "nullable": true
+     },
+     {
+      "name": "promotions",
+      "type": "hasMany",
+      "target": "Promotion",
+      "mappedBy": "campaign"
+     }
+    ]
+   },
+   "PromotionRuleValue": {
+    "table": "promotion_rule_value",
+    "file": "packages/modules/promotion/src/models/promotion-rule-value.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "prorulval",
+      "primaryKey": true
+     },
+     {
+      "name": "value",
+      "type": "text"
+     },
+     {
+      "name": "promotion_rule",
+      "type": "belongsTo",
+      "target": "PromotionRule",
+      "mappedBy": "values"
+     }
+    ]
+   },
+   "PromotionRule": {
+    "table": "promotion_rule",
+    "file": "packages/modules/promotion/src/models/promotion-rule.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "prorul",
+      "primaryKey": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "attribute",
+      "type": "text",
+      "index": true
+     },
+     {
+      "name": "operator",
+      "type": "enum",
+      "enum": "PromotionRuleOperator",
+      "values": [
+       "gte",
+       "lte",
+       "gt",
+       "lt",
+       "eq",
+       "ne",
+       "in"
+      ],
+      "index": true
+     },
+     {
+      "name": "values",
+      "type": "hasMany",
+      "target": "PromotionRuleValue",
+      "mappedBy": "promotion_rule"
+     },
+     {
+      "name": "promotions",
+      "type": "manyToMany",
+      "target": "Promotion",
+      "mappedBy": "rules"
+     },
+     {
+      "name": "method_target_rules",
+      "type": "manyToMany",
+      "target": "ApplicationMethod",
+      "mappedBy": "target_rules"
+     },
+     {
+      "name": "method_buy_rules",
+      "type": "manyToMany",
+      "target": "ApplicationMethod",
+      "mappedBy": "buy_rules"
+     }
+    ]
+   },
+   "Promotion": {
+    "file": "packages/modules/promotion/src/models/promotion.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "promo",
+      "primaryKey": true
+     },
+     {
+      "name": "code",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "is_automatic",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "is_tax_inclusive",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "limit",
+      "type": "number",
+      "nullable": true
+     },
+     {
+      "name": "used",
+      "type": "number",
+      "default": "0"
+     },
+     {
+      "name": "type",
+      "type": "enum",
+      "enum": "PromotionType",
+      "values": [
+       "standard",
+       "buyget"
+      ],
+      "index": true
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "PromotionStatus",
+      "values": [
+       "draft",
+       "active",
+       "inactive"
+      ],
+      "index": true,
+      "default": "DRAFT"
+     },
+     {
+      "name": "campaign",
+      "type": "belongsTo",
+      "target": "Campaign",
+      "mappedBy": "promotions",
+      "nullable": true
+     },
+     {
+      "name": "application_method",
+      "type": "hasOne",
+      "target": "ApplicationMethod",
+      "mappedBy": "promotion",
+      "nullable": true
+     },
+     {
+      "name": "rules",
+      "type": "manyToMany",
+      "target": "PromotionRule",
+      "mappedBy": "promotions",
+      "pivotTable": "promotion_promotion_rule"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "region": {
+   "Country": {
+    "table": "region_country",
+    "file": "packages/modules/region/src/models/country.ts",
+    "fields": [
+     {
+      "name": "iso_2",
+      "type": "text",
+      "primaryKey": true,
+      "searchable": true
+     },
+     {
+      "name": "iso_3",
+      "type": "text"
+     },
+     {
+      "name": "num_code",
+      "type": "text"
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "display_name",
+      "type": "text"
+     },
+     {
+      "name": "region",
+      "type": "belongsTo",
+      "target": "Region",
+      "mappedBy": "countries",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "region": {
+    "file": "packages/modules/region/src/models/region.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "reg",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "currency_code",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "automatic_taxes",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "countries",
+      "type": "hasMany",
+      "target": "RegionCountry"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "sales-channel": {
+   "SalesChannel": {
+    "file": "packages/modules/sales-channel/src/models/sales-channel.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "sc",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "is_disabled",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "search": {
+   "SearchIndexSync": {
+    "file": "packages/modules/search/src/models/search-index-sync.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "srhsync",
+      "primaryKey": true
+     },
+     {
+      "name": "job_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "SearchSyncStatus",
+      "default": "PENDING"
+     },
+     {
+      "name": "filters",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "last_key",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "resumable",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "documents_synced",
+      "type": "number",
+      "default": "0"
+     },
+     {
+      "name": "started_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "completed_at",
+      "type": "dateTime",
+      "nullable": true
+     },
+     {
+      "name": "error",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "search_index_version",
+      "type": "belongsTo",
+      "target": "SearchIndexVersion",
+      "mappedBy": "syncs"
+     }
+    ]
+   },
+   "SearchIndexVersion": {
+    "file": "packages/modules/search/src/models/search-index-version.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "srhver",
+      "primaryKey": true
+     },
+     {
+      "name": "version",
+      "type": "number"
+     },
+     {
+      "name": "provider",
+      "type": "text"
+     },
+     {
+      "name": "physical_name",
+      "type": "text"
+     },
+     {
+      "name": "definition_hash",
+      "type": "text"
+     },
+     {
+      "name": "status",
+      "type": "enum",
+      "enum": "SearchIndexState",
+      "default": "PENDING"
+     },
+     {
+      "name": "search_index",
+      "type": "belongsTo",
+      "target": "SearchIndex",
+      "mappedBy": "versions"
+     },
+     {
+      "name": "syncs",
+      "type": "hasMany",
+      "target": "SearchIndexSync",
+      "mappedBy": "search_index_version"
+     }
+    ]
+   }
+  },
+  "settings": {
+   "layout_configuration": {
+    "file": "packages/modules/settings/src/models/layout-configuration.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "lyconf",
+      "primaryKey": true
+     },
+     {
+      "name": "zone",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "user_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "is_system_default",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "configuration",
+      "type": "json"
+     }
+    ]
+   },
+   "property_label": {
+    "file": "packages/modules/settings/src/models/property-label.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "plbl",
+      "primaryKey": true
+     },
+     {
+      "name": "entity",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "property",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "label",
+      "type": "text",
+      "translatable": true
+     },
+     {
+      "name": "description",
+      "type": "text",
+      "nullable": true,
+      "translatable": true
+     }
+    ]
+   },
+   "user_preference": {
+    "file": "packages/modules/settings/src/models/user-preference.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "usrpref",
+      "primaryKey": true
+     },
+     {
+      "name": "user_id",
+      "type": "text"
+     },
+     {
+      "name": "key",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "value",
+      "type": "json"
+     }
+    ]
+   },
+   "view_configuration": {
+    "file": "packages/modules/settings/src/models/view-configuration.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "vconf",
+      "primaryKey": true
+     },
+     {
+      "name": "entity",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "user_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "is_system_default",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "configuration",
+      "type": "json"
+     }
+    ]
+   }
+  },
+  "stock-location": {
+   "StockLocationAddress": {
+    "file": "packages/modules/stock-location/src/models/stock-location-address.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "laddr",
+      "primaryKey": true
+     },
+     {
+      "name": "address_1",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "address_2",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "company",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "city",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "country_code",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "phone",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "province",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "postal_code",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "stock_locations",
+      "type": "hasOne",
+      "target": "StockLocation",
+      "mappedBy": "address"
+     }
+    ]
+   },
+   "StockLocation": {
+    "file": "packages/modules/stock-location/src/models/stock-location.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "sloc",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "address",
+      "type": "belongsTo",
+      "target": "StockLocationAddress",
+      "mappedBy": "stock_locations",
+      "nullable": true,
+      "searchable": true
+     }
+    ]
+   }
+  },
+  "store": {
+   "StoreCurrency": {
+    "file": "packages/modules/store/src/models/currency.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "stocur",
+      "primaryKey": true
+     },
+     {
+      "name": "currency_code",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "is_default",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "store",
+      "type": "belongsTo",
+      "target": "Store",
+      "mappedBy": "supported_currencies",
+      "nullable": true
+     }
+    ]
+   },
+   "StoreLocale": {
+    "file": "packages/modules/store/src/models/locale.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "stloc",
+      "primaryKey": true
+     },
+     {
+      "name": "locale_code",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "store",
+      "type": "belongsTo",
+      "target": "Store",
+      "mappedBy": "supported_locales",
+      "nullable": true
+     }
+    ]
+   },
+   "Store": {
+    "file": "packages/modules/store/src/models/store.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "store",
+      "primaryKey": true
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "searchable": true,
+      "default": "\"Medusa Store\""
+     },
+     {
+      "name": "default_sales_channel_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "default_region_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "default_location_id",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "supported_currencies",
+      "type": "hasMany",
+      "target": "StoreCurrency",
+      "mappedBy": "store"
+     },
+     {
+      "name": "supported_locales",
+      "type": "hasMany",
+      "target": "StoreLocale",
+      "mappedBy": "store"
+     }
+    ]
+   }
+  },
+  "tax": {
+   "TaxProvider": {
+    "file": "packages/modules/tax/src/models/tax-provider.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "primaryKey": true
+     },
+     {
+      "name": "is_enabled",
+      "type": "boolean",
+      "default": "true"
+     },
+     {
+      "name": "regions",
+      "type": "hasMany",
+      "target": "TaxRegion",
+      "mappedBy": "provider"
+     }
+    ]
+   },
+   "TaxRateRule": {
+    "file": "packages/modules/tax/src/models/tax-rate-rule.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "txrule",
+      "primaryKey": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "tax_rate",
+      "type": "belongsTo",
+      "target": "TaxRate",
+      "mappedBy": "rules"
+     },
+     {
+      "name": "reference",
+      "type": "text"
+     },
+     {
+      "name": "reference_id",
+      "type": "text"
+     }
+    ]
+   },
+   "TaxRate": {
+    "file": "packages/modules/tax/src/models/tax-rate.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "txr",
+      "primaryKey": true
+     },
+     {
+      "name": "rate",
+      "type": "float",
+      "nullable": true
+     },
+     {
+      "name": "code",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "searchable": true,
+      "translatable": true
+     },
+     {
+      "name": "is_default",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "is_combinable",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "tax_region",
+      "type": "belongsTo",
+      "target": "TaxRegion",
+      "mappedBy": "tax_rates"
+     },
+     {
+      "name": "rules",
+      "type": "hasMany",
+      "target": "TaxRateRule",
+      "mappedBy": "tax_rate"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     }
+    ]
+   },
+   "TaxRegion": {
+    "file": "packages/modules/tax/src/models/tax-region.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "txreg",
+      "primaryKey": true
+     },
+     {
+      "name": "country_code",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "province_code",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "created_by",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "provider",
+      "type": "belongsTo",
+      "target": "TaxProvider",
+      "mappedBy": "regions",
+      "nullable": true
+     },
+     {
+      "name": "parent",
+      "type": "belongsTo",
+      "target": "TaxRegion",
+      "mappedBy": "children",
+      "nullable": true
+     },
+     {
+      "name": "children",
+      "type": "hasMany",
+      "target": "TaxRegion",
+      "mappedBy": "parent"
+     },
+     {
+      "name": "tax_rates",
+      "type": "hasMany",
+      "target": "TaxRate",
+      "mappedBy": "tax_region"
+     }
+    ]
+   }
+  },
+  "translation": {
+   "locale": {
+    "file": "packages/modules/translation/src/models/locale.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "loc",
+      "primaryKey": true
+     },
+     {
+      "name": "code",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "name",
+      "type": "text",
+      "searchable": true
+     }
+    ]
+   },
+   "translation_settings": {
+    "file": "packages/modules/translation/src/models/settings.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "trset",
+      "primaryKey": true
+     },
+     {
+      "name": "entity_type",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "fields",
+      "type": "json"
+     },
+     {
+      "name": "is_active",
+      "type": "boolean",
+      "default": "true"
+     }
+    ]
+   },
+   "translation": {
+    "file": "packages/modules/translation/src/models/translation.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "trans",
+      "primaryKey": true
+     },
+     {
+      "name": "reference_id",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "reference",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "locale_code",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "translations",
+      "type": "json"
+     },
+     {
+      "name": "translated_field_count",
+      "type": "number",
+      "default": "0"
+     }
+    ]
+   }
+  },
+  "user": {
+   "invite": {
+    "file": "packages/modules/user/src/models/invite.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "invite",
+      "primaryKey": true
+     },
+     {
+      "name": "email",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "accepted",
+      "type": "boolean",
+      "default": "false"
+     },
+     {
+      "name": "token",
+      "type": "text"
+     },
+     {
+      "name": "expires_at",
+      "type": "dateTime"
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   },
+   "user": {
+    "file": "packages/modules/user/src/models/user.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "user",
+      "primaryKey": true
+     },
+     {
+      "name": "first_name",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "last_name",
+      "type": "text",
+      "nullable": true,
+      "searchable": true
+     },
+     {
+      "name": "email",
+      "type": "text",
+      "searchable": true
+     },
+     {
+      "name": "avatar_url",
+      "type": "text",
+      "nullable": true
+     },
+     {
+      "name": "metadata",
+      "type": "json",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "workflow-engine-inmemory": {
+   "workflow_execution": {
+    "file": "packages/modules/workflow-engine-inmemory/src/models/workflow-execution.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "wf_exec"
+     },
+     {
+      "name": "workflow_id",
+      "type": "text",
+      "primaryKey": true
+     },
+     {
+      "name": "transaction_id",
+      "type": "text",
+      "primaryKey": true
+     },
+     {
+      "name": "run_id",
+      "type": "text",
+      "primaryKey": true
+     },
+     {
+      "name": "execution",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "context",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "state",
+      "type": "enum",
+      "enum": "TransactionState",
+      "values": [
+       "not_started",
+       "invoking",
+       "waiting_to_compensate",
+       "compensating",
+       "done",
+       "reverted",
+       "failed"
+      ]
+     },
+     {
+      "name": "retention_time",
+      "type": "number",
+      "nullable": true
+     }
+    ]
+   }
+  },
+  "workflow-engine-redis": {
+   "workflow_execution": {
+    "file": "packages/modules/workflow-engine-redis/src/models/workflow-execution.ts",
+    "fields": [
+     {
+      "name": "id",
+      "type": "id",
+      "prefix": "wf_exec"
+     },
+     {
+      "name": "workflow_id",
+      "type": "text",
+      "primaryKey": true
+     },
+     {
+      "name": "transaction_id",
+      "type": "text",
+      "primaryKey": true
+     },
+     {
+      "name": "run_id",
+      "type": "text",
+      "primaryKey": true
+     },
+     {
+      "name": "execution",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "context",
+      "type": "json",
+      "nullable": true
+     },
+     {
+      "name": "state",
+      "type": "enum",
+      "enum": "TransactionState",
+      "values": [
+       "not_started",
+       "invoking",
+       "waiting_to_compensate",
+       "compensating",
+       "done",
+       "reverted",
+       "failed"
+      ]
+     },
+     {
+      "name": "retention_time",
+      "type": "number",
+      "nullable": true
+     }
+    ]
+   }
+  }
+ }
+}

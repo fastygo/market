@@ -1,0 +1,58 @@
+{
+ "meta": {
+  "source": "https://github.com/medusajs/medusa",
+  "tag": "v2.23.0",
+  "commit": "6369161c5ee22c1ffc92859838d6e72b54de3fc4",
+  "license": "MIT (Enterprise Edition paths excluded)",
+  "generator": "scripts/medusa-ref.mjs"
+ },
+ "providers": {
+  "AbstractPaymentProvider": [
+   "capturePayment",
+   "authorizePayment",
+   "cancelPayment",
+   "initiatePayment",
+   "deletePayment",
+   "getPaymentStatus",
+   "refundPayment",
+   "retrievePayment",
+   "updatePayment",
+   "getWebhookActionAndData"
+  ],
+  "ITaxProvider": [
+   "getIdentifier",
+   "getTaxLines"
+  ],
+  "payment_enums": {
+   "PaymentSessionStatus": [
+    "authorized",
+    "captured",
+    "pending",
+    "requires_more",
+    "error",
+    "canceled",
+    "pending_authorization"
+   ],
+   "PaymentCollectionStatus": [
+    "not_paid",
+    "awaiting",
+    "authorized",
+    "partially_authorized",
+    "canceled",
+    "failed",
+    "partially_captured",
+    "completed"
+   ],
+   "PaymentActions": [
+    "authorized",
+    "captured",
+    "failed",
+    "pending",
+    "requires_more",
+    "canceled",
+    "not_supported",
+    "pending_authorization"
+   ]
+  }
+ }
+}
