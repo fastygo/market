@@ -66,7 +66,12 @@ func TestCabinetBrowserCycle(t *testing.T) {
 		Files:   licensing.LocalFiles{Dir: filesDir, Key: dlKey},
 		Cabinet: &web.Cabinet{Users: users, Magic: magic, Orders: &pb.Account{App: r.app}, Mailer: note, CSRFKey: []byte("csrf-key"), TermsVersion: "1", Method: "card"}}
 	h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: "default", Dict: en, Commerce: commerce})
-	srv = httptest.NewServer(h)
+	// forward only the declared patterns, as the PocketBase router does
+	outer := http.NewServeMux()
+	for _, p := range web.AllPatterns() {
+		outer.Handle(p, h)
+	}
+	srv = httptest.NewServer(outer)
 	t.Cleanup(srv.Close)
 	note.PublicURL = srv.URL
 	r.svc.ReturnURL = func(id string) string { return srv.URL + "/checkout/return/" + id }

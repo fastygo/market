@@ -442,3 +442,11 @@ func (h *Handler) fakePayPage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 	h.render(w, r, http.StatusOK, screens.FakePayPage(s, screens.FakePayView{ID: id, Amount: st.Amount}))
 }
+
+// AllPatterns is every route the handler may mount; the host router must
+// forward all of them (storefront, commerce and cabinet).
+func AllPatterns() []string {
+	out := append([]string{}, Patterns...)
+	out = append(out, CommercePatterns...)
+	return append(out, AccountPatterns...)
+}

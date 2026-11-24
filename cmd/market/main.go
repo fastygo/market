@@ -94,7 +94,7 @@ func main() {
 		})
 		h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: code, Dict: en, Log: se.App.Logger(), Commerce: commerce})
 		wrapped := apis.WrapStdHandler(h)
-		for _, p := range append(append([]string{}, web.Patterns...), web.CommercePatterns...) {
+		for _, p := range web.AllPatterns() {
 			method, path, _ := strings.Cut(p, " ")
 			se.Router.Route(method, path, wrapped)
 		}
