@@ -12,26 +12,13 @@ import (
 
 	"github.com/fastygo/market/internal/catalog"
 	"github.com/fastygo/market/internal/i18n"
-	_ "github.com/fastygo/market/internal/migrations"
 	"github.com/fastygo/market/internal/platform/pb"
+	"github.com/fastygo/market/internal/platform/pb/pbtest"
 	"github.com/fastygo/market/internal/web"
 	"github.com/fastygo/market/ui/dict"
 )
 
-// newApp boots a PocketBase app in a temp dir and applies all migrations
-// (system + ours, including the placeholder seed).
-func newApp(t *testing.T) core.App {
-	t.Helper()
-	app := core.NewBaseApp(core.BaseAppConfig{DataDir: t.TempDir()})
-	if err := app.Bootstrap(); err != nil {
-		t.Fatal(err)
-	}
-	if err := app.RunAllMigrations(); err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = app.ResetBootstrapState() })
-	return app
-}
+func newApp(t *testing.T) core.App { return pbtest.New(t) }
 
 func TestMigrationsAndSeed(t *testing.T) {
 	app := newApp(t)

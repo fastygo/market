@@ -14,6 +14,7 @@ import (
 
 	"github.com/fastygo/market/internal/i18n"
 	_ "github.com/fastygo/market/internal/migrations"
+	"github.com/fastygo/market/internal/modules"
 	"github.com/fastygo/market/internal/platform/pb"
 	"github.com/fastygo/market/internal/web"
 	"github.com/fastygo/market/ui/dict"
@@ -30,7 +31,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app := pocketbase.New()
+	app := pocketbase.NewWithConfig(pocketbase.Config{DBConnect: pb.DBConnect})
+	pb.RegisterGuards(app)
+
+	mods, err := registry().Resolve(enabledModules, "single_store")
+	if err != nil {
+		log.Fatal(err)
+	}
 	migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{Automigrate: false})
 
 	code := os.Getenv("MARKET_STOREFRONT")
@@ -49,7 +56,29 @@ func main() {
 		return se.Next()
 	})
 
+	for _, m := range mods {
+		app.Logger().Info("module", "id", m.ID, "version", m.Version)
+	}
+
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// enabledModules are the Go modules wired in phase 0; per-storefront module
+// config (storefronts.modules) is read in phase 1.
+var enabledModules = []string{"core", "locale-en", "product-type-plain"}
+
+func registry() *modules.Registry {
+	r := modules.New()
+	for _, m := range []modules.Manifest{
+		{ID: "core", Version: "0.1.0"},
+		{ID: "locale-en", Version: "0.1.0", Provides: []string{"locale.format@1"}},
+		{ID: "product-type-plain", Version: "0.1.0", Provides: []string{"product.type.plain@1"}},
+	} {
+		if err := r.Register(m); err != nil {
+			log.Fatal(err)
+		}
+	}
+	return r
 }

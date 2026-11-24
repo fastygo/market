@@ -1,0 +1,45 @@
+# systemd unit for the market binary (slo.md host profile: 1 vCPU, 2 GB RAM).
+# Install: binary to /opt/market/market, env to /etc/market/market.env
+# (from market.env.example), data dir /var/lib/market. Caddy (or another
+# reverse proxy) terminates TLS and proxies to 127.0.0.1:8090.
+[Unit]
+Description=market storefront (PocketBase + templ SSR)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=market
+Group=market
+EnvironmentFile=/etc/market/market.env
+ExecStart=/opt/market/market serve --http=127.0.0.1:8090 --dir=/var/lib/market/pb_data
+WorkingDirectory=/var/lib/market
+Restart=on-failure
+RestartSec=3
+# graceful stop: workers release their leases within this window
+TimeoutStopSec=20
+KillSignal=SIGTERM
+
+# memory budget (slo.md): GOMEMLIMIT soft 512 MiB in the env file, hard cap here
+MemoryHigh=640M
+MemoryMax=768M
+LimitNOFILE=65536
+
+# hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ReadWritePaths=/var/lib/market
+StateDirectory=market
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target

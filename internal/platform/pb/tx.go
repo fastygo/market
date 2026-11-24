@@ -1,0 +1,75 @@
+package pb
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/pocketbase/dbx"
+	"github.com/pocketbase/pocketbase/core"
+
+	"github.com/fastygo/market/internal/platform/tx"
+)
+
+// BusyTimeout is the explicit SQLite busy_timeout (ADR-0001, ADR-0007).
+const BusyTimeout = 5 * time.Second
+
+// DBConnect opens the data databases with an explicit busy_timeout and
+// `_txlock=immediate`, so every transaction starts with BEGIN IMMEDIATE and
+// takes the write lock up front (no deferred-to-write upgrade that
+// busy_timeout cannot retry). Other pragmas match PocketBase defaults.
+func DBConnect(dbPath string) (*dbx.DB, error) {
+	pragmas := fmt.Sprintf("?_pragma=busy_timeout(%d)&_pragma=journal_mode(WAL)&_pragma=journal_size_limit(200000000)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=cache_size(-32000)&_defensive=1&_txlock=immediate", BusyTimeout.Milliseconds())
+	return dbx.Open("sqlite", dbPath+pragmas)
+}
+
+type txAppKey struct{}
+
+// TxStats is called after every write transaction with its name, the time
+// spent waiting for the write lock plus running, and the error.
+var TxStats = func(name string, took time.Duration, attempts int, err error) {}
+
+// MaxTxAttempts bounds retries of a transaction that failed with SQLITE_BUSY.
+const MaxTxAttempts = 3
+
+// RunTx runs fn in one short write transaction (ADR-0007 rule zero): the
+// context passed to fn is flagged as "in tx" so network adapters refuse to
+// run, and the process-wide counter of open write transactions is kept.
+// A nested call reuses the outer transaction. SQLITE_BUSY is retried a
+// bounded number of times; any other error rolls back and is returned.
+func RunTx(ctx context.Context, app core.App, name string, fn func(ctx context.Context, txApp core.App) error) error {
+	if outer, ok := ctx.Value(txAppKey{}).(core.App); ok && tx.InTx(ctx) {
+		return fn(ctx, outer)
+	}
+	start := time.Now()
+	var err error
+	attempt := 0
+	for attempt = 1; attempt <= MaxTxAttempts; attempt++ {
+		err = app.RunInTransaction(func(txApp core.App) error {
+			tx.Enter()
+			defer tx.Leave()
+			inner := context.WithValue(tx.Mark(ctx), txAppKey{}, txApp)
+			return fn(inner, txApp)
+		})
+		if err == nil || !isBusy(err) || ctx.Err() != nil {
+			break
+		}
+		time.Sleep(time.Duration(attempt) * 25 * time.Millisecond)
+	}
+	TxStats(name, time.Since(start), attempt, err)
+	return err
+}
+
+func isBusy(err error) bool {
+	if err == nil {
+		return false
+	}
+	s := err.Error()
+	return strings.Contains(s, "SQLITE_BUSY") || strings.Contains(s, "database is locked")
+}
+
+// ErrConflict is returned by conditional updates that matched no row (a
+// lost race or a stale status_version); callers treat it as a no-op.
+var ErrConflict = errors.New("pb: conditional update matched no row")

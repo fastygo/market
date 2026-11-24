@@ -172,8 +172,14 @@ dictionary, Tailwind build, tests (money, i18n, migrations and seed,
 repository, handlers end to end). Measured on the dev box (production
 build, `GOMEMLIMIT` default 512 MiB): RSS 43 MB idle, 54 MB after 3000
 product page requests at 16 in parallel (peak 56 MB); binary 28 MB.
-Open in phase 0: `platform.Tx` (`BEGIN IMMEDIATE`, explicit
-`busy_timeout`), module registry, deploy files, write-protection hooks.
+Phase 0 closed (t224u): `pb.RunTx` + `platform/tx` (`BEGIN IMMEDIATE` via
+`_txlock=immediate`, explicit `busy_timeout` 5 s, bounded `SQLITE_BUSY`
+retry, "in tx" context flag and open-tx counter for rule zero),
+`internal/modules` (manifest, mode check, required and singular
+capabilities, load order, cycles), `deploy/` (systemd unit, env example
+with placeholders), Go guards (REST writes to money and fulfilment
+collections denied even for superusers, ledger append-only, published
+releases immutable, `agent` seller rejected in `single_store`).
 
 ### Skin note 2026-11-24 (t224u)
 
