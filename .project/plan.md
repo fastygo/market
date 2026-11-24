@@ -4,6 +4,14 @@ Result first, then scale. Each step is small, ends green (`go test ./...`,
 `go vet ./...`, templ generate clean, UI8Kit checks for blocks and layouts),
 and is deployable. Status: all steps Proposed until the architecture review.
 
+## Target host (owner t223u)
+
+1 vCPU 3.3 GHz, 2 GB RAM, 30 GB NVMe, 100 Mbit/s. One Go binary
+(PocketBase + templ SSR), no Node, Postgres or Redis at runtime; built
+off-server and deployed as a binary; release files in S3-compatible RU
+storage behind pre-signed redirects; backups to external storage. Memory
+budget and load-test plan: `slo.md`.
+
 ## Phase 0. Skeleton (1 week)
 
 1. `go.mod` (Go 1.27), `cmd/market/main.go`: `pocketbase.New()`, `jsvm`,
@@ -145,3 +153,10 @@ Phase 0 is narrower: no goja policy sandbox, `platform.Tx` with
 decisions). Reconciliation gets the auto-refund branch; go-live checklist
 has the agent-vs-single-store rule. The plugin runtime moves to its trigger
 (phase 4 or owner decision).
+
+## Decisions 2026-11-24 (owner t223u)
+
+A3 decided (Go region rules in phase 1). Product types are modules with a
+plain default page (ADR-0019); phase 0 builds only the plain type with
+Download and Preview actions. Host profile, memory budget and load-test plan
+added (`slo.md`). Release files never pass through the app (ADR-0009).

@@ -16,8 +16,8 @@ change them.
    a separate repo `fastygo/market-locale-ru`. Which one?
 2. Deployment topology (ADR-0015): one region per deployment (data
    residency), several storefronts of one region per instance later. Confirm.
-3. OWNER DECISION. Region policy as goja plugins (ADR-0017). New default
-   after review r2 (P0-C): phase 0-1 ships region policy (tax table, receipt
+3. DECIDED (owner t223u, 2026-11-24). Region policy as goja plugins
+   (ADR-0017). Decision, as proposed after review r2 (P0-C): phase 0-1 ships region policy (tax table, receipt
    field mapping, consent and legal documents, legal id rules, checkout
    fields) as the Go module `internal/region/ru` behind the same
    `TaxPolicy`/`DocumentIssuer`/`ConsentPolicy`/`LegalProfile` interfaces;
@@ -68,3 +68,12 @@ charge, GDPR records and DPO need, Stripe/PayPal account setup.
 A3 default changed: Go region policy in phase 0-1, goja policy plugins at
 their trigger; flagged as an owner decision. B1 notes that `agent` cannot
 launch in `single_store`.
+
+## Decisions 2026-11-24 (owner t223u)
+
+- A1 stays at the default: Russian dictionary in the database
+  (`ui_messages`), imported from a bundle outside this repo.
+- A3 decided: phase 1 RU rules in Go behind the module interfaces; goja
+  policy plugins later, at the triggers written in ADR-0017.
+- Product shape is open; product types are modules with a plain default
+  page (ADR-0019), so this is not a blocker.

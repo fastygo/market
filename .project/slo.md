@@ -85,3 +85,44 @@ budgets (P0-5), standby described as promote, not multi-master.
 ## Revision 2026-11-24 (owner: region-neutral core)
 
 SLOs are per deployment; fiscal receipts generalized to region tax documents.
+
+## Target host and runtime profile (owner t223u, 2026-11-24)
+
+- Host: 1 vCPU (3.3 GHz), 2 GB RAM, 30 GB NVMe, 100 Mbit/s, in the
+  deployment's region.
+- Runtime: one Go binary (PocketBase + templ SSR, embedded CSS and assets)
+  behind Caddy; no Node, Postgres or Redis at runtime. Built off-server
+  (CI or local), deployed as a binary with systemd.
+- Release files: S3-compatible storage in the region, pre-signed URL
+  redirect, never through the app (ADR-0009). Product images: same storage
+  or the app's static path with long cache headers; phase 5 adds a CDN.
+- Backups: Litestream and the daily PocketBase backup go to external
+  storage, not the same disk.
+
+### Memory budget (2 GB host)
+
+| Consumer | Budget |
+| --- | --- |
+| OS, systemd, journald, sshd | 250 MB |
+| Caddy | 60 MB |
+| Litestream | 60 MB |
+| market binary (Go heap + SQLite page cache) | soft limit 512 MiB via `GOMEMLIMIT`, alert at RSS 600 MB |
+| SQLite OS page cache (database file) | the rest, about 1 GB |
+
+Phase 0 measures idle RSS of the binary (recorded in `plan.md`); SQLite
+`cache_size` is set explicitly (start: 32 MiB). Swap: 1 GB swap file as a
+safety net, alert on swap-in.
+
+### Load test plan
+
+- Tool: `k6` or `vegeta` run from another host (never on the target).
+- Read profile: home, category, product, search mix at 20, 50 and 100 rps
+  for 10 min each, warm cache. Pass: p95 < 300 ms, 5xx = 0, CPU < 70%,
+  RSS within budget.
+- Write profile (phase 1): checkout with the fake gateway at 2 and 5 orders
+  per second plus a webhook burst of 50 events in 10 s, while the read
+  profile runs at 20 rps. Pass: no `SQLITE_BUSY` surfaced to users,
+  lock-wait p99 < 200 ms, webhook intake 2xx 100%.
+- Soak: 2 h read profile at 20 rps; RSS stays flat (no growth > 10%).
+- Run before go-live and after each minor PocketBase upgrade; results in
+  `.project/loadtest/` (date, commit, numbers).

@@ -37,6 +37,7 @@ the repo.
 | [0016](adr/0016-no-secrets-or-personal-data-in-repo.md) | No secrets, legal-entity or personal data in the repo; verify.sh greps | Accepted |
 | [0017](adr/0017-module-system.md) | Module system (Go modules for money, goja plugins for policy); commerce mode | Proposed |
 | [0018](adr/0018-i18n-and-white-label.md) | Locale modules and white-label branding | Proposed |
+| [0019](adr/0019-product-types-as-modules.md) | Product types as modules; plain product page by default | Accepted |
 
 ADR format: Status, Context, Decision, Consequences. Status values: Proposed,
 Accepted, Superseded. "Accepted" means the direction was confirmed by the
@@ -108,3 +109,10 @@ store and marketplace as a mode. Changes:
   `reason_code`, `note`; auto-refund of paid-but-uncompletable orders;
   `agent` sellers rejected in `single_store`; ledger indexes and on-demand
   balances; `storefronts.countries`; line `product_slug`, `license_title`.
+
+## Decisions 2026-11-24 (owner t223u)
+
+A3 decided (Go region rules in phase 1, goja plugins at their trigger); A1
+stays default. ADR-0019 product types as modules. Target host profile,
+memory budget and load-test plan in `slo.md`; release files via pre-signed
+S3 redirects (ADR-0009).

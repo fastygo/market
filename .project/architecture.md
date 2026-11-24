@@ -299,6 +299,7 @@ Effects split in two classes (ADR-0007):
   requires one.
 - Download: account link -> check entitlement `active` and release
   `published` -> 302 to `/dl/{token}` (HMAC, 10 min) -> `/dl/{token}`
-  re-checks both -> stream file, log `downloads`.
+  re-checks both -> log `downloads` -> 302 to a pre-signed S3 URL (minutes);
+  the app never streams release files (ADR-0009).
 - Shutdown: workers stop claiming on `OnTerminate`, finish or release their
   leases within the context deadline.

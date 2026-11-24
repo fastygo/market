@@ -17,9 +17,11 @@
 - Download: account link -> handler checks entitlement `active` and release
   `published` -> 302 to `/dl/{token}`, token = HMAC-SHA256 (entitlement,
   release, user, expiry 10 min). `/dl/{token}` re-checks entitlement `active`
-  and release `published` before streaming, so a refund or dispute inside the
-  token window stops the download. File streamed by Go (`http.ServeContent`,
-  ranges); later a pre-signed object storage URL with the same pre-check.
+  and release `published`, then redirects (302) to a pre-signed URL of the
+  release object in S3-compatible storage in the deployment's region (RU:
+  a Russian provider), valid for minutes. The app never streams release
+  files (owner t223u: small host, 100 Mbit/s); a refund or dispute inside
+  the token window stops new downloads at the `/dl/{token}` check.
 - Every download is logged (`downloads`); soft limit with alert on abuse.
 - Status changes: refund (phase 1: full only) -> `refunded`; dispute ->
   `disputed` (downloads stop) -> `refunded` or back to `active`; operator
@@ -41,3 +43,10 @@
 Applied P1-1 (disputed), P1-2 (full refunds only), P1-5 (support from
 snapshot), P1-6 (re-check at `/dl/{token}`), P1-8 (immutable release), P2
 (all releases yanked).
+
+## Revision 2026-11-24 (owner t223u)
+
+Release files live in S3-compatible storage of the deployment region and are
+served through pre-signed URLs after the entitlement check, never through
+the app. Storage credentials come from env. Delivery is the default
+`Delivery` of the `plain` product type (ADR-0019).
