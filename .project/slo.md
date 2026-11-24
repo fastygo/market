@@ -1,6 +1,7 @@
 # SLO
 
-Targets for production, phase 1 (single node, one SQLite writer). Status
+Targets per deployment (single node, one SQLite writer); the same table
+applies to every region. Phase 1 = the RU deployment. Status
 "Target" until the measurement exists; "Measured" once the SLI is on the
 dashboard. Window: 30 rolling days unless noted. Time in UTC.
 
@@ -12,7 +13,7 @@ reconciliation that runs at start-up; no objective promises 100%.
 
 | SLI | Objective | Error budget / 30 d | Owner | Status |
 | --- | --- | --- | --- | --- |
-| Storefront availability (GET `/`, category, product; non-5xx, external probe from RF every 60 s) | 99.5% | 3 h 36 min | Operator | Target |
+| Storefront availability (GET `/`, category, product; non-5xx, external probe from the deployment's region every 60 s) | 99.5% | 3 h 36 min | Operator | Target |
 | SSR latency, catalog and product pages (origin, server time) | p95 <= 300 ms, p99 <= 800 ms | 5% of requests over 300 ms | Dev | Target |
 | Checkout start (POST `/checkout` to provider redirect, non-5xx) | 99.5% success, p95 <= 1.5 s | 0.5% | Dev | Target |
 | Webhook intake (verified event stored and 2xx returned) | 99.9% success; latency target set after the first month of measurements (single writer shared with checkout, workers, Litestream, FTS) | 0.1% | Dev | Target |
@@ -26,11 +27,13 @@ Excluded from error budgets: 4xx (auth, validation, 404), provider-side
 outages proven by provider status (tracked as "provider availability"),
 planned maintenance announced 24 h ahead (max 2 h a month).
 
-## Fiscal receipts: obligation, not a budget
+## Tax documents: obligation, not a budget
 
-Receipt registration (54-FZ) is a legal duty, so it has no error budget.
-Target: registered within 15 min of process-up time. Any receipt that is
-`failed` after the retry cap, or still `pending` after 1 h of process-up
+Where the region pack requires tax documents (RU: 54-FZ receipts; EU:
+invoices), issuing them is a legal duty, so it has no error budget.
+Target: issued within 15 min of process-up time (RU receipts; EU invoices
+within 24 h unless the pack sets a stricter rule). Any document that is
+`failed` after the retry cap, or still `pending` after 1 h (RU) of process-up
 time, is a page alert and an operator task the same day. Reported monthly as
 a count of incidents, not as a percentage.
 
@@ -49,7 +52,7 @@ a count of incidents, not as a percentage.
 - External probe (Uptime Kuma or a hosted RF checker) for availability.
 - Business SLIs are SQL over our own tables: `payments.updated` vs
   `entitlements.granted_at`, `outbox` and `payment_events` status and age,
-  `fiscal_receipts` status age. A cron exports them as gauges every minute.
+  `tax_documents` status age. A cron exports them as gauges every minute.
 - Logs: PocketBase request logs + structured `slog` JSON; no personal data in
   logs (email hashed, IP hashed).
 
@@ -58,8 +61,8 @@ a count of incidents, not as a percentage.
 - Burn rate page: 2% of the 30-day budget burned in 1 h (14.4x).
 - Burn rate ticket: 5% burned in 6 h (6x).
 - Direct pages: `payment_events` not processed > 10 min; inbox or outbox row
-  `dead`; paid order without entitlement or ledger txn > 15 min; receipt
-  `failed` or `pending` > 1 h; backup lag > 15 min.
+  `dead`; paid order without entitlement or ledger txn > 15 min; tax document
+  `failed`, or `pending` beyond the pack's limit; backup lag > 15 min.
 
 ## Error budget policy
 
@@ -78,3 +81,7 @@ can be promoted. It is still one writer, not multi-master; RTO target then
 Applied P1-10: removed "100% within 30 min / same day" (contradicted RTO
 4 h), dropped the unmeasured webhook p95 200 ms, fiscal moved out of error
 budgets (P0-5), standby described as promote, not multi-master.
+
+## Revision 2026-11-24 (owner: region-neutral core)
+
+SLOs are per deployment; fiscal receipts generalized to region tax documents.

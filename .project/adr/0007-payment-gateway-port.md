@@ -1,13 +1,13 @@
 # ADR-0007: Payment gateway port, checkout protocol, inbox and outbox
 
-- Status: Proposed (revised after review 2026-11-24)
+- Status: Proposed (revised 2026-11-24: review, then provider-neutral core)
 
 ## Context
 
-Sales only in Russia, several methods (card, SBP, SberPay, T-Pay, Mir Pay,
-wallets) and providers: YooKassa, T-Bank Internet Acquiring, CloudPayments,
-Robokassa. SBP is reached through the acquiring provider. Foreign providers
-are out. One SQLite writer.
+The marketplace is reused across regions. Providers differ by deployment:
+RU (YooKassa, T-Bank Internet Acquiring, CloudPayments, Robokassa; SBP,
+SberPay, T-Pay, Mir Pay reached through the acquirer), EU (Stripe, PayPal).
+The core must not know which one runs. One SQLite writer.
 
 ## Decision
 
@@ -17,25 +17,34 @@ are out. One SQLite writer.
 type Gateway interface {
     Code() ProviderCode
     Methods() []Method
-    CreatePayment(ctx context.Context, req CreatePaymentRequest) (CreatePaymentResult, error) // IdempotencyKey, Receipt payload from fiscal
+    CreatePayment(ctx context.Context, req CreatePaymentRequest) (CreatePaymentResult, error) // IdempotencyKey, Amount (minor + currency), optional Document
     FetchPayment(ctx context.Context, providerPaymentID string) (Status, error)                // source of truth
     CancelPayment(ctx context.Context, providerPaymentID, idempotencyKey string) (Status, error)
-    Refund(ctx context.Context, req RefundRequest) (RefundResult, error)                      // IdempotencyKey, return receipt payload
-    RegisterReceipt(ctx context.Context, req ReceiptRequest) (ReceiptResult, error)           // retry or standalone receipt
-    FetchReceipt(ctx context.Context, providerReceiptID string) (ReceiptStatus, error)
+    Refund(ctx context.Context, req RefundRequest) (RefundResult, error)                      // IdempotencyKey, optional return Document
     ParseWebhook(ctx context.Context, r *http.Request) (Event, error)                         // verify only, no side effects
+}
+
+// Optional capability: adapters whose provider issues tax documents
+// (RU cloud registers) also implement this; the RU DocumentIssuer uses it.
+type InlineDocumentGateway interface {
+    Gateway
+    IssueDocument(ctx context.Context, req DocumentRequest) (DocumentResult, error)
+    FetchDocument(ctx context.Context, externalID string) (DocumentStatus, error)
 }
 ```
 
-Receipt DTO and builder live in `internal/fiscal` (`fiscal.Receipt`,
-`fiscal.Line`, pure `fiscal.Build`). Import direction has no cycle:
-`ordering -> payments -> fiscal` and `ordering -> fiscal`; `fiscal` imports
-neither. The checkout use case maps order items to `fiscal.Line`, builds the
-receipt and passes it in `CreatePaymentRequest`.
+`CreatePaymentRequest.Document` is the region-neutral `taxdocs.Document`
+(lines with amount, tax rate, tax code, subject code, agent data). Adapters
+that issue documents inline (RU) send it; others (Stripe, PayPal) ignore it
+and the region `DocumentIssuer` issues invoices itself. Import direction:
+`ordering -> payments -> taxdocs`, `ordering -> taxdocs`; `taxdocs` imports
+neither.
 
-Phase 1 creates payments with immediate capture; no `CapturePayment` until a
-provider needs two-step capture. `Registry` maps method -> provider by config
-(phase 2: fallback order).
+Adapters are enabled per storefront by config (`enabled_providers`: method ->
+provider). Credentials come from env (`MARKET_PROVIDER_<CODE>_*`), never from
+the repo or admin-visible fields. Phase 1 creates payments with immediate
+capture; no `CapturePayment` until a provider needs it (Stripe manual capture
+or PayPal authorize flows are not used). Phase 2: fallback order per method.
 
 ### Checkout protocol (use case in `internal/ordering`)
 
@@ -63,10 +72,10 @@ provider needs two-step capture. `Registry` maps method -> provider by config
 ### Effects
 
 - In the same DB transaction as the status change: entitlement insert,
-  ledger entries with deterministic `txn_id` (ADR-0006), receipt row
-  `pending`, inbox row `processed`.
+  ledger entries with deterministic `txn_id` (ADR-0006), tax document row
+  `pending` (if the region requires one), inbox row `processed`.
 - In the outbox (written in that transaction): only external effects:
-  purchase email, `RegisterReceipt` retry, `CancelPayment`, `Refund` calls.
+  purchase email, `DocumentIssuer.Issue` retry, `CancelPayment`, `Refund` calls.
   Each with a deterministic `idempotency_key`.
 
 ### Inbox and outbox workers
@@ -80,7 +89,9 @@ in one transaction (`payments` never imports `ordering`).
   conflict on `(provider, event_id)` = already accepted, 2xx.
 - Verification: YooKassa (IP allowlist), T-Bank (`Token` SHA-256 with the
   terminal password), CloudPayments (`Content-HMAC`), Robokassa
-  (`SignatureValue` with password 2). The status is always confirmed with
+  (`SignatureValue` with password 2); Stripe (`Stripe-Signature` with the
+  endpoint secret), PayPal (verify-webhook-signature API). Each adapter owns
+  its check. The status is always confirmed with
   `FetchPayment`, never taken from the body.
 - Exactly one inbox worker and one outbox worker per process. Claim: atomic
   update `received|pending -> processing` with `locked_until`; expired leases
@@ -97,18 +108,18 @@ in one transaction (`payments` never imports `ordering`).
    `FetchPayment` (late success).
 3. Orders `paid` without an entitlement or without the ledger `txn_id` ->
    replay the in-transaction effects (idempotent by uniques).
-4. Receipts not `registered`/`not_required` -> `FetchReceipt`, then outbox
-   `RegisterReceipt`, up to the attempt cap, then page alert and operator
+4. Tax documents not `issued`/`not_required` -> `DocumentIssuer.Fetch`,
+   then outbox `Issue`, up to the attempt cap, then page alert and operator
    task.
 
 ### Refunds and disputes
 
 - Refund (phase 1: full only): `refunds` row `pending` with its key ->
   `Gateway.Refund` -> on confirmation one tx: payment and order `refunded`,
-  ledger reversal, entitlement `refunded`, `income_return` receipt `pending`.
+  ledger reversal, entitlement `refunded`, return tax document `pending` (region-dependent).
 - Dispute / chargeback: provider event -> `FetchPayment` -> payment
   `disputed`, entitlement `disputed` (downloads stop). Lost -> `refunded`
-  path (reversal, entitlement `refunded`, return receipt if the law requires
+  path (reversal, entitlement `refunded`, return tax document if the region requires
   it for that flow); won -> back to `succeeded`/`active`.
 
 ### Shutdown
@@ -128,3 +139,11 @@ late success, `CancelPayment`), P0-3 (in-tx effects vs outbox, leases, single
 workers), P0-4 (wider reconciliation), P0-5 (receipt methods), P1-1
 (disputes), P1-2 (full refunds only), P1-4 (return URL), P1-7 (conditional
 updates, duplicate webhook = 2xx), P2 (no `waiting_for_capture`, shutdown).
+
+## Revision 2026-11-24 (owner: provider-neutral core)
+
+Receipt methods moved out of `Gateway` into the optional
+`InlineDocumentGateway`; tax documents are a region capability
+(ADR-0015). Stripe and PayPal are adapters like the RU providers; all P0
+guarantees (checkout protocol, `CancelPayment`, in-tx ledger, leases,
+reconciliation) are provider-neutral.

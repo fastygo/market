@@ -27,8 +27,13 @@ templ is one of the 8 UI8Kit runtimes; generated templ primitives exist in
   (`content.Entry`, `taxonomy.Term`, menus, settings) plus typed commerce view
   structs (price, offer, entitlement). Texts from the dictionary
   (`DictionaryV04` shape) or props; no literals in templates.
-- Locales: `en` dictionary in repo; Russian texts as content (open question
-  where they live, since the repo has no Cyrillic).
+- Locales: `en` dictionary in repo as the source; other locales (Russian for
+  the RU deployment) are content: a `ui_messages` collection editable in
+  admin, importable from a deployment content bundle kept outside the repo.
+  Legal pages are `pages` records referenced by `storefronts.legal_docs`.
+- Money and tax are rendered from `amount_minor`, `currency` and the
+  storefront locale (`golang.org/x/text/currency`), never with a hardcoded
+  symbol or tax label; tax labels come from the dictionary per region.
 - No SPA. Progressive enhancement with small vanilla JS where needed (search
   suggestions, license picker); forms work without JS. CSRF on all POSTs.
 - Caching: `ETag` on catalog pages; product pages cacheable 60 s at the proxy
@@ -39,3 +44,8 @@ templ is one of the 8 UI8Kit runtimes; generated templ primitives exist in
 - Same blocks can be exported to other UI8Kit runtimes later.
 - `ui8px` reads `.templ` and `.go` natively, so the 8+4 gate runs without an
   extract step.
+
+## Revision 2026-11-24 (owner: region-neutral core)
+
+Locale texts are content in the database; money formatting by currency and
+locale.

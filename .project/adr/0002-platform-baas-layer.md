@@ -19,7 +19,7 @@ not a service. It holds only what every domain package needs:
   each domain package declares the small interfaces it consumes;
 - `platform/pb`: PocketBase adapters for those ports (the only place besides
   `cmd/market` that imports PocketBase);
-- `money` (int64 kopecks), `authz` (capabilities, modeled on
+- `money` (int64 minor units + ISO 4217 currency), `authz` (capabilities, modeled on
   `fastygo/backend internal/domain/authz`), `seller` scope helper, HMAC
   signer, idempotency helper.
 

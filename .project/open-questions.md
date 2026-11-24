@@ -1,40 +1,53 @@
 # Open questions
 
-Owner (business):
+Reclassified 2026-11-24 after the owner direction "commerce engine,
+region-neutral core, white label". Most former questions are now
+configuration or content of a deployment.
 
-1. BLOCKER for payments: is GoDudY a brand of IT Garage LLC (branch A,
-   principal sale) or a separate legal entity (branch B, agent sale with
-   agent receipts and `seller_payable` already in phase 1)? See ADR-0006 and
-   ADR-0008.
-2. First payment provider: YooKassa, T-Bank Internet Acquiring,
-   CloudPayments or Robokassa? It must support cloud receipts (54-FZ),
-   receipt retry, cancel, refund and SBP.
-3. License types: Envato-like `regular` and `extended`, or own set? Terms text
-   and prices per type.
-4. Refund policy for digital goods (window, conditions). Phase 1 supports
-   full refunds only.
-5. Russian UI text: the repo has no Cyrillic. Keep the `ru` dictionary and
-   legal texts in the database (`settings`/`pages`, editable in admin), or
-   allow `ui/dict/ru.json` as a content-file exception?
-6. Buyer sign-in: email OTP only, or password too? (Guest checkout is not
-   planned for phase 1: purchases bind to a user.)
-7. Domain name and hosting provider in Russia.
-8. All releases of a product yanked: is "no download, update pending" plus a
-   seller alert acceptable, or should it trigger refunds?
+## A. Affects the architecture now
 
-Legal and tax (accountant or lawyer):
+Defaults are written into the ADRs; the owner only needs to confirm or
+change them.
 
-1. BLOCKER for the ledger: tax regime of IT Garage LLC (OSN with VAT 22% or
-   USN) and whether products are in the Russian software registry (VAT
-   exemption, Tax Code art. 149 p. 2 sub. 26). Templates and designs are
-   likely not "programs" for the exemption; `vat_mode` is per offer.
-2. Contract form for third-party sellers: agency (commission) or
-   sublicense/resale; VAT on commission.
-3. Self-employed (`npd`) sellers: how their own receipts combine with an
-   agent receipt.
-4. Whether the platform falls under 289-FZ in branch B or once third-party
-   sellers join, and which duties apply below the registry thresholds.
-5. Chargebacks: is a return receipt (`income_return`) required when a card
-   dispute is lost?
-6. Personal data: operator notice to Roskomnadzor, retention periods for
-   orders, receipts and logs.
+1. Russian dictionary location (ADR-0018): default is a `locale-ru` module
+   whose strings live in the database (`ui_messages`), imported from a
+   bundle outside this repo. Alternative: allow `modules/locale-ru/` with
+   Cyrillic in this repo as the single exception to the no-Cyrillic rule, or
+   a separate repo `fastygo/market-locale-ru`. Which one?
+2. Deployment topology (ADR-0015): one region per deployment (data
+   residency), several storefronts of one region per instance later. Confirm.
+3. Region policy in goja plugins (ADR-0017): tax tables, consent and legal
+   documents, receipt field mapping, checkout fields, locale formatting are
+   goja plugins returning data validated by Go; money-critical code stays in
+   Go modules. Confirm the split.
+
+## B. Configuration or content (per deployment, later, not code)
+
+1. GoDudY `sale_model` (`principal` if a brand of the operator, `agent` if a
+   separate legal entity): seller data set in admin before go-live.
+2. Payment provider of the RU deployment (YooKassa, T-Bank, CloudPayments or
+   Robokassa); later Stripe/PayPal for an EU deployment.
+3. License types (codes, terms, prices).
+4. Refund policy text and window (phase 1 code supports full refunds).
+5. Buyer sign-in mode: email OTP, password, or both (auth config).
+6. Domain, hosting, brand skin (logo, tokens), storefront name.
+7. Behaviour when every release of a product is yanked (default: "update
+   pending" + seller alert; a config flag could trigger refunds).
+8. Operator legal data, support contacts, legal pages: admin data.
+
+## C. Legal and accounting before RU go-live (values for the RU modules)
+
+1. Tax regime of the operator (VAT payer or not) and whether products are in
+   the Russian software registry (exemption, Tax Code art. 149 p. 2 sub. 26).
+2. Contract form for third-party sellers (agency or sublicense) and VAT on
+   commission.
+3. Self-employed (`npd`) sellers and their own receipts.
+4. 289-FZ duties once third-party sellers join.
+5. Return receipt on a lost card dispute.
+6. Roskomnadzor operator notice; retention periods for orders, receipts,
+   logs.
+
+## D. Before an EU go-live (values for the EU modules)
+
+OSS registration, invoice numbering scheme, VAT id validation and reverse
+charge, GDPR records and DPO need, Stripe/PayPal account setup.

@@ -1,12 +1,12 @@
 # ADR-0004: Domain model and data structures
 
-- Status: Proposed (revised after review 2026-11-24; sale-model parts blocked
-  on owner question #1)
+- Status: Proposed (revised 2026-11-24: review, then region-neutral core;
+  no longer blocked)
 
 ## Context
 
 A digital goods marketplace needs products with versions, license types,
-prices, orders, payments, receipts, license grants and downloads, and must be
+prices, orders, payments, tax documents, license grants and downloads, and must be
 ready for many sellers. Full field list, uniques and indexes:
 `../architecture.md`.
 
@@ -16,29 +16,33 @@ Bounded contexts, one Go package each:
 
 | Context | Aggregate root | Inside / references |
 | --- | --- | --- |
-| sellers | `Seller` | members, contract version, sale model |
+| storefront | `Storefront` | operator (legal entity), region, currency, providers, legal docs |
+| sellers | `Seller` | members, contract version, sale model, legal data (json) |
 | catalog | `Product` | releases, offers (product x license type), category, tags |
-| ordering | `Order` | items (price, discount, VAT, commission, terms snapshots); checkout use case |
+| ordering | `Order` | items (price, discount, tax, commission, terms snapshots); checkout use case |
 | payments | `Payment` | inbox events, refunds, disputes; `Gateway` port |
-| fiscal | `Receipt` | receipt DTO and builder, status machine |
+| taxdocs | `TaxDocument` | region-neutral document DTO (receipt, invoice, credit note), status machine; issued by the region `DocumentIssuer` |
 | licensing | `Entitlement` | purchase code, downloads |
 | ledger | `Txn` | balanced entries, deterministic txn ids |
 | trust | `Review` | requires an entitlement (phase 2) |
 
 Key choices:
 
-1. Offer is the SKU: `(product, license_type) -> price_minor (VAT-inclusive),
-   vat_mode, support_months`.
+1. Offer is the SKU: `(product, license_type, currency) -> price_minor,
+   tax_category, support_months`. Rates are not stored on offers; the region
+   `TaxPolicy` resolves them at checkout and the line snapshots the result.
 2. Order items snapshot everything needed later: title, unit price, unit
-   discount, line amount, VAT mode and amount, currency, seller, commission,
+   discount, line amount, tax category, rate, mode, code and amount,
+   currency, seller, sale model, commission,
    `support_months`, `license_terms_version`. Orders never read live offers
    after creation. `snapshot_digest` = Codex JCS sha256 of the snapshot.
-3. Money invariants (ADR-0006): `total = subtotal - discount = sum(line)`,
-   `order.vat = sum(item.vat)`, `payment.amount = order.total`; phase 1
+3. Money invariants (ADR-0006): one currency per order; inclusive
+   `total = subtotal - discount = sum(line)`, exclusive adds line tax;
+   `order.tax = sum(item.tax)`, `payment.amount = order.total`; phase 1
    discount is 0.
 4. Releases are immutable once published (yank, never edit; a new file is a
    new version). Entitlement grants the product, not one release.
-5. `seller` is denormalized on order items, payments, refunds, receipts,
+5. `seller` is denormalized on order items, payments, refunds, tax documents,
    entitlements, ledger entries, reviews (ADR-0005).
 6. Buyers are always users (no guest checkout in phase 1); `buyer_email` is a
    snapshot, not an identity.
@@ -51,24 +55,32 @@ Key choices:
 8. One payment row per provider attempt; a retry with the same key reuses the
    row (no `payment_attempts` table). A second provider (phase 2) is a new row;
    at most one `succeeded` payment per order.
-9. Receipt DTO and pure builder belong to `fiscal`; `ordering -> payments ->
-   fiscal`, `fiscal` imports neither (no cycle). Checkout passes the built
-   receipt inside `CreatePaymentRequest`.
-10. Naming: `orders.legal_offer_version` (public offer consent), not to be
-    confused with the `offers` collection. Order numbers use a storefront
-    prefix (`M-`), not a seller prefix.
+9. Tax document DTO and pure builder belong to `taxdocs`; `ordering ->
+   payments -> taxdocs`, `taxdocs` imports neither (no cycle). Checkout
+   passes the built document to adapters that issue it inline.
+10. Naming: `orders.terms_version` (buyer terms consent), not to be confused
+    with the `offers` collection. Order number prefix comes from storefront
+    config, never from a seller.
+11. Sale model is per seller data: `principal` and `agent` are both
+    implemented from day one (ledger posting, agent data in tax documents).
+    The choice for a seller is admin data, not code.
+12. Legal and tax identity of the operator and sellers is `legal_ids` and
+    `tax_profile` json validated by the region `LegalProfile`; no
+    country-specific columns (no `inn`, `ogrn`, `kpp` columns).
 
 ```go
-type Money struct{ Minor int64; Currency string } // RUB only
-type Offer struct{ ID, ProductID, SellerID, LicenseType string; Price Money /* VAT-inclusive */; VAT VATMode; SupportMonths int; Active bool }
+type Money struct{ Minor int64; Currency string } // ISO 4217; exponent from the currency table
+type Offer struct{ ID, ProductID, SellerID, LicenseType, TaxCategory string; Price Money; SupportMonths int; Active bool }
+type TaxLine struct{ RateBP int; Mode TaxMode; Code string; Amount Money } // from TaxPolicy
 type OrderItem struct {
     SellerID, ProductID, OfferID, LicenseType, Title, LicenseTermsVersion string
-    UnitPrice, UnitDiscount, Line, VATAmount, Commission Money
+    UnitPrice, UnitDiscount, Line, Commission Money
     Qty, SupportMonths int
-    VAT VATMode
+    Tax TaxLine
+    SaleModel SaleModel
     Subject PaymentSubject
 }
-type Order struct{ ID, Number, BuyerID, BuyerEmail, IdempotencyKey, LegalOfferVersion string; Status OrderStatus; Items []OrderItem; Subtotal, Discount, Total, VAT Money; StatusVersion int }
+type Order struct{ ID, Number, StorefrontID, Region, BuyerID, BuyerEmail, IdempotencyKey, TermsVersion string; Status OrderStatus; Items []OrderItem; Subtotal, Discount, Tax, Total Money; StatusVersion int }
 type Payment struct{ ID, OrderID, SellerID, IdempotencyKey, ProviderID string; Provider ProviderCode; Method Method; Status PaymentStatus; Amount Money; StatusVersion int }
 type Entitlement struct{ ID, UserID, SellerID, OrderItemID, ProductID, LicenseType, PurchaseCode string; Status EntitlementStatus; SupportMonths int; SupportUntil time.Time }
 ```
@@ -85,3 +97,10 @@ Applied P0-6 (money invariants), P0-8 (sale model blocked), P1-3 (no guest),
 P1-5 (fuller snapshot), P1-7 (uniques, status_version), P1-12 (seller
 denormalized), P2 (`legal_offer_version`, storefront order number, trust
 context), package notes (receipt DTO in `fiscal`, checkout in `ordering`).
+
+## Revision 2026-11-24 (owner: region-neutral core)
+
+Removed RUB, VAT 22% and RU field names from the core model; added
+`storefront` and operator data; tax as resolved line data; `fiscal`
+renamed `taxdocs` (receipts, invoices); sale model as seller data with both
+models implemented. No longer blocked on the GoDudY sale model (ADR-0015).

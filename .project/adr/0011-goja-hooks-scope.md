@@ -15,7 +15,7 @@ hooks, migrations, SSR.
 
 goja (`pb_hooks`) may own, with no read or write of money and fulfilment
 collections (`orders`, `order_items`, `payments`, `payment_events`, `refunds`,
-`fiscal_receipts`, `ledger_entries`, `entitlements`, `downloads`, `outbox`,
+`tax_documents`, `ledger_entries`, `entitlements`, `downloads`, `outbox`,
 `payouts`):
 
 - email template tweaks and notification text selection;
@@ -38,3 +38,13 @@ backend.
 ## Review 2026-11-24 (BalunMY)
 
 Kept strict; counters declared cache only (P2); verify-script grep added.
+
+## Revision 2026-11-24 (owner: module system, ADR-0017)
+
+There are two goja runtimes. PocketBase `pb_hooks` stay glue-only as above.
+The engine plugin sandbox (`internal/modules`) runs region and locale policy
+plugins: separate VM pool, no `$app`, DAO, network, filesystem or timers,
+per-call timeout (default 50 ms), input/output size caps, pure functions with
+`now` passed in, output validated by Go against the capability schema,
+contract tests in `go test` and at start-up. Neither runtime writes money
+collections, calls providers or reads secrets.

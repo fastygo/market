@@ -11,17 +11,18 @@ A marketplace is the opposite: one storefront, shared catalog, many sellers.
 ## Decision
 
 - One database, row-level scoping. `seller` is a column (not only a join) on
-  products, releases, offers, order items, payments, refunds, fiscal receipts,
+  products, releases, offers, order items, payments, refunds, tax documents,
   entitlements, ledger entries (nullable for platform accounts), reviews,
   payouts. Scoping never requires a join.
 - GoDudY is a real `sellers` row from the first migration; there is no
-  "no-seller" code path. Its `sale_model` waits for owner question #1.
+  "no-seller" code path. Seeds create it as `draft` with placeholder legal
+  data; `sale_model` and legal data are set in admin (ADR-0015, ADR-0016).
 - Seller staff act only where `seller_members(seller, user)` exists; checks in
   PocketBase API rules and in Go through `platform/authz`. Capabilities:
   `catalog.edit_own`, `catalog.publish`, `orders.read_own`,
   `payouts.read_own`, `moderation.review`, `refunds.issue`.
 - Money and fulfilment collections (`orders`, `order_items`, `payments`,
-  `payment_events`, `refunds`, `fiscal_receipts`, `ledger_entries`,
+  `payment_events`, `refunds`, `tax_documents`, `ledger_entries`,
   `entitlements`, `downloads`, `outbox`, `payouts`, `audit_log`): API
   create/update/delete rules are `null`; only Go writes them. Buyers can list
   and view their own orders and entitlements; nothing else.
@@ -44,3 +45,14 @@ A marketplace is the opposite: one storefront, shared catalog, many sellers.
 
 Applied P0-7 (Go-only money writes, admin hooks), P1-8 (storage-level
 protection), P1-12 (seller on every money row), P2 (global slug).
+
+## Revision 2026-11-24 (owner: region-neutral core)
+
+Seller legal data is json validated by the region `LegalProfile`; the GoDudY
+sale model is admin data, not a blocker.
+
+## Revision 2026-11-24 (owner: commerce mode, ADR-0017)
+
+The engine runs as `single_store` (implicit operator seller, principal only,
+no onboarding or payouts) or `marketplace` (module enabled). The `seller`
+column and scoping rules are identical in both modes.
