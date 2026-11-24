@@ -1,5 +1,5 @@
 // Package yookassa is the YooKassa (API v3) payments.Gateway adapter
-// (ADR-0024). Credentials come only from config built from env (ADR-0016);
+// (ADR-0025). Credentials come only from config built from env (ADR-0016);
 // they are sent as HTTP Basic auth and never logged. A test store and a
 // live store differ only in shop id and secret key.
 //

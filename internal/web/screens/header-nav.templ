@@ -14,5 +14,8 @@ templ HeaderNav(s Shell) {
 		@compose.Link(compose.LinkProps{Variant: "nav", Size: "sm", LinkProps: link.LinkProps{Href: "/catalog", AriaCurrent: current(s.Current == "catalog")}}) {
 			{ s.T("ui.site.catalog") }
 		}
+		@compose.Link(compose.LinkProps{Variant: "nav", Size: "sm", LinkProps: link.LinkProps{Href: "/account", AriaCurrent: current(s.Current == "account")}}) {
+			{ s.T("ui.site.account") }
+		}
 	}
 }

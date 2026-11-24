@@ -38,13 +38,14 @@ type Gateway struct {
 
 	mu       sync.Mutex
 	byKey    map[string]string
+	returns  map[string]string
 	payments map[string]*payments.Status
 	calls    map[string]int
 }
 
 // New returns an empty fake gateway.
 func New(secret []byte) *Gateway {
-	return &Gateway{Secret: secret, ConfirmBase: "/fakepay/", byKey: map[string]string{}, payments: map[string]*payments.Status{}, calls: map[string]int{}}
+	return &Gateway{Secret: secret, ConfirmBase: "/fakepay/", byKey: map[string]string{}, returns: map[string]string{}, payments: map[string]*payments.Status{}, calls: map[string]int{}}
 }
 
 var _ payments.Gateway = (*Gateway)(nil)
@@ -94,6 +95,7 @@ func (g *Gateway) CreatePayment(ctx context.Context, req payments.CreatePaymentR
 		sum := sha256.Sum256([]byte(req.IdempotencyKey))
 		id = "fake_" + hex.EncodeToString(sum[:8])
 		g.byKey[req.IdempotencyKey] = id
+		g.returns[id] = req.ReturnURL
 		g.payments[id] = &payments.Status{ProviderPaymentID: id, State: payments.StatePending, Amount: req.Amount}
 	}
 	st := *g.payments[id]
@@ -153,6 +155,13 @@ func (g *Gateway) RefundPayment(ctx context.Context, req payments.RefundRequest)
 		return payments.RefundResult{ProviderRefundID: id, State: payments.StateFailed}, nil
 	}
 	return payments.RefundResult{ProviderRefundID: id, State: payments.StateSucceeded}, nil
+}
+
+// ReturnURL is the return URL the payment was created with.
+func (g *Gateway) ReturnURL(id string) string {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	return g.returns[id]
 }
 
 // SetState is the provider side of the fake: the buyer paid, the payment

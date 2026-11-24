@@ -26,7 +26,7 @@ func crumbs(s Shell, p catalog.Product) []any {
 // ProductPage is the default (plain) product type page: media, title,
 // seller, price, Download and Preview (latte-shop views/pages/product.latte,
 // cart form replaced by the plain type actions).
-templ ProductPage(s Shell, p catalog.Product) {
+templ ProductPage(s Shell, p catalog.Product, buy CheckoutView) {
 	@Layout(s) {
 		@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "article", Class: "flex flex-col gap-8 py-12", Attrs: templ.Attributes{"data-product-type": p.ProductType}}}) {
 			@blocks.PageCrumbs(blocks.PageCrumbsProps{Label: s.T("ui.product.breadcrumb"), Crumbs: crumbs(s, p)})
@@ -56,6 +56,9 @@ templ ProductPage(s Shell, p catalog.Product) {
 								{ p.Excerpt }
 							}
 						}
+					}
+					if buy.Enabled && p.HasOffer {
+						@BuyForm(s, p, buy)
 					}
 					@compose.Group(compose.GroupProps{Gap: "4", BoxProps: box.BoxProps{Class: "flex-wrap rounded-xl border border-border bg-card p-6"}}) {
 						@compose.LinkButton(compose.LinkButtonProps{Size: "lg", LinkProps: link.LinkProps{Href: DownloadHref(p.Slug), Class: "gap-2", Attrs: templ.Attributes{"data-action": "download"}}}) {

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"net/url"
 
 	"github.com/fastygo/market/internal/licensing"
 	"github.com/fastygo/market/internal/ordering"
@@ -31,6 +32,12 @@ type Commerce struct {
 	FakePay *fakegw.Gateway
 	// HashSalt salts ip and user agent hashes in the downloads log.
 	HashSalt string
+	// Cabinet enables the SSR buyer account and checkout form; nil keeps
+	// the JSON API only.
+	Cabinet *Cabinet
+	// Files serves local release files (LocalPresigner URLs); nil when
+	// releases live in S3.
+	Files http.Handler
 }
 
 // CommercePatterns are the phase 1 routes (Go 1.22 ServeMux syntax).
@@ -41,6 +48,7 @@ var CommercePatterns = []string{
 	"POST /fakepay/{id}/{event}",
 	"POST /admin/orders/{order}/refund",
 	"GET /dl/{token}",
+	"GET /files/{key...}",
 }
 
 func (h *Handler) mountCommerce(m *http.ServeMux) {
@@ -51,6 +59,10 @@ func (h *Handler) mountCommerce(m *http.ServeMux) {
 	m.HandleFunc("GET /checkout/return/{order}", h.checkoutReturn)
 	m.HandleFunc("POST /hooks/pay/{provider}", h.webhook)
 	m.HandleFunc("GET /dl/{token}", h.dl)
+	h.mountAccount(m)
+	if h.Commerce.Files != nil {
+		m.Handle("GET /files/{key...}", h.Commerce.Files)
+	}
 	if h.Commerce.Operator != nil {
 		m.HandleFunc("POST /admin/orders/{order}/refund", h.refund)
 	}
@@ -125,6 +137,11 @@ func (h *Handler) orderError(w http.ResponseWriter, r *http.Request, err error) 
 }
 
 func (h *Handler) checkoutReturn(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("Authorization") == "" {
+		// a browser coming back from the provider page
+		h.returnPage(w, r)
+		return
+	}
 	buyer, ok := h.Commerce.Auth(r)
 	if !ok {
 		jsonError(w, http.StatusUnauthorized, "auth_required")
@@ -167,6 +184,7 @@ var fakeEvents = map[string]payments.State{
 	"dispute": payments.StateDisputed,
 	"win":     payments.StateSucceeded,
 	"lose":    payments.StateRefunded,
+	"cancel":  payments.StateCanceled,
 }
 
 // fakePay plays the provider side: the state changes and the provider
@@ -189,6 +207,11 @@ func (h *Handler) fakePay(w http.ResponseWriter, r *http.Request) {
 		EventID: evID, Type: "payment." + string(st), ProviderPaymentID: id, Payload: body,
 	}); err != nil {
 		h.fail(w, r, err)
+		return
+	}
+	if ret := g.ReturnURL(id); ret != "" && r.Header.Get("Content-Type") == "application/x-www-form-urlencoded" {
+		// the provider page form: back to the shop like a real provider
+		http.Redirect(w, r, ret, http.StatusSeeOther)
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]string{"payment": id, "state": string(st)})
@@ -239,8 +262,12 @@ func (h *Handler) download(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	buyer, ok := h.Commerce.Auth(r)
+	buyer, ok := h.Commerce.buyer(r)
 	if !ok {
+		if h.Commerce.Cabinet != nil {
+			http.Redirect(w, r, "/account?next="+url.QueryEscape("/account/orders"), http.StatusSeeOther)
+			return
+		}
 		h.notice(w, r, http.StatusUnauthorized, "ui.product.download_signin")
 		return
 	}

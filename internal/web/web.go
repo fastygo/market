@@ -208,5 +208,5 @@ func (h *Handler) product(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	h.render(w, r, http.StatusOK, screens.ProductPage(s, p))
+	h.render(w, r, http.StatusOK, screens.ProductPage(s, p, h.checkoutView(w, r)))
 }

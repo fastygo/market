@@ -11,7 +11,11 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
+	"os"
+	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -165,4 +169,48 @@ func (p LocalPresigner) PresignGet(ctx context.Context, key string, ttl time.Dur
 	h.Write([]byte(key + "\n" + exp))
 	sig := base64.RawURLEncoding.EncodeToString(h.Sum(nil))
 	return fmt.Sprintf("%s/%s?expires=%s&signature=%s", strings.TrimRight(p.BaseURL, "/"), (&url.URL{Path: key}).EscapedPath(), exp, sig), nil
+}
+
+// LocalFiles serves LocalPresigner URLs from a directory (single-host
+// deployments and previews without S3). It checks the signature and the
+// expiry; the path is cleaned and confined to Dir.
+type LocalFiles struct {
+	Dir string
+	Key []byte
+	Now func() time.Time
+}
+
+// ServeHTTP implements http.Handler for GET /files/{key...}.
+func (f LocalFiles) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	key := strings.TrimPrefix(path.Clean("/"+r.PathValue("key")), "/")
+	exp := r.URL.Query().Get("expires")
+	h := hmac.New(sha256.New, f.Key)
+	h.Write([]byte(key + "\n" + exp))
+	want := base64.RawURLEncoding.EncodeToString(h.Sum(nil))
+	n, err := strconv.ParseInt(exp, 10, 64)
+	now := time.Now
+	if f.Now != nil {
+		now = f.Now
+	}
+	if key == "" || len(f.Key) == 0 || err != nil || !hmac.Equal([]byte(r.URL.Query().Get("signature")), []byte(want)) {
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+	if now().Unix() > n {
+		http.Error(w, "link expired", http.StatusGone)
+		return
+	}
+	full := filepath.Join(f.Dir, filepath.FromSlash(key))
+	if rel, err := filepath.Rel(f.Dir, full); err != nil || strings.HasPrefix(rel, "..") {
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+	st, err := os.Stat(full)
+	if err != nil || st.IsDir() {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Cache-Control", "private, no-store")
+	w.Header().Set("Content-Disposition", `attachment; filename="`+strings.NewReplacer(`"`, "_", "\\", "_").Replace(path.Base(key))+`"`)
+	http.ServeFile(w, r, full)
 }

@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime/debug"
 	"strings"
 	"time"
@@ -19,10 +20,15 @@ import (
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 
+	"github.com/fastygo/market/internal/account"
 	"github.com/fastygo/market/internal/i18n"
 	"github.com/fastygo/market/internal/licensing"
+	"github.com/fastygo/market/internal/mail"
+	"github.com/fastygo/market/internal/mail/resend"
+	"github.com/fastygo/market/internal/mail/unisender"
 	_ "github.com/fastygo/market/internal/migrations"
 	"github.com/fastygo/market/internal/modules"
+	"github.com/fastygo/market/internal/notify"
 	"github.com/fastygo/market/internal/ordering"
 	"github.com/fastygo/market/internal/payments"
 	"github.com/fastygo/market/internal/payments/fakegw"
@@ -36,6 +42,8 @@ import (
 	"github.com/fastygo/market/ui/dict"
 )
 
+var dictEN *i18n.Dict
+
 func main() {
 	// Memory budget (slo.md): soft limit 512 MiB unless GOMEMLIMIT is set.
 	if os.Getenv("GOMEMLIMIT") == "" {
@@ -46,6 +54,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	dictEN = en
 
 	app := pocketbase.NewWithConfig(pocketbase.Config{DBConnect: pb.DBConnect})
 	pb.RegisterGuards(app)
@@ -76,7 +85,13 @@ func main() {
 			se.App.Logger().Info("module", "id", m.ID, "version", m.Version)
 		}
 		repo := &pb.Catalog{App: se.App}
-		commerce, svc := wire(se.App, fake)
+		commerce, svc := wire(se.App, fake, func(ctx context.Context) string {
+			sf, err := repo.Storefront(ctx, code)
+			if err != nil {
+				return ""
+			}
+			return sf.BrandName
+		})
 		h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: code, Dict: en, Log: se.App.Logger(), Commerce: commerce})
 		wrapped := apis.WrapStdHandler(h)
 		for _, p := range append(append([]string{}, web.Patterns...), web.CommercePatterns...) {
@@ -108,7 +123,7 @@ func main() {
 
 // wire builds the ordering and licensing services from env (ADR-0016:
 // secrets only from env; nothing here has a real default).
-func wire(app core.App, fake bool) (*web.Commerce, *ordering.Service) {
+func wire(app core.App, fake bool, brand func(context.Context) string) (*web.Commerce, *ordering.Service) {
 	gateways := map[string]payments.Gateway{}
 	var fakeGW *fakegw.Gateway
 	if fake {
@@ -142,20 +157,28 @@ func wire(app core.App, fake bool) (*web.Commerce, *ordering.Service) {
 		Store: orders, Tax: ru.TaxPolicy{}, Gateways: gateways, Issuer: issuer, PaymentTimeout: timeout,
 		RequiredConsents: []string{"terms"},
 		ReturnURL:        func(orderID string) string { return publicURL + "/checkout/return/" + orderID },
-		Outbox: map[string]ordering.OutboxHandler{
-			// phase 1: log only; the mail transport module comes later
-			"email.purchase": func(ctx context.Context, key string, payload json.RawMessage) error {
-				var p struct {
-					Number string `json:"number"`
-				}
-				_ = json.Unmarshal(payload, &p)
-				app.Logger().Info("email.purchase", "key", key, "order", p.Number)
-				return nil
-			},
+	}
+	sessionKey := secret("MARKET_SESSION_SECRET", app)
+	users := &pb.Users{App: app}
+	magic := account.Magic{Key: sessionKey}
+	mailer := mailSender(app)
+	note := &notify.Service{Store: &pb.Account{App: app}, Users: users, Magic: magic, Mailer: mailer, Dict: dictEN,
+		PublicURL: publicURL, Brand: brand}
+	svc.Outbox = map[string]ordering.OutboxHandler{
+		"email.purchase": func(ctx context.Context, key string, payload json.RawMessage) error {
+			err := note.PurchaseEmail(ctx, key, payload)
+			app.Logger().Info("email.purchase", "key", key, "mailer", mailer.Code(), "err", err)
+			return err
 		},
 	}
 	dlKey := secret("MARKET_DOWNLOAD_SECRET", app)
 	var presigner licensing.Presigner = licensing.LocalPresigner{BaseURL: env("MARKET_S3_LOCAL_BASE", "http://127.0.0.1:9000/market-dev"), Key: dlKey}
+	var files http.Handler
+	if dir := os.Getenv("MARKET_FILES_DIR"); dir != "" && os.Getenv("MARKET_S3_ENDPOINT") == "" {
+		// single-host releases: the app serves signed local URLs
+		presigner = licensing.LocalPresigner{BaseURL: publicURL + "/files", Key: dlKey}
+		files = licensing.LocalFiles{Dir: dir, Key: dlKey}
+	}
 	if ep := os.Getenv("MARKET_S3_ENDPOINT"); ep != "" {
 		presigner = s3.Presigner{
 			Endpoint: ep, Region: os.Getenv("MARKET_S3_REGION"), Bucket: os.Getenv("MARKET_S3_BUCKET"),
@@ -168,7 +191,11 @@ func wire(app core.App, fake bool) (*web.Commerce, *ordering.Service) {
 		log.Fatal(err)
 	}
 	lic := &licensing.Service{Store: &pb.Downloads{App: app}, Signer: licensing.Signer{Key: dlKey}, Presigner: presigner, URLTTL: ttl}
-	return &web.Commerce{Auth: auth(app), Operator: operator(app), Orders: svc, Licenses: lic, FakePay: fakeGW, HashSalt: string(dlKey)}, svc
+	cab := &web.Cabinet{Users: users, Magic: magic, Orders: &pb.Account{App: app}, Mailer: note, CSRFKey: sessionKey,
+		Secure: strings.HasPrefix(publicURL, "https://"), AllowedOrigin: origin(publicURL),
+		TermsVersion: env("MARKET_TERMS_VERSION", "1"), Method: env("MARKET_CHECKOUT_METHOD", "card")}
+	return &web.Commerce{Auth: auth(app), Operator: operator(app), Orders: svc, Licenses: lic, FakePay: fakeGW,
+		HashSalt: string(dlKey), Cabinet: cab, Files: files}, svc
 }
 
 // auth reads a PocketBase users auth token from the Authorization header.
@@ -201,7 +228,7 @@ func operator(app core.App) func(r *http.Request) (string, bool) {
 	}
 }
 
-// yooKassa builds the YooKassa adapter from env (ADR-0024); nil when no
+// yooKassa builds the YooKassa adapter from env (ADR-0025); nil when no
 // shop id is set. Test and live stores differ only in these values.
 func yooKassa(app core.App, publicURL string) *yookassa.Gateway {
 	shop := os.Getenv("MARKET_YOOKASSA_SHOP_ID")
@@ -239,6 +266,45 @@ func clientIP(r *http.Request, header string) string {
 		return r.RemoteAddr
 	}
 	return host
+}
+
+// mailSender builds the mail transport from env (ADR-0026). Without a
+// provider the messages are written as .eml files under pb_data/mail.
+func mailSender(app core.App) mail.Sender {
+	from, name := os.Getenv("MARKET_MAIL_FROM"), os.Getenv("MARKET_MAIL_FROM_NAME")
+	switch p := env("MARKET_MAIL_PROVIDER", "file"); p {
+	case "unisender":
+		s, err := unisender.New(unisender.Sender{APIKey: os.Getenv("MARKET_MAIL_API_KEY"), BaseURL: os.Getenv("MARKET_MAIL_API_URL"), From: from, FromName: name})
+		if err != nil {
+			log.Fatal(err)
+		}
+		return s
+	case "resend":
+		if name != "" {
+			from = name + " <" + from + ">"
+		}
+		s, err := resend.New(resend.Sender{APIKey: os.Getenv("MARKET_MAIL_API_KEY"), BaseURL: os.Getenv("MARKET_MAIL_API_URL"), From: from})
+		if err != nil {
+			log.Fatal(err)
+		}
+		return s
+	case "file":
+		dir := env("MARKET_MAIL_DIR", filepath.Join(app.DataDir(), "mail"))
+		app.Logger().Warn("mail provider not configured: emails are written to files (development only)", "dir", dir)
+		return mail.FileSender{Dir: dir, From: from}
+	default:
+		log.Fatalf("unknown MARKET_MAIL_PROVIDER %q", p)
+		return nil
+	}
+}
+
+func origin(u string) string {
+	scheme, rest, ok := strings.Cut(u, "://")
+	if !ok {
+		return ""
+	}
+	host, _, _ := strings.Cut(rest, "/")
+	return scheme + "://" + host
 }
 
 func env(k, def string) string {
