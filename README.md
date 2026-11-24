@@ -28,6 +28,24 @@ Migrations (collections and a placeholder seed) apply on start. Use
 payment provider), `MARKET_DOWNLOAD_SECRET` (stable download links across
 restarts); see `deploy/market.env.example`.
 
+### Windows (PowerShell)
+
+Needs Go (version in `go.mod`); no C compiler (pure Go SQLite). The CSS and
+`*_templ.go` files are committed, so Node and templ are not needed to run.
+
+```powershell
+git clone https://github.com/fastygo/market.git; cd market
+$env:CGO_ENABLED = "0"
+go build -o bin/market.exe ./cmd/market
+.\bin\market.exe superuser upsert admin@example.com "a-long-password"
+$env:MARKET_FAKE_GATEWAY = "1"               # optional: fake payment provider
+.\bin\market.exe serve --http 127.0.0.1:8090  # data in .\pb_data
+# storefront http://127.0.0.1:8090/   admin UI http://127.0.0.1:8090/_/
+```
+
+`$env:` variables last for the PowerShell session; set them again in a new
+window.
+
 ## Try the money path locally (fake gateway)
 
 Phase 1 ships no real payment provider. With `MARKET_FAKE_GATEWAY=1` the

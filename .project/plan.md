@@ -243,3 +243,17 @@ placeholders (`service`, `full_payment`) until the owner confirms them.
 
 Schema notes: lease and schedule times (`locked_until`, `next_attempt_at`,
 `next_reconcile_at`) are unix milliseconds; consents carry `order_key`.
+
+## Dark theme 2026-11-24 (t228u)
+
+Both skins already carry a `.dark` token block (owner's GoDudY file and the
+UI8Kit default), used as is. The head of `layout.templ` has a small inline
+script (recorded shell exception, like html/head/body) that sets `.dark` on
+`<html>` before first paint from `localStorage.theme` or
+`prefers-color-scheme`; the header toggle is `compose.Button` (ghost, icon,
+`aria-label`, `aria-pressed`), hidden without JavaScript. Choosing the
+system value again clears the stored choice. Contrast in GoDudY dark:
+foreground 16.2:1, muted-foreground 5.2:1 on background but 4.4:1 on card
+and muted (below AA 4.5:1 for small text), primary-foreground on primary
+3.6:1 (same as light; AA only for large text), borders about 1.3 to 1.5:1
+(decorative). Owner decision pending on those values.

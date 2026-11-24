@@ -35,10 +35,10 @@ if [ -d pb_hooks ]; then
 fi
 
 # UI8Kit rules on app screens (rule 02 raw tags; rule 04 literal text). The document
-# shell (html, head, meta, title, link, body) in layout.templ has no primitive.
+# shell (html, head, meta, title, link, script, body) in layout.templ has no primitive.
 if [ -d internal/web/screens ]; then
   raw=$(grep -nE '<[a-z][a-z0-9]*[ />]' internal/web/screens/*.templ \
-    | grep -vE '^internal/web/screens/layout\.templ:[0-9]+:\s*</?(html|head|meta|title|link|body)[ >/]' || true)
+    | grep -vE '^internal/web/screens/layout\.templ:[0-9]+:\s*</?(html|head|meta|title|link|script|body)[ >/]' || true)
   if [ -n "$raw" ]; then echo "verify: raw HTML tag in screens (use UI8Kit primitives)"; echo "$raw"; fail=1; fi
   lit=$(grep -nE '^\s+[A-Za-z][A-Za-z ,.!?]*$' internal/web/screens/*.templ \
     | grep -vE ':\s+(else|default|case|return|break|continue)$' || true)

@@ -7,7 +7,8 @@ import (
 
 // Layout is the document shell. html, head and body have no UI8Kit
 // primitive (recorded exception, as in ui8kit/site); everything inside body
-// is primitives.
+// is primitives. The inline theme script in head is part of that shell
+// (it must run before first paint).
 templ Layout(s Shell) {
 	<!DOCTYPE html>
 	<html lang={ s.Lang }>
@@ -15,7 +16,38 @@ templ Layout(s Shell) {
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ s.pageTitle() }</title>
+			<meta name="color-scheme" content="light dark"/>
 			<link rel="stylesheet" href={ s.CSSHref }/>
+			<script>
+				/* Theme before first paint (no flash): stored choice, else the system preference.
+				   Choosing the system value again clears the stored choice. */
+				(function () {
+					var d = document.documentElement, k = "theme", mq = window.matchMedia("(prefers-color-scheme: dark)");
+					function stored() { try { return localStorage.getItem(k); } catch (e) { return null; } }
+					function apply() {
+						var t = stored(), dark = t === "dark" || (t !== "light" && mq.matches);
+						d.classList.toggle("dark", dark);
+						d.style.colorScheme = dark ? "dark" : "light";
+						var b = document.querySelector("[data-theme-toggle]");
+						if (b) { b.setAttribute("aria-pressed", dark ? "true" : "false"); }
+					}
+					apply();
+					if (mq.addEventListener) { mq.addEventListener("change", apply); }
+					document.addEventListener("DOMContentLoaded", function () {
+						var b = document.querySelector("[data-theme-toggle]");
+						if (!b) { return; }
+						b.hidden = false;
+						apply();
+						b.addEventListener("click", function () {
+							var dark = !d.classList.contains("dark");
+							try {
+								if (dark === mq.matches) { localStorage.removeItem(k); } else { localStorage.setItem(k, dark ? "dark" : "light"); }
+							} catch (e) {}
+							apply();
+						});
+					});
+				})();
+			</script>
 		</head>
 		<body class="min-h-screen bg-background text-foreground">
 			@SiteHeader(s)

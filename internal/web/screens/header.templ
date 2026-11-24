@@ -2,6 +2,8 @@ package screens
 
 import (
 	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/icons"
+	"github.com/ui8kit/codegen/generated/templ/ui/button"
 	"github.com/ui8kit/codegen/generated/templ/ui/box"
 	"github.com/ui8kit/codegen/generated/templ/ui/link"
 )
@@ -16,7 +18,22 @@ templ SiteHeader(s Shell) {
 		}
 		@compose.Group(compose.GroupProps{Gap: "4", Justify: "between", BoxProps: box.BoxProps{Class: "mx-auto w-full max-w-6xl flex-wrap px-4 py-4 md:px-6"}}) {
 			@Brand(s)
-			@HeaderNav(s)
+			@compose.Group(compose.GroupProps{Gap: "2"}) {
+				@HeaderNav(s)
+				@ThemeToggle(s)
+			}
 		}
+	}
+}
+
+// ThemeToggle switches light and dark (aria-pressed = dark). It is hidden
+// until the head script wires it, so it never shows without JavaScript; the
+// page then follows the system preference.
+templ ThemeToggle(s Shell) {
+	@compose.Button(compose.ButtonProps{Variant: "ghost", Size: "sm", Layout: "icon", ButtonProps: button.ButtonProps{
+		AriaLabel: s.T("ui.site.theme_dark"), AriaPressed: "false",
+		Attrs: templ.Attributes{"data-theme-toggle": "", "title": s.T("ui.site.theme_dark"), "hidden": true},
+	}}) {
+		@icons.LucideIcon(icons.LucideIconProps{Name: "sun-moon", Size: 16})
 	}
 }
