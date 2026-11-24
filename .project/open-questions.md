@@ -62,6 +62,25 @@ change them.
    logs.
 7. 54-FZ payment subject and payment method codes for digital goods (code
    placeholders: subject `service`, method `full_payment`).
+8. Refund policy (ADR-0024), for a practicing lawyer before the offer is
+   published: does Art. 48 of the Union State Unified Rules (Decree No. 6
+   of 2024-12-06) apply directly to file downloads (default: yes, 7 days
+   not counting the purchase day, no "after download" exception); one
+   refund term in the offer of at most 7 days; fix period offered on a
+   defect; separate B2B contract and how a business buyer is identified;
+   whether 289-FZ/290-FZ apply while only the operator sells.
+9. May the platform restrict future purchases of an account after proven
+   refund abuse (terms of service vs public contract, Civil Code Art. 426)?
+   Default: no restriction, flags for manual review only.
+10. Goodwill refunds after the window: offer them at all, and the limit per
+    account.
+11. Retention of access evidence logs (default at least 5 years) and the
+    exact list of fields (raw ip and user agent are personal data).
+12. Watermark technique and cost: license file with an order id inside the
+    archive, file metadata, or none for some product types; per-order
+    copies need background processing and storage per order.
+13. Time zone for "not counting the day of purchase" (default: storefront
+    time zone, Europe/Moscow for RU).
 
 ## D. Before an EU go-live (values for the EU modules)
 

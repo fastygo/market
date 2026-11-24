@@ -77,12 +77,22 @@ budget and load-test plan: `slo.md`.
    cannot be `single_store`: pull the minimal marketplace part from phase 3
    into phase 1 first; the admin invariant rejects `agent` in
    `single_store`), provider credentials, RU texts and legal
-   pages, accountant and lawyer sign-off (`open-questions.md` C).
+   pages, accountant and lawyer sign-off (`open-questions.md` C); the
+   public offer, license and refund policy texts (ADR-0024) are reviewed by
+   a practicing lawyer before they are published.
 12. Launch with sandbox then live keys.
 
 Exit: the success definition in `intent.md` on production.
 
 ## Phase 2. Harden and grow (4 weeks)
+
+0. Refund policy (ADR-0024): `RefundPolicy` port with the RU pack values
+   as config, buyer refund requests (automatic for pre-download and
+   cooling-off, queue for defects and goodwill), `access_evidence` log with
+   retention job, evidence pack command, risk signals for manual review;
+   offer and checkout notices. Watermark delivery after the technique
+   decision (open question C12). Until then phase 1 refunds stay operator
+   commands applied by the same rules by hand.
 
 1. Cart (several offers), coupons with the discount allocation rule of
    ADR-0006, refunds attached to order items.
@@ -288,3 +298,11 @@ meta from brand config, `MARKET_BASE_URL` for absolute links, skin id per
 open question G2. Resource fit checked against `slo.md`: new jobs are
 nightly or monthly batches through indexes, view counting is one batched
 write per minute, no per-request ledger scans.
+
+## Decision 2026-11-24 (owner t234u): refund and anti-abuse policy
+
+ADR-0024 adds the digital goods refund policy behind a region
+`RefundPolicy` port (RU defaults as pack config, marked needs counsel),
+the evidence log for chargebacks, watermark seam and anti-abuse signals
+that never refuse lawful refunds. Built in phase 2 step 0; the offer review
+by a practicing lawyer is a go-live item.

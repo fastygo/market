@@ -43,6 +43,7 @@ the repo.
 | [0021](adr/0021-seller-earnings-and-payouts.md) | Commission, seller earnings ledger, hold period, refunds and disputes, payouts | Proposed |
 | [0022](adr/0022-moderation-releases-and-licensing.md) | Item submission, moderation queue, releases, licensing | Proposed |
 | [0023](adr/0023-referral-attribution-seam.md) | Referral attribution and affiliate commissions (seam only) | Proposed |
+| [0024](adr/0024-digital-refund-and-anti-abuse-policy.md) | Digital goods refund and anti-abuse policy behind a region `RefundPolicy`; evidence logs, watermark seam | Proposed |
 
 ADR format: Status, Context, Decision, Consequences. Status values: Proposed,
 Accepted, Superseded. "Accepted" means the direction was confirmed by the
@@ -128,3 +129,9 @@ StorEEE Market is the storefront brand (config, dictionary, skin); GoDudY
 is a seller. Envato-style vendor model in ADR-0020 to ADR-0022, referral
 seam for a later affiliate partner site in ADR-0023; owner questions in
 `open-questions.md` E, F, G; phase 3 rewritten in `plan.md`.
+
+## Decision 2026-11-24 (owner t234u)
+
+ADR-0024: digital goods refund and anti-abuse policy (region
+`RefundPolicy`, RU defaults marked needs counsel), evidence logs for
+chargebacks, watermark seam; open questions C8 to C13.

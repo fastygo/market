@@ -143,6 +143,12 @@ in both commerce modes; they stay empty in `single_store`.
 | `downloads` | entitlement, release, at, ip_hash, ua_hash | |
 | `reviews` | product, seller, user, entitlement (required), rating (1..5), body, status (`pending`,`published`,`hidden`), seller_reply | (product, user) |
 
+Refund rules and evidence (ADR-0024): `refund_requests`, `access_evidence`
+(append-only, retention from the region pack, RU at least 5 years),
+`watermarks`, `risk_reviews`; `refunds` gains `basis` and
+`policy_version`; `orders` gains `buyer_kind`. Anti-abuse signals only
+flag for manual review and never refuse a lawful refund.
+
 ### Money and operations
 
 | Collection | Key fields | Unique / invariants |
@@ -201,6 +207,7 @@ only (compile-time fake in tests, phase 4):
 | `DocumentIssuer` | `taxdocs` | 54-FZ receipts through the provider cloud register; agent attributes for `agent` lines | invoices and credit notes with sequential numbering (own generator or provider invoicing) |
 | `ConsentPolicy` | `web` / `sellers` | 152-FZ consent documents and versions | GDPR: terms, privacy, marketing opt-in, cookie consent; export and erasure requests |
 | `LegalProfile` | `storefront` / `sellers` | INN/OGRN/KPP format and checksum, required fields, operator footer data | VAT id, company number, address requirements |
+| `RefundPolicy` (ADR-0024) | `ordering` | cooling-off 7 days excluding the purchase day (Unified Rules Art. 48, needs counsel), defect claims up to 2 years from access, refund within 7 days, goodwill limit | 14-day withdrawal with consent-based loss of the right for digital content (design target, needs counsel) |
 
 Payment adapters implement `payments.Gateway` and are enabled per storefront
 (`storefronts.enabled_providers`); credentials come from env only.
