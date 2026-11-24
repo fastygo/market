@@ -82,6 +82,26 @@
         "blocks/empty-state.templ": "2cbe388dc71f6a7f480f7f620a1dfc3d163eb1df1e9c0ccc8915d67324e6bbd4"
       }
     },
+    "registry.buildy.tw|templ|field": {
+      "name": "field",
+      "type": "registry:component",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "blocks/field.templ": "5ea088dc00101b782694d836e6718d09d0d5b9c657de415b82188c814ff55650"
+      }
+    },
+    "registry.buildy.tw|templ|form": {
+      "name": "form",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "compose/form.templ": "ff172ee07e52534804329a4f0e100d9c8b286e2b1f8682431b477dca10e6b61c"
+      }
+    },
     "registry.buildy.tw|templ|grid": {
       "name": "grid",
       "type": "registry:ui",
@@ -132,6 +152,16 @@
         "compose/inline.templ": "596e41027395785959c6129c8da243c2d7ef98533dae74dbab1865626c21f400"
       }
     },
+    "registry.buildy.tw|templ|input": {
+      "name": "input",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "compose/input.templ": "2d010088f1e0d8b21ca33247d75c77955790e47ab3bf782f9751e83c30aebf5e"
+      }
+    },
     "registry.buildy.tw|templ|kit-box": {
       "name": "kit-box",
       "type": "registry:ui",
@@ -150,6 +180,16 @@
       "runtime": "templ",
       "files": {
         "ui/button/button.templ": "0614d7725f0ab181dd96b33b22ec351b6d3d395335b19dc5de08ffd99c1ca074"
+      }
+    },
+    "registry.buildy.tw|templ|kit-form": {
+      "name": "kit-form",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "ui/form/form.templ": "465d084233129b057e207d9eb9893cab08712a17663f0a5f4217e828145d2df6"
       }
     },
     "registry.buildy.tw|templ|kit-icon": {
@@ -172,6 +212,26 @@
       "runtime": "templ",
       "files": {
         "ui/image/image.templ": "6ca100b738f5c188962667357c6dfcf9886900e2db436ec0df15a51dea95a759"
+      }
+    },
+    "registry.buildy.tw|templ|kit-input": {
+      "name": "kit-input",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "ui/input/input.templ": "1a8a71e9ccdc86be00fbb44926ca6b927a87845590e16a223051ec8d24498476"
+      }
+    },
+    "registry.buildy.tw|templ|kit-label": {
+      "name": "kit-label",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "ui/label/label.templ": "594d0bdb5e37649f5069bb0d2cada4af33ec2710758e452b087c48a3850fe415"
       }
     },
     "registry.buildy.tw|templ|kit-link": {
@@ -202,6 +262,16 @@
       "runtime": "templ",
       "files": {
         "ui/text/text.templ": "1f58c23d1384f15dfb6ef11001b46efad79b6a074229b4da17526564090584e6"
+      }
+    },
+    "registry.buildy.tw|templ|label": {
+      "name": "label",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "compose/label.templ": "7ea6567ced87d30e5bec9ebc76fe660564e5e38ab3bcf822598d90ba049340d1"
       }
     },
     "registry.buildy.tw|templ|link": {
