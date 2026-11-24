@@ -88,6 +88,30 @@ example a self-employed receipt), and whether the operator acts as agent on
 tax documents. The operator seller (`is_operator`) is the platform's own
 catalog and has no earnings account.
 
+Owner decision t237u (2026-11-24): all seller forms are accepted in the RU
+deployment: LLC (`ooo`), sole proprietor (`ip`) and self-employed (`npd`).
+Self-employed sellers need counsel before the first sale: who issues the
+receipt to the buyer and for the payout (the seller in the tax service app
+or the operator through a tax service partner integration), the status
+check of the seller as self-employed before approval and before each
+payout, the annual income cap, and whether the agent scheme (operator sells
+as agent, 54-FZ agent receipts) fits a self-employed principal. These are
+region pack rules (`seller.forms@1`), never core code.
+
+### Pseudonymous sellers
+
+A seller may publish under a pseudonym (owner decision t237u: GoDudY is a
+self-employed seller under a pseudonym). The public profile, item pages,
+receipts shown to buyers and every public view show only `display_name`.
+The real name, passport data and tax id are disclosed only in the contract
+with the operator and are stored only as private runtime data
+(`seller_documents`, `legal_ids`; superusers only), never in the repo,
+seeds, logs or public views (ADR-0016). Where the region requires the
+supplier's real data on a buyer document (RU agent receipts carry supplier
+name and tax id), that requirement and its effect on the pseudonym need
+counsel; the engine keeps the snapshot in `order_items.agent_info`, which
+is never rendered publicly.
+
 ### Public profile and portfolio
 
 - URL: `/authors/{slug}` (path prefix is storefront config, default
@@ -107,7 +131,7 @@ catalog and has no earnings account.
   cache columns recomputed by cron, never money (ADR-0004).
 - Author levels and badges: `author_levels` (code, title key, min lifetime
   earnings or sales count per currency, sort) and the cached
-  `sellers.level`; badges (`exclusive`, `top_seller`, `featured_author`,
+  `sellers.level`; badges (`top_seller`, `featured_author`,
   `years_n`) are computed into `sellers.badges` (json) by a daily cron from
   the ledger and products.
 - Followers: `seller_follows(user, seller)`; following feeds an outbox
@@ -168,7 +192,7 @@ config change plus enabling the module.
 
 | Collection | Fields | Unique / invariants |
 | --- | --- | --- |
-| `sellers` (changed) | + status (`draft`,`applied`,`active`,`suspended`,`closed`,`rejected`), suspension_reason, headline, bio, avatar, cover, website, links (json), support_policy, joined_at, level, badges (json), exclusivity (`exclusive`,`non_exclusive`), items_count, sales_count, followers_count, rating_avg, verification (json) | slug unique + reserved list; `active` invariants above; counters are cache |
+| `sellers` (changed) | + status (`draft`,`applied`,`active`,`suspended`,`closed`,`rejected`), suspension_reason, headline, bio, avatar, cover, website, links (json), support_policy, joined_at, level, badges (json), items_count, sales_count, followers_count, rating_avg, verification (json) | slug unique + reserved list; `active` invariants above; counters are cache |
 | `seller_applications` | user, display_name, desired_slug, portfolio_links (json), categories (json), legal_form, contract_version, status (`submitted`,`in_review`,`approved`,`rejected`,`withdrawn`), reviewer, decision_reason, decided_at | one open application per user |
 | `seller_documents` | seller, kind (region code), file (private), uploaded_by, status (`received`,`accepted`,`rejected`), retain_until | superuser only; never public; deleted after `retain_until` unless the law requires keeping |
 | `seller_slug_history` | seller, slug, changed_at | slug unique (no reuse by another seller) |
@@ -195,3 +219,15 @@ superuser only.
   indexed rows and cached counters; view counting adds one batched write per
   minute; nightly crons scan the day's ledger entries only; no new
   resident caches beyond the view counter map (bounded, a few MB).
+
+## Decisions 2026-11-24 (owner t237u)
+
+- StorEEE Market is the platform under its own brand; the platform default
+  skin becomes `storeee` (initially a copy of the `godudy` tokens until the
+  owner provides its own); `godudy` stays in the repo as a reference skin
+  and GoDudY's look (plan step, no code yet).
+- All seller forms accepted (LLC, sole proprietor, self-employed);
+  self-employed rules need counsel.
+- GoDudY: self-employed, public pseudonym only; real identity only in the
+  operator contract and private runtime data.
+- No exclusivity: `exclusivity` field and `exclusive` badge removed.

@@ -51,9 +51,13 @@ are modules (ADR-0019), so checks and license sets may differ per type.
 
 ### Licensing
 
+- Owner decision t237u (2026-11-24): one common non-exclusive license
+  (simple license; the seller keeps the right to sell anywhere), as on
+  Envato after its recent update. The default product type `plain` offers
+  this one license type; `license_types` stays a table, so a second type
+  (for example extended) can be added later as data.
 - `license_types` stay global codes with versioned terms; a product type
-  module declares which license types it allows (default `plain`: `regular`
-  and `extended`). `license_types` gains `product_types` (json list) and
+  module declares which license types it allows. `license_types` gains `product_types` (json list) and
   `terms_url`/`terms` per locale via content records.
 - An offer is (product, license type, currency); the seller prices each
   license within `price_rules` (ADR-0021). The license terms version is
@@ -74,7 +78,7 @@ moderator action is in `audit_log`.
 | `submissions` | product, seller, release (for `update`), kind (`new_item`,`update`,`metadata`), status, round, payload (json: proposed metadata diff), checks (json), claimed_by, claimed_until, reviewer, reasons (json list of codes), note, decided_at | one open submission per product; transitions by Go only |
 | `rejection_reasons` | code, title_key, help_key, hard (bool), categories (json), active | code |
 | `product_releases` (changed) | + status `in_review`, `rejected`; submission | immutability from `in_review` |
-| `products` (changed) | + exclusive (optional per-item), external_ref (supplier seam, ADR-0020); status keeps `draft`,`in_review`,`published`,`unlisted`,`archived` and adds `rejected` | |
+| `products` (changed) | + external_ref (supplier seam, ADR-0020); status keeps `draft`,`in_review`,`published`,`unlisted`,`archived` and adds `rejected` | |
 | `license_types` (changed) | + product_types (json) | code |
 
 ## Consequences

@@ -32,14 +32,14 @@ change them.
 
 ## B. Configuration or content (per deployment, later, not code)
 
-1. GoDudY `sale_model` (see also E13; GoDudY is now a seller of the
-   StorEEE Market storefront) (`principal` if a brand of the operator, `agent` if a
-   separate legal entity): seller data set in admin before go-live. `agent`
-   is incompatible with a `single_store` launch (admin invariant); if the
-   answer is `agent`, the minimal marketplace part ships in phase 1 first.
+1. ANSWERED 2026-11-24 (owner t237u, see E13): GoDudY is a self-employed
+   third-party seller under a pseudonym, so it is not the operator seller;
+   the launch needs the minimal marketplace part. Sale scheme (agent or
+   sublicense) needs counsel (E7).
 2. Payment provider of the RU deployment (YooKassa, T-Bank, CloudPayments or
    Robokassa); later Stripe/PayPal for an EU deployment.
-3. License types (codes, terms, prices).
+3. License types: one common non-exclusive license for now (owner t237u,
+   2026-11-24); its code, terms text and prices are still open.
 4. Refund policy text and window (phase 1 code supports full refunds).
 5. Buyer sign-in mode: email OTP, password, or both (auth config).
 6. Domain, hosting, brand skin (logo, tokens), storefront name (StorEEE
@@ -69,9 +69,10 @@ change them.
    refund term in the offer of at most 7 days; fix period offered on a
    defect; separate B2B contract and how a business buyer is identified;
    whether 289-FZ/290-FZ apply while only the operator sells.
-9. May the platform restrict future purchases of an account after proven
-   refund abuse (terms of service vs public contract, Civil Code Art. 426)?
-   Default: no restriction, flags for manual review only.
+9. ANSWERED 2026-11-24 (owner t237u): yes, accounts that abuse refunds are
+   blocked from new purchases by the operator after review, per the terms
+   of service, with an appeal path (ADR-0024). Still needs counsel: terms
+   wording, Civil Code Art. 426, duration.
 10. Goodwill refunds after the window: offer them at all, and the limit per
     account.
 11. Retention of access evidence logs (default at least 5 years) and the
@@ -92,37 +93,47 @@ charge, GDPR records and DPO need, Stripe/PayPal account setup.
 Defaults in the ADRs are placeholders for tests; each needs an owner answer
 before phase 3.
 
-1. Commission: default rate, and whether it depends on author level,
-   category and exclusivity (Envato style tiers) or is one flat rate.
-2. Exclusivity: offer exclusive and non-exclusive authors with different
-   rates? Per author or per item?
+1. ANSWERED 2026-11-24 (owner t237u): one flat commission of 50% for now
+   (configurable default; tiers stay a seam).
+2. ANSWERED 2026-11-24 (owner t237u): no exclusivity; one common
+   non-exclusive license, sellers may sell anywhere (as on Envato after its
+   recent update).
 3. Hold period in days before earnings become payable (trade-off: refund
    window and card chargeback risk vs. author cash flow); optional rolling
    reserve for risky sellers.
-4. Payout schedule (monthly or on request), minimum amount, payout methods
-   (bank transfer, card, wallet), and whether two operators must approve.
+4. PARTLY ANSWERED 2026-11-24 (owner t237u): payouts are monthly. Still
+   open: minimum amount, payout methods (bank transfer, card, wallet), and
+   whether two operators must approve.
 5. Who pays the acquiring fee and the chargeback fee: platform out of its
    commission, or the seller.
 6. On a refund, does the platform return its commission together with the
    sale (default) or keep it as a non-refundable fee?
-7. Legal scheme for third-party sellers: agency (operator sells as agent,
-   54-FZ agent receipts, monthly agent reports) or sublicense (operator
-   resells, royalties to authors). Which seller forms are accepted at start
-   (LLC, sole proprietor, self-employed, private individual) and, for
-   self-employed, who issues the receipt.
+7. PARTLY ANSWERED 2026-11-24 (owner t237u): all seller forms are accepted
+   (LLC, sole proprietor, self-employed). Still open, needs counsel: agency
+   (operator sells as agent, 54-FZ agent receipts, monthly agent reports)
+   or sublicense (operator resells, royalties to authors); for
+   self-employed sellers: who issues the receipt (seller in the tax service
+   app or the operator as a tax service partner), the status check before
+   approval and payouts, the annual income cap, and whether the agent
+   scheme fits a self-employed principal.
 8. KYC-lite: which seller data and documents are required, and how long
    they are kept.
 9. Pricing: authors set prices freely within bounds, or the platform sets
-   them? Price bounds per category; extended license price at least N times
-   regular?
+   them? Price bounds per category? (One common license for now, so no
+   extended/regular ratio.)
 10. Moderation: review SLA targets, soft vs hard rejection policy, who
     reviews (operator staff only at start?).
 11. Public author URL: `/authors/{slug}` (default) or another prefix.
 12. Author levels and badges: thresholds and names; do levels change the
     commission?
-13. GoDudY: a brand of the operator (operator seller, `principal`) or a
-    separate entity selling as `agent`? (replaces B1 for the new brand
-    setup).
+13. ANSWERED 2026-11-24 (owner t237u): GoDudY is a self-employed seller
+    under a pseudonym; the public profile shows only the pseudonym; passport
+    data and tax id are disclosed only in the contract with the operator
+    and stored only as private runtime data. Consequence: GoDudY is a
+    third-party seller, so the launch needs the minimal marketplace part
+    (ADR-0005 invariant, plan phase 1 step 11). Needs counsel: whether an
+    agent receipt must show the supplier's real name and tax id, and what
+    that means for the pseudonym.
 
 ## F. Affiliate program (ADR-0023, seam only)
 
@@ -141,9 +152,10 @@ before phase 3.
 1. Exact brand strings for config: name ("StorEEE Market"), short name,
    tagline ("Easy to find, Easy to learn, Easy to Sell"), alternate
    spellings to list in structured data and search synonyms.
-2. Skin: is the current `godudy` skin the StorEEE Market skin (rename to
-   `storeee`), or should GoDudY keep it for its seller pages only and
-   StorEEE get its own tokens?
+2. ANSWERED 2026-11-24 (owner t237u): StorEEE is the platform under its
+   own brand; the platform default skin becomes `storeee` (initially a copy
+   of the `godudy` tokens until the owner provides its own); `godudy` stays
+   as a reference skin. Still open: StorEEE's own tokens and logo.
 3. Production base URL (example `https://market.storeee.ru`) and whether
    the main domain gets a landing page that links to the market.
 

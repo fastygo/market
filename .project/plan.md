@@ -306,3 +306,22 @@ ADR-0024 adds the digital goods refund policy behind a region
 the evidence log for chargebacks, watermark seam and anti-abuse signals
 that never refuse lawful refunds. Built in phase 2 step 0; the offer review
 by a practicing lawyer is a go-live item.
+
+## Decisions 2026-11-24 (owner t237u)
+
+Answered: flat 50% commission (configurable default), monthly payouts, no
+exclusivity (one common non-exclusive license), all seller forms accepted
+(self-employed rules need counsel), GoDudY is a pseudonymous self-employed
+seller (identity only in the operator contract and private runtime data),
+purchase restriction for refund abusers after operator review (ADR-0024).
+Plan consequences:
+
+- Brand step (code, small): add skin `storeee` (`ui/styles/skins/storeee.css`
+  as a copy of the `godudy` tokens, build entry, `make css`), set the
+  storefront seed `brand.skin` to `storeee`; `godudy` stays as a reference
+  skin.
+- Go-live: GoDudY is a third-party seller, so the minimal marketplace part
+  (agent or sublicense scheme per counsel, seller share accounts,
+  self-employed receipts per counsel) moves into phase 1 before the launch
+  (ADR-0005 invariant, step 11 above).
+- Phase 2 step 0 adds `purchase_restrictions` and the checkout check.

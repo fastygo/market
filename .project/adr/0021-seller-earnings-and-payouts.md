@@ -9,7 +9,7 @@
 ADR-0006 already posts `agent` lines with `platform_revenue`, `tax_payable`
 and `seller_payable`, with deterministic `txn_id`s and append-only entries.
 A marketplace also needs: commission rules that depend on author level,
-exclusivity and category; earnings that are not payable until refund and
+category; earnings that are not payable until refund and
 dispute risk has passed; balances that can go negative after a chargeback;
 payout batches; and attribution of refunds and disputes to the seller. The
 host is 1 vCPU / 2 GB with SQLite (one writer), so every job must be
@@ -25,15 +25,19 @@ batched in short transactions (ADR-0007 rule zero).
   new orders only (order items are snapshots) and are rate limited
   (config, default once per 7 days per offer) to block price games around
   featuring.
-- The platform sets commission. `commission_rules` (priority order: seller
-  override, category + exclusivity, level + exclusivity, default) gives
+- The platform sets commission. Owner decision t237u (2026-11-24): one flat
+  rate, 50% (5000 bps), as the configurable `default` rule. The
+  `commission_rules` table keeps the seam for tiers later (priority order:
+  seller override, category, level, default) and gives
   `commission_bps` for a line, valid by date. The resolved bps and amount
   are snapshotted on `order_items` (`commission_bps`, `commission_minor`)
   at checkout, so later rule changes never touch past sales.
-- Exclusivity: `sellers.exclusivity` (`exclusive` sells only here, lower
-  commission; `non_exclusive` may sell elsewhere, higher commission), with
-  an optional per-item override (`products.exclusive`) if the owner wants
-  Envato's per-item mode.
+- Exclusivity: none (owner decision t237u, 2026-11-24, following
+  Envato's recent move to one non-exclusive model): every seller may sell
+  the same items anywhere, and commission does not depend on exclusivity.
+  The `exclusivity` fields proposed earlier are removed, not reserved
+  (YAGNI); a split would come back as a `commission_rules` scope column
+  with a migration.
 - Commission base is the line amount the buyer pays after discount
   (ADR-0006 formula, half up, remainder to the platform). Buyer fees are
   not used (an open question if the owner wants them).
@@ -90,8 +94,9 @@ is the tax payer differ (region pack):
 
 ### Payouts
 
-- Schedule and threshold are storefront config (default monthly, minimum
-  amount per currency). A payout batch is created by the operator or a
+- Schedule and threshold are storefront config. Owner decision t237u
+  (2026-11-24): payouts are monthly; the minimum amount per currency is
+  still open. A payout batch is created by the operator or a
   cron: one `payouts` row per seller with `available >= minimum`, amount =
   available at batch time (from the ledger, in the same short tx that posts
   `payout:{id}`).
@@ -117,7 +122,7 @@ is the tax payer differ (region pack):
 | Collection | Fields | Unique / invariants |
 | --- | --- | --- |
 | `order_items` (changed) | + commission_bps, hold_until, earnings_minor (seller share snapshot) | `earnings_minor = line_minor - commission_minor` for non-operator sellers, 0 for the operator |
-| `commission_rules` | scope (`default`,`level`,`category`,`seller`), level, category, seller, exclusivity, bps (0..10000), valid_from, valid_to, note | no overlapping validity for the same scope key (Go check) |
+| `commission_rules` | scope (`default`,`level`,`category`,`seller`), level, category, seller, bps (0..10000), valid_from, valid_to, note | no overlapping validity for the same scope key (Go check) |
 | `price_rules` | category, license_type, currency, min_minor, max_minor, extended_min_ratio_bp | (category, license_type, currency) |
 | `payout_batches` | period_from, period_to, currency, status (`draft`,`approved`,`processing`,`done`), created_by, approved_by, totals (json, cache) | (period_from, period_to, currency) |
 | `payouts` (changed, ADR-0005) | seller, batch, amount_minor, currency, method_snapshot (masked json), status (`draft`,`approved`,`processing`,`paid`,`failed`,`canceled`), idempotency_key, provider_ref, failure_reason, seller_document, approved_by, paid_at | (seller, batch); idempotency_key; amount from the ledger; Go-only writes |
@@ -140,3 +145,10 @@ New ledger accounts: `seller_pending`, `seller_available`, `seller_reserve`,
   `order_items(hold_until)` and `(seller, currency, created)`, in batches of
   a few hundred per transaction, nightly or monthly; no per-request ledger
   scans.
+
+## Decisions 2026-11-24 (owner t237u)
+
+- Commission: flat 50% for every seller and item, configurable default
+  rule; tiers stay a seam.
+- Payouts: monthly batches.
+- No exclusivity split; fields removed.

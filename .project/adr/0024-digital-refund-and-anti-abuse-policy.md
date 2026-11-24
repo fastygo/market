@@ -167,9 +167,17 @@ type RefundPolicy interface { Evaluate(c RefundClaim) RefundDecision }
   `risk_reviews` for manual review. A signal never refuses or delays a
   lawful refund (cooling-off or defect) and never shortens its deadline.
 - Goodwill refunds may be limited per account by config.
-- Restricting future purchases of an account after proven abuse is an
-  open question (terms of service and Art. 426); until decided the engine
-  only flags.
+- Purchase restriction (owner decision t237u, 2026-11-24): an account
+  that abuses refunds is blocked from new purchases. The terms of service
+  state the ground; the operator applies the restriction after a
+  `risk_reviews` review (never automatically) and records the reason and
+  the evidence. Effects: checkout rejects new orders of that account
+  (`purchase_restricted`); pending lawful refunds, defect claims, existing
+  entitlements and downloads are not affected. The buyer is notified and
+  may appeal; an appeal is decided by another operator where possible and
+  can lift the restriction. **Needs counsel**: wording in the terms of
+  service and the public contract rule (Civil Code Art. 426), duration and
+  review of restrictions.
 
 ## Collections (new or changed)
 
@@ -181,6 +189,7 @@ type RefundPolicy interface { Evaluate(c RefundClaim) RefundDecision }
 | `watermarks` | order_item, token (random), product, release, created | token unique |
 | `risk_reviews` | user, signal codes (json), status (`open`,`cleared`,`actioned`), note, handled_by | one open review per user |
 | `orders` (changed) | + buyer_kind (`consumer`,`business`) | snapshot at checkout |
+| `purchase_restrictions` | user, reason_code, note, risk_review, imposed_by, starts_at, ends_at (optional), status (`active`,`appealed`,`lifted`), appeal_note, appeal_decided_by | at most one `active` per user; Go-only writes; checked at checkout |
 
 ## Consequences
 
