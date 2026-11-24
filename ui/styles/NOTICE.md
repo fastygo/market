@@ -4,8 +4,8 @@
   skin): copied verbatim from `ui8kit/site` (`generator/assets/styles/`,
   commit `fe247e6`, MIT License, UI8Kit). Do not edit.
 - `skins/godudy.css`: GoDudY skin written by the owner (t224u, 2026-11-24),
-  kept verbatim, including `--spacing: 0.24rem` (see `.project/plan.md`,
-  ui8px note).
+  kept verbatim except `--spacing: 0.25rem` (owner decision t225u; the
+  original value was 0.24rem, see `.project/plan.md`).
 - `fonts.css`: self-hosted `@font-face` for Istok Web, Fenix and Fira Code
   (SIL OFL 1.1; files in `internal/web/static/fonts/`, latin, latin-ext,
   cyrillic, cyrillic-ext subsets), so the skin needs no runtime CDN.

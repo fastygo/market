@@ -138,7 +138,7 @@ func TestCheckoutHappyPath(t *testing.T) {
 	if v.Status != ordering.OrderAwaitingPayment || v.PaymentStatus != ordering.PaymentPending || v.ConfirmationURL == "" {
 		t.Fatalf("after checkout: %+v", v)
 	}
-	if v.Number == "" || v.Total.Minor != 290000 {
+	if len(v.Number) != 13 || v.Number[:2] != "M-" || v.Total.Minor != 290000 {
 		t.Fatalf("number/total: %+v", v)
 	}
 	var item struct {

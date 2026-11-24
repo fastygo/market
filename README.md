@@ -15,12 +15,18 @@ No secrets or real legal or personal data in this repo (ADR-0016).
 ## Run locally
 
 ```sh
-go build -o bin/market ./cmd/market     # or: make build
-./bin/market serve --http 127.0.0.1:8090
-# http://127.0.0.1:8090/  /catalog  /products/aurora-theme  (admin: /_/)
+make build                                   # CGO_ENABLED=0 go build ... -o bin/market ./cmd/market
+./bin/market superuser upsert admin@example.com 'a-long-password'   # admin account (any time, also while running)
+./bin/market serve --http 127.0.0.1:8090     # data in ./pb_data
+# storefront http://127.0.0.1:8090/  /catalog  /products/aurora-theme
+# admin UI   http://127.0.0.1:8090/_/  (sign in with the superuser above)
 ```
 
-Migrations (collections and a placeholder seed) apply on start.
+Migrations (collections and a placeholder seed) apply on start. Use
+`--dir /path/to/pb_data` for another data directory (pass it to
+`superuser upsert` too). Development flags: `MARKET_FAKE_GATEWAY=1` (fake
+payment provider), `MARKET_DOWNLOAD_SECRET` (stable download links across
+restarts); see `deploy/market.env.example`.
 
 ## Try the money path locally (fake gateway)
 

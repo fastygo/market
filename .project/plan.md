@@ -189,16 +189,13 @@ releases immutable, `agent` seller rejected in `single_store`).
   `make css` builds one stylesheet per skin.
 - Fonts are self-hosted (OFL, latin + cyrillic subsets, about 300 KB) so the
   storefront works offline and sends no visitor IPs to a font CDN.
-- The skin sets `--spacing: 0.24rem` (3.84 px instead of 4 px), so every
-  Tailwind spacing step is 4% smaller than the 8+4 grid assumes. Kept as the
-  owner wrote it. `npx ui8px lint` (v0.3.0) on `internal/web/screens` and
-  `ui/styles` does not flag the value: it reports 9 class findings in the
-  screens that are independent of the skin (`border-t`/`border-b`,
-  `no-underline` unknown; `max-w-xs`, `min-h-screen` not allowed in layout
-  scope; `outline-ring/50` in the skin base layer). `ui8px validate grid`
-  on the compiled CSS resolves spacing with a 4 px base and reports the same
-  24 findings for the default and the GoDudY stylesheet, i.e. it does not see
-  the 0.24rem override either. Open for the owner: keep 0.24rem or use 0.25rem.
+- `--spacing`: the owner's file had `0.24rem` (3.84 px steps); ui8px lint
+  v0.3.0 did not flag it (its grid check assumes a 4 px base). Owner decision
+  t225u: `--spacing: 0.25rem`, so Tailwind steps match the 8+4 grid again.
+  This is the only change to the owner's skin file. Remaining ui8px lint
+  findings are skin-independent (`border-t`/`border-b`, `no-underline`
+  unknown; `max-w-xs`, `min-h-screen` not allowed in layout scope;
+  `outline-ring/50` in the base layer).
 
 ## Phase 1 status 2026-11-24 (t224u)
 
