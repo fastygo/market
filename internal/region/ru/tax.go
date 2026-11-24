@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/fastygo/market/internal/ordering"
+	"github.com/fastygo/market/internal/taxdocs"
 )
 
 // VATRate is one row of the dated standard rate table.
@@ -108,3 +109,20 @@ func (p TaxPolicy) ResolveLines(at time.Time, display ordering.TaxDisplay, lines
 	}
 	return out, nil
 }
+
+// Receipts is the RU taxdocs.Policy: every sale needs a 54-FZ receipt
+// (operation "income") and every refund a return receipt ("income_return"),
+// paid in full at once. The payment subject code for digital goods is a
+// placeholder until the operator confirms it with the register provider.
+type Receipts struct{}
+
+// ForSale implements taxdocs.Policy.
+func (Receipts) ForSale() (taxdocs.Kind, string, bool) { return taxdocs.Receipt, "income", true }
+
+// ForRefund implements taxdocs.Policy.
+func (Receipts) ForRefund() (taxdocs.Kind, string, bool) {
+	return taxdocs.ReceiptReturn, "income_return", true
+}
+
+// LineCodes implements taxdocs.Policy.
+func (Receipts) LineCodes(agent bool) (string, string) { return "service", "full_payment" }

@@ -28,6 +28,8 @@ import (
 	"github.com/fastygo/market/internal/platform/pb"
 	"github.com/fastygo/market/internal/platform/s3"
 	"github.com/fastygo/market/internal/region/ru"
+	"github.com/fastygo/market/internal/taxdocs"
+	"github.com/fastygo/market/internal/taxdocs/fakeissuer"
 	"github.com/fastygo/market/internal/web"
 	"github.com/fastygo/market/ui/dict"
 )
@@ -81,6 +83,11 @@ func main() {
 		ctx, stop := context.WithCancel(context.Background())
 		svc.RunWorkers(ctx, 2*time.Second, func(err error) { se.App.Logger().Warn("worker", "err", err) })
 		se.App.OnTerminate().BindFunc(func(e *core.TerminateEvent) error { stop(); return e.Next() })
+		se.App.Cron().MustAdd("market_payment_timeouts", "* * * * *", func() {
+			if n, err := svc.RequestTimeouts(ctx); err != nil || n > 0 {
+				se.App.Logger().Info("payment timeouts", "requested", n, "err", err)
+			}
+		})
 		se.App.Cron().MustAdd("market_reconcile", "*/5 * * * *", func() {
 			if n, err := svc.Reconcile(ctx); err != nil || n > 0 {
 				se.App.Logger().Info("reconcile", "items", n, "err", err)
@@ -104,8 +111,21 @@ func wire(app core.App, fake bool) (*web.Commerce, *ordering.Service) {
 		gateways[string(fakegw.Code)] = fakeGW
 		app.Logger().Warn("fake payment gateway enabled (development only)")
 	}
+	orders := &pb.Orders{App: app}
+	var issuer taxdocs.Issuer
+	if fake {
+		// phase 1: receipts go to the fake register; a real
+		// DocumentIssuer module replaces it with the real provider
+		fi := fakeissuer.New()
+		issuer, orders.TaxDocs, orders.IssuerCode = fi, ru.Receipts{}, fi.Code()
+		app.Logger().Warn("fake tax document issuer enabled (development only)")
+	}
+	timeout, err := time.ParseDuration(env("MARKET_PAYMENT_TIMEOUT", "30m"))
+	if err != nil {
+		log.Fatal(err)
+	}
 	svc := &ordering.Service{
-		Store: &pb.Orders{App: app}, Tax: ru.TaxPolicy{}, Gateways: gateways,
+		Store: orders, Tax: ru.TaxPolicy{}, Gateways: gateways, Issuer: issuer, PaymentTimeout: timeout,
 		RequiredConsents: []string{"terms"},
 		ReturnURL:        func(orderID string) string { return "/checkout/return/" + orderID },
 		Outbox: map[string]ordering.OutboxHandler{
@@ -134,7 +154,7 @@ func wire(app core.App, fake bool) (*web.Commerce, *ordering.Service) {
 		log.Fatal(err)
 	}
 	lic := &licensing.Service{Store: &pb.Downloads{App: app}, Signer: licensing.Signer{Key: dlKey}, Presigner: presigner, URLTTL: ttl}
-	return &web.Commerce{Auth: auth(app), Orders: svc, Licenses: lic, FakePay: fakeGW, HashSalt: string(dlKey)}, svc
+	return &web.Commerce{Auth: auth(app), Operator: operator(app), Orders: svc, Licenses: lic, FakePay: fakeGW, HashSalt: string(dlKey)}, svc
 }
 
 // auth reads a PocketBase users auth token from the Authorization header.
@@ -149,6 +169,21 @@ func auth(app core.App) func(r *http.Request) (web.Buyer, bool) {
 			return web.Buyer{}, false
 		}
 		return web.Buyer{ID: rec.Id, Email: rec.Email()}, true
+	}
+}
+
+// operator reads a PocketBase superuser auth token (operator commands).
+func operator(app core.App) func(r *http.Request) (string, bool) {
+	return func(r *http.Request) (string, bool) {
+		tok := strings.TrimSpace(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))
+		if tok == "" {
+			return "", false
+		}
+		rec, err := app.FindAuthRecordByToken(tok, core.TokenTypeAuth)
+		if err != nil || !rec.IsSuperuser() {
+			return "", false
+		}
+		return rec.Email(), true
 	}
 }
 

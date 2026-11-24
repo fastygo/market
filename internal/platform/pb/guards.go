@@ -12,7 +12,7 @@ import (
 // architecture "Write protection").
 var LockedCollections = []string{
 	"orders", "order_items", "payments", "payment_events", "refunds", "tax_documents",
-	"ledger_entries", "entitlements", "downloads", "outbox", "payouts", "audit_log", "consents",
+	"ledger_entries", "entitlements", "downloads", "outbox", "payouts", "audit_log", "consents", "alerts",
 }
 
 // Guard errors.

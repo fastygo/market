@@ -16,20 +16,24 @@ import (
 	"github.com/fastygo/market/internal/ordering"
 	"github.com/fastygo/market/internal/payments"
 	"github.com/fastygo/market/internal/platform/money"
+	"github.com/fastygo/market/internal/taxdocs"
 )
 
 // Orders implements ordering.Store on PocketBase. Every write method is one
 // RunTx; no method calls the network.
 type Orders struct {
 	App core.App
+	// TaxDocs is the region document policy (nil: no documents) and
+	// IssuerCode names the configured DocumentIssuer.
+	TaxDocs    taxdocs.Policy
+	IssuerCode string
 }
 
 var _ ordering.Store = (*Orders)(nil)
 
 // Store errors.
 var (
-	ErrAmountMismatch = errors.New("pb: provider amount differs from the payment (auto-refund path not built yet)")
-	ErrProviderID     = errors.New("pb: payment already has a different provider id")
+	ErrProviderID = errors.New("pb: payment already has a different provider id")
 )
 
 func pbDate(t time.Time) string { return t.UTC().Format("2006-01-02 15:04:05.000Z") }
@@ -278,24 +282,6 @@ const paySelect = `SELECT p.id, p."order" AS "order", p.status, p.status_version
 	p.amount_minor, p.currency, o.status AS ostatus, o.status_version AS oversion
 	FROM payments p JOIN orders o ON o.id = p."order" `
 
-// moveOrder applies the order side of a payment status (conditional).
-func moveOrder(app core.App, r payRow, p ordering.PaymentStatus, now time.Time) (ordering.OrderStatus, error) {
-	to, changed, err := ordering.OrderOnPayment(ordering.OrderStatus(r.OStatus), p)
-	if err != nil || !changed {
-		return to, err
-	}
-	set := ""
-	params := dbx.Params{"id": r.Order, "from": r.OStatus, "v": r.OVersion, "to": string(to), "now": pbDate(now)}
-	switch to {
-	case ordering.OrderPaid:
-		set = ", paid_at = {:now}"
-	case ordering.OrderCancelled:
-		set = ", cancelled_at = {:now}, cancel_reason = 'provider_canceled'"
-	}
-	return to, exec(app, `UPDATE orders SET status = {:to}, status_version = status_version + 1, updated = {:now}`+set+
-		` WHERE id = {:id} AND status = {:from} AND status_version = {:v}`, params)
-}
-
 // AttachProvider implements ordering.Store: tx 2 of the checkout protocol.
 func (s *Orders) AttachProvider(ctx context.Context, paymentID, ppid, url string) (ordering.OrderView, error) {
 	var v ordering.OrderView
@@ -315,7 +301,7 @@ func (s *Orders) AttachProvider(ctx context.Context, paymentID, ppid, url string
 				dbx.Params{"ppid": ppid, "url": url, "now": pbDate(now), "id": r.ID, "v": r.Version}); err != nil {
 				return err
 			}
-			if _, err := moveOrder(app, r, ordering.PaymentPending, now); err != nil {
+			if _, err := moveOrder(app, r.Order, ordering.PaymentPending, now); err != nil {
 				return err
 			}
 		}
@@ -324,165 +310,6 @@ func (s *Orders) AttachProvider(ctx context.Context, paymentID, ppid, url string
 		return err
 	})
 	return v, err
-}
-
-// ApplyPayment implements ordering.Store: the apply transaction. The
-// payment and order transitions and the in-tx effects (entitlements,
-// ledger, outbox) commit together.
-func (s *Orders) ApplyPayment(ctx context.Context, provider string, st payments.Status, now time.Time) (ordering.Applied, error) {
-	var a ordering.Applied
-	err := RunTx(ctx, s.App, "payment.apply", func(ctx context.Context, app core.App) error {
-		var r payRow
-		err := app.DB().NewQuery(paySelect + "WHERE p.provider = {:pr} AND p.provider_payment_id = {:id}").
-			Bind(dbx.Params{"pr": provider, "id": st.ProviderPaymentID}).One(&r)
-		if errors.Is(err, sql.ErrNoRows) {
-			return ordering.ErrNotFound
-		}
-		if err != nil {
-			return err
-		}
-		to := ordering.PaymentStatus(st.State)
-		if to == ordering.PaymentSucceeded && st.Amount.Currency != "" && (st.Amount.Minor != r.Amount || st.Amount.Currency != r.Currency) {
-			return ErrAmountMismatch
-		}
-		changed, err := ordering.PaymentTransition(ordering.PaymentStatus(r.Status), to)
-		if err != nil {
-			return err
-		}
-		a = ordering.Applied{OrderID: r.Order, Payment: ordering.PaymentStatus(r.Status), Order: ordering.OrderStatus(r.OStatus)}
-		if changed {
-			if err := exec(app, `UPDATE payments SET status = {:to}, status_version = status_version + 1, updated = {:now}
-				WHERE id = {:id} AND status = {:from} AND status_version = {:v}`,
-				dbx.Params{"to": string(to), "now": pbDate(now), "id": r.ID, "from": r.Status, "v": r.Version}); err != nil {
-				return err
-			}
-			a.Payment, a.Changed = to, true
-		}
-		o, err := moveOrder(app, r, a.Payment, now)
-		if err != nil {
-			return err
-		}
-		if o != a.Order {
-			a.Order, a.Changed = o, true
-		}
-		if a.Payment == ordering.PaymentSucceeded && a.Order == ordering.OrderPaid {
-			a.EffectsWritten, err = writePaidEffects(app, r.Order, r.ID, now)
-		}
-		return err
-	})
-	return a, err
-}
-
-// ReplayEffects implements ordering.Store (reconciliation step 3).
-func (s *Orders) ReplayEffects(ctx context.Context, orderID string, now time.Time) (ordering.Applied, error) {
-	var a ordering.Applied
-	err := RunTx(ctx, s.App, "payment.replay", func(ctx context.Context, app core.App) error {
-		var r payRow
-		err := app.DB().NewQuery(paySelect + `WHERE p."order" = {:o} AND p.status = 'succeeded'`).Bind(dbx.Params{"o": orderID}).One(&r)
-		if err != nil {
-			return err
-		}
-		a = ordering.Applied{OrderID: orderID, Order: ordering.OrderStatus(r.OStatus), Payment: ordering.PaymentSucceeded}
-		if a.Order != ordering.OrderPaid {
-			return nil
-		}
-		a.EffectsWritten, err = writePaidEffects(app, orderID, r.ID, now)
-		return err
-	})
-	return a, err
-}
-
-type itemRow struct {
-	ID            string `db:"id"`
-	Seller        string `db:"seller"`
-	Product       string `db:"product"`
-	LicenseType   string `db:"license_type"`
-	LineMinor     int64  `db:"line_minor"`
-	TaxMinor      int64  `db:"tax_minor"`
-	TaxMode       string `db:"tax_mode"`
-	SaleModel     string `db:"sale_model"`
-	Commission    int64  `db:"commission_minor"`
-	SupportMonths int    `db:"support_months"`
-}
-
-// writePaidEffects inserts what the `paid` transition implies; each insert
-// is guarded by its unique key so a replay is a no-op.
-func writePaidEffects(app core.App, orderID, paymentID string, now time.Time) (int, error) {
-	var ord struct {
-		Buyer    string `db:"buyer"`
-		Email    string `db:"buyer_email"`
-		Currency string `db:"currency"`
-		Number   string `db:"number"`
-	}
-	if err := app.DB().NewQuery("SELECT buyer, buyer_email, currency, number FROM orders WHERE id = {:id}").Bind(dbx.Params{"id": orderID}).One(&ord); err != nil {
-		return 0, err
-	}
-	var items []itemRow
-	if err := app.DB().NewQuery(`SELECT id, seller, product, license_type, line_minor, tax_minor, tax_mode, sale_model,
-		commission_minor, support_months FROM order_items WHERE "order" = {:id} ORDER BY id`).Bind(dbx.Params{"id": orderID}).All(&items); err != nil {
-		return 0, err
-	}
-	written := 0
-	lines := make([]ordering.Line, len(items))
-	for i, it := range items {
-		lines[i] = ordering.Line{LineMinor: it.LineMinor, TaxMinor: it.TaxMinor, Commission: it.Commission,
-			Tax:   ordering.TaxResolution{Mode: ordering.TaxMode(it.TaxMode)},
-			Offer: ordering.Offer{SellerID: it.Seller, SaleModel: ordering.SaleModel(it.SaleModel)}}
-		n, err := count(app, "SELECT COUNT(*) FROM entitlements WHERE order_item = {:id}", dbx.Params{"id": it.ID})
-		if err != nil {
-			return written, err
-		}
-		if n > 0 {
-			continue
-		}
-		data := map[string]any{
-			"user": ord.Buyer, "seller": it.Seller, "order_item": it.ID, "product": it.Product,
-			"license_type": it.LicenseType, "purchase_code": uuid4(), "status": "active",
-			"support_months_snapshot": it.SupportMonths, "granted_at": pbDate(now),
-		}
-		if it.SupportMonths > 0 {
-			data["support_until"] = pbDate(now.AddDate(0, it.SupportMonths, 0))
-		}
-		if _, err := newRecord(app, "entitlements", data); err != nil {
-			return written, err
-		}
-		written++
-	}
-	txn := ordering.PaymentTxnID(paymentID)
-	n, err := count(app, "SELECT COUNT(*) FROM ledger_entries WHERE txn_id = {:t}", dbx.Params{"t": txn})
-	if err != nil {
-		return written, err
-	}
-	if n == 0 {
-		entries := ordering.PostPayment(paymentID, ord.Currency, lines, nil)
-		if !ordering.Balanced(entries) {
-			return written, fmt.Errorf("pb: unbalanced ledger txn %s", txn)
-		}
-		for _, e := range entries {
-			if _, err := newRecord(app, "ledger_entries", map[string]any{
-				"txn_id": e.TxnID, "account": e.Account, "seller": e.Seller, "amount_minor": e.Amount,
-				"currency": e.Currency, "ref_type": e.RefType, "ref_id": e.RefID,
-			}); err != nil {
-				return written, err
-			}
-			written++
-		}
-	}
-	key := "email:order:" + orderID + ":paid"
-	n, err = count(app, "SELECT COUNT(*) FROM outbox WHERE idempotency_key = {:k}", dbx.Params{"k": key})
-	if err != nil {
-		return written, err
-	}
-	if n == 0 {
-		if _, err := newRecord(app, "outbox", map[string]any{
-			"topic": "email.purchase", "idempotency_key": key, "status": "pending", "attempts": 0,
-			"next_attempt_at": ms(now), "payload": map[string]any{"order_id": orderID, "number": ord.Number, "email": ord.Email},
-		}); err != nil {
-			return written, err
-		}
-		written++
-	}
-	return written, nil
 }
 
 // OrderForBuyer implements ordering.Store.
@@ -639,9 +466,9 @@ func (s *Orders) ReconcileCandidates(ctx context.Context, now time.Time, olderTh
 		UNION ALL
 		SELECT 'replay', o.id, p.id, '', p.provider, p.method, p.provider_payment_id, p.amount_minor, p.currency
 		FROM orders o JOIN payments p ON p."order" = o.id AND p.status = 'succeeded'
-		WHERE o.status = 'paid' AND (
+		WHERE o.status IN ('paid', 'refund_pending') AND (
 		  NOT EXISTS (SELECT 1 FROM ledger_entries l WHERE l.txn_id = 'pay:' || p.id || ':succeeded')
-		  OR EXISTS (SELECT 1 FROM order_items i WHERE i."order" = o.id AND NOT EXISTS (SELECT 1 FROM entitlements e WHERE e.order_item = i.id)))
+		  OR (o.status = 'paid' AND EXISTS (SELECT 1 FROM order_items i WHERE i."order" = o.id AND NOT EXISTS (SELECT 1 FROM entitlements e WHERE e.order_item = i.id))))
 		LIMIT 500`).Bind(p).All(&rows)
 	if err != nil {
 		return nil, err
@@ -651,7 +478,28 @@ func (s *Orders) ReconcileCandidates(ctx context.Context, now time.Time, olderTh
 		out[i] = ordering.Candidate{Kind: r.Kind, OrderID: r.Order, PaymentID: r.Payment, PaymentKey: r.Key,
 			Provider: r.Provider, Method: r.Method, ProviderPaymentID: r.PPID, Amount: money.Money{Minor: r.Amount, Currency: r.Currency}}
 	}
-	return out, nil
+	// refunds still pending at the provider, documents pending at an
+	// async register (the first attempts belong to the outbox)
+	var extra []struct {
+		Kind  string `db:"kind"`
+		ID    string `db:"id"`
+		Order string `db:"order_id"`
+	}
+	err = s.App.DB().NewQuery(`
+		SELECT 'refund' AS kind, r.id, r."order" AS order_id FROM refunds r WHERE r.status = 'pending' AND r.updated < {:before}
+		UNION ALL
+		SELECT 'taxdoc', d.id, d."order" FROM tax_documents d WHERE d.status = 'pending' AND d.external_id != '' AND d.updated < {:before}
+		LIMIT 500`).Bind(p).All(&extra)
+	for _, e := range extra {
+		c := ordering.Candidate{Kind: e.Kind, OrderID: e.Order}
+		if e.Kind == ordering.ReconcileRefund {
+			c.RefundID = e.ID
+		} else {
+			c.DocID = e.ID
+		}
+		out = append(out, c)
+	}
+	return out, err
 }
 
 func truncate(s string, n int) string {

@@ -24,7 +24,10 @@ type Commerce struct {
 	Auth     func(r *http.Request) (Buyer, bool)
 	Orders   *ordering.Service
 	Licenses *licensing.Service
-	// FakePay enables POST /fakepay/{id}/succeed (development only).
+	// Operator authenticates operator commands (PocketBase superusers);
+	// nil disables them.
+	Operator func(r *http.Request) (string, bool)
+	// FakePay enables POST /fakepay/{id}/{event} (development only).
 	FakePay *fakegw.Gateway
 	// HashSalt salts ip and user agent hashes in the downloads log.
 	HashSalt string
@@ -35,7 +38,8 @@ var CommercePatterns = []string{
 	"POST /checkout",
 	"GET /checkout/return/{order}",
 	"POST /hooks/pay/{provider}",
-	"POST /fakepay/{id}/succeed",
+	"POST /fakepay/{id}/{event}",
+	"POST /admin/orders/{order}/refund",
 	"GET /dl/{token}",
 }
 
@@ -47,8 +51,11 @@ func (h *Handler) mountCommerce(m *http.ServeMux) {
 	m.HandleFunc("GET /checkout/return/{order}", h.checkoutReturn)
 	m.HandleFunc("POST /hooks/pay/{provider}", h.webhook)
 	m.HandleFunc("GET /dl/{token}", h.dl)
+	if h.Commerce.Operator != nil {
+		m.HandleFunc("POST /admin/orders/{order}/refund", h.refund)
+	}
 	if h.Commerce.FakePay != nil {
-		m.HandleFunc("POST /fakepay/{id}/succeed", h.fakePay)
+		m.HandleFunc("POST /fakepay/{id}/{event}", h.fakePay)
 	}
 }
 
@@ -153,23 +160,74 @@ func (h *Handler) webhook(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]bool{"accepted": true, "duplicate": dup})
 }
 
-// fakePay plays the provider side: the buyer paid; the provider sends a
-// signed webhook (delivered in-process here).
+// fakeEvents maps the dev routes to provider states: the buyer paid, a
+// chargeback opened, the dispute was won or lost.
+var fakeEvents = map[string]payments.State{
+	"succeed": payments.StateSucceeded,
+	"dispute": payments.StateDisputed,
+	"win":     payments.StateSucceeded,
+	"lose":    payments.StateRefunded,
+}
+
+// fakePay plays the provider side: the state changes and the provider
+// sends a signed webhook (delivered in-process here).
 func (h *Handler) fakePay(w http.ResponseWriter, r *http.Request) {
 	g := h.Commerce.FakePay
-	id := r.PathValue("id")
-	if !g.SetState(id, payments.StateSucceeded) {
+	id, event := r.PathValue("id"), r.PathValue("event")
+	st, ok := fakeEvents[event]
+	if !ok {
+		jsonError(w, http.StatusNotFound, "unknown_event")
+		return
+	}
+	if !g.SetState(id, st) {
 		jsonError(w, http.StatusNotFound, "not_found")
 		return
 	}
-	body, _ := g.Webhook("evt-"+id+"-succeeded", id, payments.StateSucceeded)
+	evID := "evt-" + id + "-" + event
+	body, _ := g.Webhook(evID, id, st)
 	if _, err := h.Commerce.Orders.AcceptWebhook(r.Context(), string(fakegw.Code), payments.Event{
-		EventID: "evt-" + id + "-succeeded", Type: "payment.succeeded", ProviderPaymentID: id, Payload: body,
+		EventID: evID, Type: "payment." + string(st), ProviderPaymentID: id, Payload: body,
 	}); err != nil {
 		h.fail(w, r, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]string{"payment": id, "state": "succeeded"})
+	writeJSON(w, http.StatusOK, map[string]string{"payment": id, "state": string(st)})
+}
+
+type refundBody struct {
+	Reason string `json:"reason"`
+	Note   string `json:"note"`
+}
+
+// refund is the operator refund command (full refunds only).
+func (h *Handler) refund(w http.ResponseWriter, r *http.Request) {
+	op, ok := h.Commerce.Operator(r)
+	if !ok {
+		jsonError(w, http.StatusUnauthorized, "operator_required")
+		return
+	}
+	var b refundBody
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 8<<10)).Decode(&b); err != nil {
+		jsonError(w, http.StatusBadRequest, "invalid_json")
+		return
+	}
+	ref, err := h.Commerce.Orders.RefundOrder(r.Context(), r.PathValue("order"), b.Reason, b.Note, op)
+	switch {
+	case errors.Is(err, ordering.ErrReason):
+		jsonError(w, http.StatusUnprocessableEntity, "invalid_reason")
+	case errors.Is(err, ordering.ErrNotRefundable):
+		jsonError(w, http.StatusConflict, "not_refundable")
+	case errors.Is(err, ordering.ErrNotFound):
+		jsonError(w, http.StatusNotFound, "not_found")
+	case err != nil && ref.ID != "":
+		// recorded; the provider call is retried by the outbox
+		h.Log.Warn("refund", "order", r.PathValue("order"), "err", err)
+		writeJSON(w, http.StatusAccepted, ref)
+	case err != nil:
+		h.orderError(w, r, err)
+	default:
+		writeJSON(w, http.StatusOK, ref)
+	}
 }
 
 // download is the plain product type delivery entry (ADR-0009, ADR-0019):

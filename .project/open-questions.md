@@ -54,9 +54,12 @@ change them.
    commission.
 3. Self-employed (`npd`) sellers and their own receipts.
 4. 289-FZ duties once third-party sellers join.
-5. Return receipt on a lost card dispute.
+5. Return receipt on a lost card dispute (current default: issued, same as a
+   refund; a policy flag can turn it off).
 6. Roskomnadzor operator notice; retention periods for orders, receipts,
    logs.
+7. 54-FZ payment subject and payment method codes for digital goods (code
+   placeholders: subject `service`, method `full_payment`).
 
 ## D. Before an EU go-live (values for the EU modules)
 

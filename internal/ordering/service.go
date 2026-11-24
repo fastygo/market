@@ -11,6 +11,7 @@ import (
 
 	"github.com/fastygo/market/internal/payments"
 	"github.com/fastygo/market/internal/platform/money"
+	"github.com/fastygo/market/internal/taxdocs"
 )
 
 // Storefront is the config checkout needs.
@@ -99,11 +100,14 @@ const (
 	ReconcileFetch  = "fetch"  // payment with a provider id: FetchPayment + apply
 	ReconcileAttach = "attach" // payment `created` without provider id (crash between steps 2 and 3)
 	ReconcileReplay = "replay" // paid order with missing in-tx effects
+	ReconcileRefund = "refund" // refund still pending at the provider
+	ReconcileTaxDoc = "taxdoc" // tax document pending at an async register
 )
 
 // Candidate is one reconciliation item.
 type Candidate struct {
 	Kind, OrderID, PaymentID, PaymentKey, Provider, Method, ProviderPaymentID string
+	RefundID, DocID                                                           string
 	Amount                                                                    money.Money
 }
 
@@ -124,6 +128,36 @@ type Store interface {
 	ClaimOutbox(ctx context.Context, now time.Time, lease time.Duration) (OutboxItem, bool, error)
 	FinishOutbox(ctx context.Context, id string, procErr error, now time.Time, maxAttempts int, backoff time.Duration) error
 	ReconcileCandidates(ctx context.Context, now time.Time, olderThan time.Duration) ([]Candidate, error)
+
+	// Refunds (full only): request writes the row and its outbox command
+	// in one tx; apply records the provider answer and the effects.
+	RequestRefund(ctx context.Context, orderID, reason, note, requestedBy string, now time.Time) (RefundRef, error)
+	Refund(ctx context.Context, id string) (RefundRef, error)
+	ApplyRefund(ctx context.Context, id string, res payments.RefundResult, callErr error, now time.Time) (Applied, error)
+	// RequestTimeoutCancels marks awaiting orders older than the timeout
+	// and queues CancelPayment; the order changes only on confirmation.
+	RequestTimeoutCancels(ctx context.Context, now time.Time, olderThan time.Duration) (int, error)
+	TaxDocument(ctx context.Context, id string) (TaxDoc, error)
+	ApplyTaxDoc(ctx context.Context, id string, res taxdocs.Result, callErr error, now time.Time, maxAttempts int) (retry bool, err error)
+}
+
+// RefundRef is a refunds row with what the provider call needs.
+type RefundRef struct {
+	ID                string      `json:"refund_id"`
+	OrderID           string      `json:"order_id"`
+	PaymentID         string      `json:"payment_id"`
+	Provider          string      `json:"provider"`
+	ProviderPaymentID string      `json:"-"`
+	Key               string      `json:"-"`
+	Status            string      `json:"status"`
+	Reason            string      `json:"reason_code"`
+	Amount            money.Money `json:"-"`
+}
+
+// TaxDoc is a tax_documents row and its built document.
+type TaxDoc struct {
+	ID, Status, ExternalID string
+	Doc                    taxdocs.Document
 }
 
 // Checkout errors.
@@ -134,6 +168,15 @@ var (
 	ErrFree           = errors.New("ordering: free products are delivered without checkout (phase 2)")
 	ErrMultiSeller    = errors.New("ordering: one seller per order in phase 1")
 	ErrNotFound       = errors.New("ordering: not found")
+	ErrNotRefundable  = errors.New("ordering: order cannot be refunded in its current state")
+	ErrReason         = errors.New("ordering: unknown refund reason code")
+)
+
+// Outbox topics handled by the service itself.
+const (
+	TopicRefund = "payment.refund"
+	TopicCancel = "payment.cancel"
+	TopicTaxDoc = "taxdoc.issue"
 )
 
 // OutboxHandler runs one external effect; it must be idempotent by key.
@@ -154,6 +197,10 @@ type Service struct {
 	MaxAttempts    int
 	OutboxBackoff  time.Duration
 	ReconcileAfter time.Duration
+
+	Issuer            taxdocs.Issuer
+	TaxDocMaxAttempts int           // default 5, then failed + alert
+	PaymentTimeout    time.Duration // default 30 min
 
 	// AfterCreatePayment is a test crash hook between steps 2 and 3.
 	AfterCreatePayment func() error
@@ -341,7 +388,10 @@ func (s *Service) ProcessOutboxOnce(ctx context.Context) (bool, error) {
 	if err != nil || !ok {
 		return false, err
 	}
-	h, found := s.Outbox[it.Topic]
+	h, found := s.builtin(it.Topic)
+	if !found {
+		h, found = s.Outbox[it.Topic]
+	}
 	var perr error
 	if !found {
 		perr = fmt.Errorf("ordering: no outbox handler for %q", it.Topic)
@@ -376,6 +426,10 @@ func (s *Service) Reconcile(ctx context.Context) (int, error) {
 				PaymentKey: c.PaymentKey, PaymentStatus: PaymentCreated, Provider: c.Provider, Method: c.Method, Total: c.Amount})
 		case ReconcileReplay:
 			_, err = s.Store.ReplayEffects(ctx, c.OrderID, s.now())
+		case ReconcileRefund:
+			_, err = s.ExecuteRefund(ctx, c.RefundID)
+		case ReconcileTaxDoc:
+			err = s.IssueTaxDoc(ctx, c.DocID)
 		}
 		if err != nil {
 			errs = append(errs, fmt.Errorf("%s %s: %w", c.Kind, c.OrderID, err))
@@ -437,4 +491,132 @@ func Digest(lines []Line, t Totals) string {
 	}{s, t})
 	sum := sha256.Sum256(b)
 	return hex.EncodeToString(sum[:])
+}
+
+func (s *Service) builtin(topic string) (OutboxHandler, bool) {
+	switch topic {
+	case TopicRefund:
+		return func(ctx context.Context, _ string, p json.RawMessage) error {
+			var b struct {
+				RefundID string `json:"refund_id"`
+			}
+			if err := json.Unmarshal(p, &b); err != nil {
+				return err
+			}
+			_, err := s.ExecuteRefund(ctx, b.RefundID)
+			return err
+		}, true
+	case TopicCancel:
+		return func(ctx context.Context, key string, p json.RawMessage) error {
+			var b struct {
+				Provider, ProviderPaymentID string
+			}
+			if err := json.Unmarshal(p, &b); err != nil {
+				return err
+			}
+			gw, err := s.gateway(b.Provider)
+			if err != nil {
+				return err
+			}
+			st, err := gw.CancelPayment(ctx, b.ProviderPaymentID, key)
+			if err != nil {
+				return err
+			}
+			// cancelled only on the provider's confirmation; a late
+			// success moves the order to paid instead
+			_, err = s.Store.ApplyPayment(ctx, b.Provider, st, s.now())
+			return err
+		}, true
+	case TopicTaxDoc:
+		return func(ctx context.Context, _ string, p json.RawMessage) error {
+			var b struct {
+				DocID string `json:"doc_id"`
+			}
+			if err := json.Unmarshal(p, &b); err != nil {
+				return err
+			}
+			return s.IssueTaxDoc(ctx, b.DocID)
+		}, true
+	}
+	return nil, false
+}
+
+// RefundOrder is the refund domain command (operator or buyer request;
+// full refunds only). The refund row and its outbox command commit first;
+// the provider is then called outside any transaction and the answer is
+// applied. If the call fails the outbox worker retries with the same key.
+func (s *Service) RefundOrder(ctx context.Context, orderID, reason, note, requestedBy string) (RefundRef, error) {
+	if !ValidReason(reason) {
+		return RefundRef{}, ErrReason
+	}
+	ref, err := s.Store.RequestRefund(ctx, orderID, reason, note, requestedBy, s.now())
+	if err != nil {
+		return ref, err
+	}
+	if _, err := s.ExecuteRefund(ctx, ref.ID); err != nil {
+		return ref, err
+	}
+	return s.Store.Refund(ctx, ref.ID)
+}
+
+// ExecuteRefund calls Gateway.RefundPayment for a pending refund and
+// applies the result. Idempotent: a final refund is left as it is.
+func (s *Service) ExecuteRefund(ctx context.Context, refundID string) (Applied, error) {
+	ref, err := s.Store.Refund(ctx, refundID)
+	if err != nil || ref.Status != "pending" {
+		return Applied{}, err
+	}
+	gw, err := s.gateway(ref.Provider)
+	if err != nil {
+		return Applied{}, err
+	}
+	res, callErr := gw.RefundPayment(ctx, payments.RefundRequest{IdempotencyKey: ref.Key, ProviderPaymentID: ref.ProviderPaymentID, Amount: ref.Amount})
+	a, err := s.Store.ApplyRefund(ctx, refundID, res, callErr, s.now())
+	if err != nil {
+		return a, err
+	}
+	return a, callErr
+}
+
+// RequestTimeouts runs the timeout cron: awaiting orders older than
+// PaymentTimeout get an outbox CancelPayment request.
+func (s *Service) RequestTimeouts(ctx context.Context) (int, error) {
+	d := s.PaymentTimeout
+	if d == 0 {
+		d = 30 * time.Minute
+	}
+	return s.Store.RequestTimeoutCancels(ctx, s.now(), d)
+}
+
+// IssueTaxDoc issues (or fetches, when the register answered pending) one
+// tax document outside any transaction and applies the result. An error
+// is returned while the attempt cap is not reached, so the outbox retries;
+// at the cap the document is failed and an alert is raised.
+func (s *Service) IssueTaxDoc(ctx context.Context, id string) error {
+	if s.Issuer == nil {
+		return errors.New("ordering: no tax document issuer configured")
+	}
+	d, err := s.Store.TaxDocument(ctx, id)
+	if err != nil || d.Status != "pending" {
+		return err
+	}
+	var res taxdocs.Result
+	var callErr error
+	if d.ExternalID != "" {
+		res, callErr = s.Issuer.Fetch(ctx, d.ExternalID)
+	} else {
+		res, callErr = s.Issuer.Issue(ctx, d.Doc)
+	}
+	max := s.TaxDocMaxAttempts
+	if max == 0 {
+		max = 5
+	}
+	retry, err := s.Store.ApplyTaxDoc(ctx, id, res, callErr, s.now(), max)
+	if err != nil {
+		return err
+	}
+	if retry {
+		return callErr
+	}
+	return nil
 }

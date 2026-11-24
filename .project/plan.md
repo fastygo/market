@@ -209,21 +209,37 @@ downloads, outbox, ledger_entries), `internal/licensing` (HMAC `/dl`
 tokens, re-check, download log) with `LocalPresigner` and
 `platform/s3` (SigV4 presign, AWS documentation vector), HTTP routes
 (`POST /checkout`, `GET /checkout/return/{order}`, `POST
-/hooks/pay/{provider}`, dev-only `POST /fakepay/{id}/succeed`, `GET
+/hooks/pay/{provider}`, dev-only `POST /fakepay/{id}/{event}`, `GET
 /products/{slug}/download`, `GET /dl/{token}`).
 
-ADR-0013 tests in place: #1, #2 (retry and reconciliation), #3, #4, #6
-(token re-check after the entitlement stops; the refund command itself is
-not built), #7, #9, #10, rule zero, sale model invariant, guards.
+Added (t225u): order numbers `M-YYYY-NNNNNN`; full refunds as a domain
+command (`POST /admin/orders/{order}/refund`, superuser token; reasons
+`buyer_request`, `not_completable`, `operator`; the engine also records
+`dispute_lost` and `provider_initiated`) through `Gateway.RefundPayment`
+with a per-attempt idempotency key, entitlement `refunded`, ledger
+reversal `pay:{id}:refund:{refund}`; disputes (payment and order
+`disputed`, entitlements suspended, alert; won -> `paid`/`active`; lost
+-> entitlements `revoked`, ledger `pay:{id}:dispute:{n}`, refund row
+`dispute_lost`); the auto-refund branch (paid but not completable or
+amount mismatch -> `refund_pending` + automatic refund + alert); the
+timeout cron (every minute: outbox `CancelPayment`, the order is cancelled
+only on the provider's confirmation, a late success becomes `paid`); tax
+documents through the `taxdocs.Issuer` port with a fake register (RU
+receipts `income` and `income_return`, outbox retries, attempt cap ->
+`failed` + alert, async registers fetched by reconciliation); `alerts`
+collection (locked, superusers only). Dev routes `POST
+/fakepay/{id}/succeed|dispute|win|lose`.
 
-Not done in this slice (next): refunds and disputes (#6 command, #8), the
-auto-refund branch (`refund_pending`; amount mismatch is currently an
-apply error left in the inbox), tax documents and `DocumentIssuer` (#5),
-timeout cancel cron via outbox `CancelPayment`, SSR checkout and account
-pages with cookie session and CSRF (checkout is JSON with bearer tokens),
-a real mail transport (outbox `email.purchase` only logs), operators
-collection (VAT payer status is read from the seller tax profile), real
-payment provider (stopped here as agreed).
+ADR-0013 tests in place: #1 to #10, rule zero, sale model invariant,
+guards, fake gateway refund and fake issuer idempotency.
+
+Not done (next): SSR checkout and account pages with cookie session and
+CSRF (checkout is JSON with bearer tokens), a real mail transport (outbox
+`email.purchase` only logs), a real payment provider and a real
+`DocumentIssuer` (receipts are wired only with the fake gateway), operators
+collection (VAT payer status is read from the seller tax profile), partial
+refunds (phase 2). Open: the 54-FZ payment subject and method codes are
+placeholders (`service`, `full_payment`) until the owner confirms them.
 
 Schema notes: lease and schedule times (`locked_until`, `next_attempt_at`,
 `next_reconcile_at`) are unix milliseconds; consents carry `order_key`.

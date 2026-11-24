@@ -148,3 +148,41 @@ func TestTransitions(t *testing.T) {
 		}
 	}
 }
+
+func TestRefundDisputeTransitionsAndReverse(t *testing.T) {
+	for _, c := range []struct {
+		from OrderStatus
+		p    PaymentStatus
+		to   OrderStatus
+	}{
+		{OrderPaid, PaymentDisputed, OrderDisputed},
+		{OrderDisputed, PaymentSucceeded, OrderPaid},
+		{OrderDisputed, PaymentRefunded, OrderRefunded},
+		{OrderPaid, PaymentRefunded, OrderRefunded},
+		{OrderRefundPending, PaymentRefunded, OrderRefunded},
+		{OrderRefundPending, PaymentSucceeded, OrderRefundPending},
+	} {
+		to, _, err := OrderOnPayment(c.from, c.p)
+		if err != nil || to != c.to {
+			t.Errorf("%s on %s: %s %v", c.from, c.p, to, err)
+		}
+	}
+	lines, _, _ := Price("RUB", DisplayInclusive, []Offer{offer(290000, Principal, 0)}, []TaxResolution{vat22})
+	sale := PostPayment("p1", "RUB", lines, nil)
+	rev := Reverse(sale, RefundTxnID("p1", "r1"), "refund", "r1")
+	if !Balanced(rev) || len(rev) != len(sale) || rev[0].TxnID != "pay:p1:refund:r1" || rev[0].Amount != -sale[0].Amount {
+		t.Fatalf("%+v", rev)
+	}
+	if DisputeTxnID("p1", 1) != "pay:p1:dispute:1" {
+		t.Fatal("dispute txn id")
+	}
+	if ok, why := Completable(true, []ProductState{{Status: "archived", HasPublishedRel: true}}); ok || why != "product_archived" {
+		t.Fatal(why)
+	}
+	if ok, why := Completable(false, nil); ok || why != "amount_mismatch" {
+		t.Fatal(why)
+	}
+	if ok, _ := Completable(true, []ProductState{{Status: "published", HasPublishedRel: true}}); !ok {
+		t.Fatal("published product is completable")
+	}
+}

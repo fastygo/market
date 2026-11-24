@@ -1,6 +1,9 @@
 package ordering
 
-import "sort"
+import (
+	"sort"
+	"strconv"
+)
 
 // Ledger accounts (ADR-0006).
 const (
@@ -82,4 +85,24 @@ func Balanced(es []Entry) bool {
 		}
 	}
 	return true
+}
+
+// RefundTxnID is the deterministic id of a refund reversal.
+func RefundTxnID(paymentID, refundID string) string {
+	return "pay:" + paymentID + ":refund:" + refundID
+}
+
+// DisputeTxnID is the deterministic id of the n-th lost dispute.
+func DisputeTxnID(paymentID string, n int) string {
+	return "pay:" + paymentID + ":dispute:" + strconv.Itoa(n)
+}
+
+// Reverse negates the entries of a txn under a new txn id (full refund or
+// lost dispute); the result is balanced when the input is.
+func Reverse(es []Entry, txnID, refType, refID string) []Entry {
+	out := make([]Entry, len(es))
+	for i, e := range es {
+		out[i] = Entry{TxnID: txnID, Account: e.Account, Seller: e.Seller, Amount: -e.Amount, Currency: e.Currency, RefType: refType, RefID: refID}
+	}
+	return out
 }

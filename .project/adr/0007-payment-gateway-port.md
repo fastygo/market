@@ -16,7 +16,7 @@ through the acquirer). One SQLite writer.
 
 Every write transaction is short: `BEGIN IMMEDIATE`, conditional updates and
 inserts, commit. No network call (`CreatePayment`, `FetchPayment`,
-`CancelPayment`, `Refund`, `Issue`), no goja call and no CPU-heavy work
+`CancelPayment`, `RefundPayment`, `Issue`), no goja call and no CPU-heavy work
 inside it. Provider calls happen only between transactions. A use case is a
 sequence: tx (record intent or claim) -> commit -> network call -> new tx
 (apply result with a conditional update). `busy_timeout` is set explicitly
@@ -31,7 +31,7 @@ type Gateway interface {
     CreatePayment(ctx context.Context, req CreatePaymentRequest) (CreatePaymentResult, error) // IdempotencyKey, Amount (minor + currency), optional Document
     FetchPayment(ctx context.Context, providerPaymentID string) (Status, error)                // source of truth
     CancelPayment(ctx context.Context, providerPaymentID, idempotencyKey string) (Status, error)
-    Refund(ctx context.Context, req RefundRequest) (RefundResult, error)                      // IdempotencyKey, optional return Document
+    RefundPayment(ctx context.Context, req RefundRequest) (RefundResult, error)               // IdempotencyKey, optional return Document
     ParseWebhook(ctx context.Context, r *http.Request) (Event, error)                         // verify only, no side effects
 }
 
@@ -84,7 +84,7 @@ No per-order lock or lease: the single writer plus conditional updates
   snapshot, tax document row `pending` (if the region requires one), inbox
   row `processed`.
 - In the outbox (written in that tx): only external effects: purchase email,
-  `DocumentIssuer.Issue`, `CancelPayment`, `Refund`, each with a deterministic
+  `DocumentIssuer.Issue`, `CancelPayment`, `RefundPayment`, each with a deterministic
   `idempotency_key`.
 
 ### Inbox and outbox workers
@@ -129,7 +129,7 @@ in a new tx:
 ### Refunds and disputes
 
 - Refund (phase 1: full only): tx: `refunds` row `pending` (provider, key,
-  reason code, note) -> commit -> `Gateway.Refund` -> tx on confirmation:
+  reason code, note) -> commit -> `Gateway.RefundPayment` -> tx on confirmation:
   payment and order `refunded`, ledger reversal, entitlement `refunded`,
   return tax document `pending` (region-dependent).
 - Dispute: provider event -> `FetchPayment` -> payment `disputed`,

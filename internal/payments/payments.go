@@ -62,7 +62,8 @@ type RefundRequest struct {
 	Amount            money.Money
 }
 
-// RefundResult of a refund call.
+// RefundResult of a refund call: State is succeeded, pending (provider
+// confirms later; the same key is retried) or failed.
 type RefundResult struct {
 	ProviderRefundID string
 	State            State
@@ -84,7 +85,7 @@ type Gateway interface {
 	CreatePayment(ctx context.Context, req CreatePaymentRequest) (CreatePaymentResult, error)
 	FetchPayment(ctx context.Context, providerPaymentID string) (Status, error)
 	CancelPayment(ctx context.Context, providerPaymentID, idempotencyKey string) (Status, error)
-	Refund(ctx context.Context, req RefundRequest) (RefundResult, error)
+	RefundPayment(ctx context.Context, req RefundRequest) (RefundResult, error)
 	ParseWebhook(ctx context.Context, r *http.Request) (Event, error)
 }
 

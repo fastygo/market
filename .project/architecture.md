@@ -293,7 +293,7 @@ Effects split in two classes (ADR-0007):
      full-refund command as the operator refund, plus an alert.
 - Refund (operator command or auto-refund, phase 1 full only): tx: row
   `refunds` `pending` (provider, key, reason code, note), commit ->
-  `Gateway.Refund` with its key -> on confirmation one tx: payment/order
+  `Gateway.RefundPayment` with its key -> on confirmation one tx: payment/order
   `refunded`, ledger reversal, entitlement `refunded`, return tax document
   (`receipt_return` or `credit_note`) `pending` + outbox issue, if the region
   requires one.

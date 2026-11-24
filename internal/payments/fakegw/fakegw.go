@@ -131,8 +131,9 @@ func (g *Gateway) CancelPayment(ctx context.Context, id, _ string) (payments.Sta
 	return *p, nil
 }
 
-// Refund implements payments.Gateway (full refund).
-func (g *Gateway) Refund(ctx context.Context, req payments.RefundRequest) (payments.RefundResult, error) {
+// RefundPayment implements payments.Gateway (full refund, idempotent by
+// key). Only succeeded or disputed payments can be refunded.
+func (g *Gateway) RefundPayment(ctx context.Context, req payments.RefundRequest) (payments.RefundResult, error) {
 	if err := g.enter(ctx, "refund"); err != nil {
 		return payments.RefundResult{}, err
 	}
@@ -142,8 +143,16 @@ func (g *Gateway) Refund(ctx context.Context, req payments.RefundRequest) (payme
 	if !ok {
 		return payments.RefundResult{}, payments.ErrNotFound
 	}
-	p.State = payments.StateRefunded
-	return payments.RefundResult{ProviderRefundID: "refund_" + req.ProviderPaymentID, State: payments.StateSucceeded}, nil
+	sum := sha256.Sum256([]byte(req.IdempotencyKey))
+	id := "fr_" + hex.EncodeToString(sum[:8])
+	switch p.State {
+	case payments.StateSucceeded, payments.StateDisputed:
+		p.State = payments.StateRefunded
+	case payments.StateRefunded:
+	default:
+		return payments.RefundResult{ProviderRefundID: id, State: payments.StateFailed}, nil
+	}
+	return payments.RefundResult{ProviderRefundID: id, State: payments.StateSucceeded}, nil
 }
 
 // SetState is the provider side of the fake: the buyer paid, the payment
