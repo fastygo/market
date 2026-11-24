@@ -107,3 +107,12 @@ active only with the `marketplace` module.
   is not built in phase 1.
 - P0-8 note: posting rules for both sale models stay in code and tests; in
   `single_store` only the principal rule runs (ADR-0005 invariant).
+
+## Revision 2026-11-24 (owner t229u: marketplace earnings)
+
+ADR-0021 splits `seller_payable` into `seller_pending` (held) and
+`seller_available` (released by `release:{order_item}`), applies the
+seller share to both sale models for non-operator sellers, and adds payout,
+reserve and dispute fee transactions. ADR-0023 adds affiliate accounts and
+a nullable `partner` column. All new txn ids are deterministic; the
+invariants above hold.

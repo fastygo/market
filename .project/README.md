@@ -1,7 +1,8 @@
 # .project
 
 Operator notes for `fastygo/market`: a white-label commerce engine for digital
-goods (single store or marketplace) with a reference storefront (GoDudY).
+goods (single store or marketplace). First storefront: StorEEE Market
+(brand config); GoDudY is one of its sellers.
 First deployment: Russia (region-ru module). Docs are English; no Cyrillic in
 the repo.
 
@@ -38,6 +39,10 @@ the repo.
 | [0017](adr/0017-module-system.md) | Module system (Go modules for money, goja plugins for policy); commerce mode | Proposed |
 | [0018](adr/0018-i18n-and-white-label.md) | Locale modules and white-label branding | Proposed |
 | [0019](adr/0019-product-types-as-modules.md) | Product types as modules; plain product page by default | Accepted |
+| [0020](adr/0020-vendor-model.md) | Vendor model (Envato style): seller lifecycle, profiles, portfolio, discovery; brand as config | Proposed |
+| [0021](adr/0021-seller-earnings-and-payouts.md) | Commission, seller earnings ledger, hold period, refunds and disputes, payouts | Proposed |
+| [0022](adr/0022-moderation-releases-and-licensing.md) | Item submission, moderation queue, releases, licensing | Proposed |
+| [0023](adr/0023-referral-attribution-seam.md) | Referral attribution and affiliate commissions (seam only) | Proposed |
 
 ADR format: Status, Context, Decision, Consequences. Status values: Proposed,
 Accepted, Superseded. "Accepted" means the direction was confirmed by the
@@ -116,3 +121,10 @@ A3 decided (Go region rules in phase 1, goja plugins at their trigger); A1
 stays default. ADR-0019 product types as modules. Target host profile,
 memory budget and load-test plan in `slo.md`; release files via pre-signed
 S3 redirects (ADR-0009).
+
+## Direction 2026-11-24 (owner t229u, t230u)
+
+StorEEE Market is the storefront brand (config, dictionary, skin); GoDudY
+is a seller. Envato-style vendor model in ADR-0020 to ADR-0022, referral
+seam for a later affiliate partner site in ADR-0023; owner questions in
+`open-questions.md` E, F, G; phase 3 rewritten in `plan.md`.

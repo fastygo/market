@@ -41,3 +41,10 @@
 
 - A new brand is data and a skin; a new language is a module; neither needs
   core changes.
+
+## Revision 2026-11-24 (owner t229u)
+
+The first storefront brand is StorEEE Market (name, short name, tagline,
+alternate spellings, skin in `storefronts.brand`; absolute links from
+`MARKET_BASE_URL`, example `https://market.storeee.ru`); GoDudY is a seller,
+not a brand of the storefront (ADR-0020).

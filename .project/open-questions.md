@@ -32,7 +32,8 @@ change them.
 
 ## B. Configuration or content (per deployment, later, not code)
 
-1. GoDudY `sale_model` (`principal` if a brand of the operator, `agent` if a
+1. GoDudY `sale_model` (see also E13; GoDudY is now a seller of the
+   StorEEE Market storefront) (`principal` if a brand of the operator, `agent` if a
    separate legal entity): seller data set in admin before go-live. `agent`
    is incompatible with a `single_store` launch (admin invariant); if the
    answer is `agent`, the minimal marketplace part ships in phase 1 first.
@@ -41,7 +42,8 @@ change them.
 3. License types (codes, terms, prices).
 4. Refund policy text and window (phase 1 code supports full refunds).
 5. Buyer sign-in mode: email OTP, password, or both (auth config).
-6. Domain, hosting, brand skin (logo, tokens), storefront name.
+6. Domain, hosting, brand skin (logo, tokens), storefront name (StorEEE
+   Market, see G).
 7. Behaviour when every release of a product is yanked (default: "update
    pending" + seller alert; a config flag could trigger refunds).
 8. Operator legal data, support contacts, legal pages: admin data.
@@ -65,6 +67,66 @@ change them.
 
 OSS registration, invoice numbering scheme, VAT id validation and reverse
 charge, GDPR records and DPO need, Stripe/PayPal account setup.
+
+## E. Marketplace (StorEEE vendor model, ADR-0020 to ADR-0022)
+
+Defaults in the ADRs are placeholders for tests; each needs an owner answer
+before phase 3.
+
+1. Commission: default rate, and whether it depends on author level,
+   category and exclusivity (Envato style tiers) or is one flat rate.
+2. Exclusivity: offer exclusive and non-exclusive authors with different
+   rates? Per author or per item?
+3. Hold period in days before earnings become payable (trade-off: refund
+   window and card chargeback risk vs. author cash flow); optional rolling
+   reserve for risky sellers.
+4. Payout schedule (monthly or on request), minimum amount, payout methods
+   (bank transfer, card, wallet), and whether two operators must approve.
+5. Who pays the acquiring fee and the chargeback fee: platform out of its
+   commission, or the seller.
+6. On a refund, does the platform return its commission together with the
+   sale (default) or keep it as a non-refundable fee?
+7. Legal scheme for third-party sellers: agency (operator sells as agent,
+   54-FZ agent receipts, monthly agent reports) or sublicense (operator
+   resells, royalties to authors). Which seller forms are accepted at start
+   (LLC, sole proprietor, self-employed, private individual) and, for
+   self-employed, who issues the receipt.
+8. KYC-lite: which seller data and documents are required, and how long
+   they are kept.
+9. Pricing: authors set prices freely within bounds, or the platform sets
+   them? Price bounds per category; extended license price at least N times
+   regular?
+10. Moderation: review SLA targets, soft vs hard rejection policy, who
+    reviews (operator staff only at start?).
+11. Public author URL: `/authors/{slug}` (default) or another prefix.
+12. Author levels and badges: thresholds and names; do levels change the
+    commission?
+13. GoDudY: a brand of the operator (operator seller, `principal`) or a
+    separate entity selling as `agent`? (replaces B1 for the new brand
+    setup).
+
+## F. Affiliate program (ADR-0023, seam only)
+
+1. Attribution policy: first click or last click, and the cookie window in
+   days.
+2. Level rates for levels 1, 2 and 3.
+3. Who funds affiliate commissions: platform share only (default), or may a
+   seller add a contribution?
+4. Hold period for affiliate earnings (default: same as sellers).
+5. Legal review of a three-level program in Russia (multi-level and
+   pyramid-like structure risks, advertising rules, taxes and reporting for
+   payouts to private individuals). No conclusion is drawn in the docs.
+
+## G. Brand (StorEEE Market)
+
+1. Exact brand strings for config: name ("StorEEE Market"), short name,
+   tagline ("Easy to find, Easy to learn, Easy to Sell"), alternate
+   spellings to list in structured data and search synonyms.
+2. Skin: is the current `godudy` skin the StorEEE Market skin (rename to
+   `storeee`), or should GoDudY keep it for its seller pages only and
+   StorEEE get its own tokens?
+3. Production base URL (example `https://market.storeee.ru`) and whether
+   the main domain gets a landing page that links to the market.
 
 ## Review r2 2026-11-24 (BalunMY)
 

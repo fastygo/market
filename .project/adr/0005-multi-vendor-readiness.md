@@ -68,3 +68,11 @@ column and scoping rules are identical in both modes.
   agent tax documents, `seller_payable`) moves into phase 1 (plan go-live
   checklist).
 - `marketplace` routes and modules are not registered in phase 1.
+
+## Revision 2026-11-24 (owner t229u: StorEEE vendor model)
+
+The storefront brand is StorEEE Market; GoDudY is a seller. Seller
+lifecycle (`applied`, `rejected`, `closed` added), public author pages and
+KYC-lite documents are specified in ADR-0020; earnings and payouts in
+ADR-0021; moderation in ADR-0022. The scoping and write rules above are
+unchanged; `payouts`, `seller_documents` and `payout_methods` are Go-only.

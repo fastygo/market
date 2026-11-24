@@ -138,3 +138,19 @@ Not adopted: Medusa's separate auth/customer identities (PocketBase auth
 covers it), inventory, fulfillment, shipping, returns, claims and exchanges
 (digital goods), and its module-link tables where a denormalized column is
 simpler in one SQLite database.
+
+## Marketplace notes (owner t229u, 2026-11-24)
+
+Medusa ships the marketplace as a recipe: a custom vendor module linked to
+products and orders through module links, vendor admins as a separate actor
+type, and order splitting per vendor. Our choices (ADR-0020 to ADR-0022):
+
+| Medusa recipe | Here | Decision |
+| --- | --- | --- |
+| Vendor module + links to product, order | `sellers` + native `seller` column on every seller row (ADR-0005) | keep ours: scoping without joins, same schema in both modes |
+| Vendor admin actor | `seller_members` with roles, seller portal `/seller/{slug}` | keep ours |
+| Order split into child orders per vendor | one order, items carry `seller`; phase 1 single-seller orders; a multi-seller cart keeps one order with per-item seller share in the ledger | no child orders |
+| Payouts | not in Medusa core (recipe leaves it to the integrator) | ours: ledger accounts, hold release, payout batches, `PayoutGateway` (ADR-0021) |
+| Reviews, moderation | not in Medusa core | ours: `reviews`, `item_comments`, `submissions` (ADR-0020, ADR-0022) |
+| Promotions / campaigns | Medusa promotion module | deferred (phase 2 coupons only); featured slots are curation, not discounts |
+| Customer groups | Medusa customer module | not needed; affiliates are a separate module (ADR-0023) |

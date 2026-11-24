@@ -1,7 +1,8 @@
 # Architecture
 
 `fastygo/market` is a commerce engine for digital goods (Medusa-like,
-white-label) plus a reference storefront (GoDudY). The engine is region-,
+white-label) plus a reference storefront (StorEEE Market as brand config;
+GoDudY is a seller). The engine is region-,
 locale- and brand-agnostic; regions, locales, payment providers and the
 marketplace features are modules (ADR-0017, ADR-0018). It runs as a single
 store or as a multi-vendor marketplace (commerce mode).
@@ -103,6 +104,14 @@ a commission) are supported by the ledger posting rules and the tax document
 payload from day one. Which one GoDudY uses is a seed/admin decision before
 go-live, not an architecture decision. Seeds carry only slug and display
 name with placeholder legal data; real data is entered in admin.
+
+Marketplace collections (sellers lifecycle and profile fields,
+`seller_applications`, `seller_documents`, `portfolio_items`,
+`seller_follows`, `author_levels`, `item_comments`, `reports`, `features`,
+`item_stats_daily`, `submissions`, `rejection_reasons`, `commission_rules`,
+`price_rules`, `payout_batches`, `payout_methods`, `seller_reports`) are
+specified in ADR-0020 to ADR-0022; referral seam in ADR-0023. Same schema
+in both commerce modes; they stay empty in `single_store`.
 
 ### Catalog
 

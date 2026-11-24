@@ -1,7 +1,8 @@
 # market
 
 A white-label commerce engine for digital goods (sites, templates, designs,
-extensions, modules) with a reference storefront (GoDudY).
+extensions, modules). First storefront: StorEEE Market (brand config, not
+code); GoDudY is one of its sellers.
 
 - Runs as a single store or a multi-vendor marketplace (commerce mode).
 - Region-, locale- and brand-agnostic core; regions, locales, payment

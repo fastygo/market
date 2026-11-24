@@ -56,7 +56,8 @@ budget and load-test plan: `slo.md`.
    INN/OGRN/KPP rules, checkout fields, table tests that later become the
    plugin contract vectors) + 54-FZ issuing through the provider Go module; `locale-ru`
    strings in the database (ADR-0018). Storefront runs in `single_store`
-   mode by default; the reference brand GoDudY is a skin + config.
+   mode by default; the storefront brand (StorEEE Market, ADR-0020) is a
+   skin + config; GoDudY is a seller.
 5. Inbox worker and outbox worker (leases, one each), timeout cancel via the
    provider, reconciliation (5 selections, including the auto-refund of
    paid-but-uncompletable orders), transition tables; claim, provider call
@@ -91,22 +92,40 @@ Exit: the success definition in `intent.md` on production.
    (`GET /api/v1/purchase-codes/{code}` for sellers' products).
 5. SLO burn-rate alerts, error budget policy in force.
 
-## Phase 3. Marketplace module (HinddY) (6 to 8 weeks, after legal review)
+## Phase 3. Marketplace module: StorEEE vendor model (10 to 14 weeks, after legal review)
 
-Enabled per storefront by `commerce_mode = marketplace`; no migration. If
-GoDudY must sell as `agent` at go-live, the minimal part (agent sale model,
-agent documents, `seller_payable`) moves into phase 1 as config of this
-module.
+Design: ADR-0020 (sellers, profiles, discovery), ADR-0021 (commission,
+earnings, payouts), ADR-0022 (moderation, releases, licensing), ADR-0023
+(referral seam). Enabled per storefront by `commerce_mode = marketplace`;
+no migration for single store, whose behaviour stays unchanged. If GoDudY
+must sell as `agent` at go-live, the minimal part (agent sale model, agent
+documents, seller share accounts) moves into phase 1 as config of this
+module. Owner answers needed first: `open-questions.md` E (and C2, C3).
 
-1. Seller onboarding: application, INN check (EGRUL/EGRIP), agency or
-   license-resale contract acceptance, moderation queue.
-2. Seller portal (SSR): products, releases, sales, balance.
-3. Agent model operations (posting rules already exist from phase 1): receipts with agent
-   and supplier attributes, commission, `seller_payable` ledger, monthly
-   agent report, payouts (unique period, amount from ledger, approval
-   required). No `npd` sellers before the legal answer.
-4. Category attribute schemas (Codex RecordType + FormSet when tagged).
-5. 289-FZ obligations if the platform qualifies (open question).
+3a. Money base: `commission_rules`, `price_rules`, order item snapshots
+    (`commission_bps`, `earnings_minor`, `hold_until`), accounts
+    `seller_pending`/`seller_available` (rename of `seller_payable`),
+    release cron, refund and dispute attribution, negative balance rule;
+    ledger tests with odd amounts, hold boundaries, refund before and after
+    release, lost dispute after release.
+3b. Seller lifecycle: applications, KYC-lite documents (private storage),
+    region verification module (RU registry and self-employed checks behind
+    a port), approval, suspension, closure, audit; 289-FZ notice and appeal
+    records if the region requires them.
+3c. Submissions and moderation queue with leases, rejection reasons,
+    pre-checks, release review, pre-signed uploads; malware scan port.
+3d. Public author pages `/authors/{slug}`, portfolio, followers, levels and
+    badges cron, item comments, reports, featured slots, search facets and
+    author search, seller analytics (`item_stats_daily`, batched view
+    counter).
+3e. Payouts: batches, approval, `PayoutGateway` manual adapter (bank export
+    + confirmation), encrypted payout methods, region seller reports (RU
+    monthly agent report), seller documents before `paid` where the region
+    requires them.
+3f. Category attribute schemas (Codex RecordType + FormSet when tagged).
+
+Later modules (seams only, not scheduled): `affiliates` with a separate
+partner site (ADR-0023); `suppliers` with YML/XML feed import (ADR-0020).
 
 ## Phase 4. Second region (EU pack, when a deployment is planned)
 
@@ -257,3 +276,15 @@ foreground 16.2:1, muted-foreground 5.2:1 on background but 4.4:1 on card
 and muted (below AA 4.5:1 for small text), primary-foreground on primary
 3.6:1 (same as light; AA only for large text), borders about 1.3 to 1.5:1
 (decorative). Owner decision pending on those values.
+
+## Direction 2026-11-24 (owner t229u, t230u): StorEEE Market, vendor model
+
+The storefront brand is StorEEE Market (config and dictionary only); GoDudY
+is a seller with a profile and portfolio. Phase 3 is rewritten around the
+Envato-style vendor model (ADR-0020 to ADR-0022) with the referral seam for
+a later three-level affiliate partner site (ADR-0023). Code steps for the
+brand (no new design): storefront seed brand name and tagline, title and
+meta from brand config, `MARKET_BASE_URL` for absolute links, skin id per
+open question G2. Resource fit checked against `slo.md`: new jobs are
+nightly or monthly batches through indexes, view counting is one batched
+write per minute, no per-request ledger scans.
