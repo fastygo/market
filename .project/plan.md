@@ -199,3 +199,34 @@ releases immutable, `agent` seller rejected in `single_store`).
   on the compiled CSS resolves spacing with a 4 px base and reports the same
   24 findings for the default and the GoDudY stylesheet, i.e. it does not see
   the 0.24rem override either. Open for the owner: keep 0.24rem or use 0.25rem.
+
+## Phase 1 status 2026-11-24 (t224u)
+
+Done, each step in its own commit with `verify.sh` and `go test -race`
+green: `internal/region/ru` (dated VAT table, batch `ResolveLines`),
+`internal/ordering` (pricing invariants, transitions, posting rules,
+checkout, apply, inbox and outbox workers with leases, reconciliation),
+`internal/payments` (Gateway port) + `fakegw`, collections (users fields,
+consents, orders, order_items, payments, payment_events, entitlements,
+downloads, outbox, ledger_entries), `internal/licensing` (HMAC `/dl`
+tokens, re-check, download log) with `LocalPresigner` and
+`platform/s3` (SigV4 presign, AWS documentation vector), HTTP routes
+(`POST /checkout`, `GET /checkout/return/{order}`, `POST
+/hooks/pay/{provider}`, dev-only `POST /fakepay/{id}/succeed`, `GET
+/products/{slug}/download`, `GET /dl/{token}`).
+
+ADR-0013 tests in place: #1, #2 (retry and reconciliation), #3, #4, #6
+(token re-check after the entitlement stops; the refund command itself is
+not built), #7, #9, #10, rule zero, sale model invariant, guards.
+
+Not done in this slice (next): refunds and disputes (#6 command, #8), the
+auto-refund branch (`refund_pending`; amount mismatch is currently an
+apply error left in the inbox), tax documents and `DocumentIssuer` (#5),
+timeout cancel cron via outbox `CancelPayment`, SSR checkout and account
+pages with cookie session and CSRF (checkout is JSON with bearer tokens),
+a real mail transport (outbox `email.purchase` only logs), operators
+collection (VAT payer status is read from the seller tax profile), real
+payment provider (stopped here as agreed).
+
+Schema notes: lease and schedule times (`locked_until`, `next_attempt_at`,
+`next_reconcile_at`) are unix milliseconds; consents carry `order_key`.

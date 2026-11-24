@@ -333,7 +333,7 @@ func (s *Orders) ApplyPayment(ctx context.Context, provider string, st payments.
 	var a ordering.Applied
 	err := RunTx(ctx, s.App, "payment.apply", func(ctx context.Context, app core.App) error {
 		var r payRow
-		err := app.DB().NewQuery(paySelect+"WHERE p.provider = {:pr} AND p.provider_payment_id = {:id}").
+		err := app.DB().NewQuery(paySelect + "WHERE p.provider = {:pr} AND p.provider_payment_id = {:id}").
 			Bind(dbx.Params{"pr": provider, "id": st.ProviderPaymentID}).One(&r)
 		if errors.Is(err, sql.ErrNoRows) {
 			return ordering.ErrNotFound
@@ -378,7 +378,7 @@ func (s *Orders) ReplayEffects(ctx context.Context, orderID string, now time.Tim
 	var a ordering.Applied
 	err := RunTx(ctx, s.App, "payment.replay", func(ctx context.Context, app core.App) error {
 		var r payRow
-		err := app.DB().NewQuery(paySelect+`WHERE p."order" = {:o} AND p.status = 'succeeded'`).Bind(dbx.Params{"o": orderID}).One(&r)
+		err := app.DB().NewQuery(paySelect + `WHERE p."order" = {:o} AND p.status = 'succeeded'`).Bind(dbx.Params{"o": orderID}).One(&r)
 		if err != nil {
 			return err
 		}

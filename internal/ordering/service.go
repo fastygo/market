@@ -30,6 +30,8 @@ type CheckoutRequest struct {
 	BuyerEmail     string
 	IdempotencyKey string
 	OfferIDs       []string
+	ProductSlug    string // alternative to OfferIDs: one product
+	LicenseType    string // with ProductSlug; default "regular"
 	Method         string
 	Consents       []Consent
 	IPHash         string
@@ -110,6 +112,7 @@ type Candidate struct {
 type Store interface {
 	Storefront(ctx context.Context, code string) (Storefront, error)
 	Offers(ctx context.Context, ids []string) ([]Offer, error)
+	OfferFor(ctx context.Context, productSlug, licenseType, currency string) (string, error)
 	PlaceOrder(ctx context.Context, o NewOrder) (OrderView, error)
 	AttachProvider(ctx context.Context, paymentID, providerPaymentID, confirmationURL string) (OrderView, error)
 	ApplyPayment(ctx context.Context, provider string, st payments.Status, now time.Time) (Applied, error)
@@ -202,6 +205,17 @@ func (s *Service) Checkout(ctx context.Context, req CheckoutRequest) (OrderView,
 		if !found {
 			return OrderView{}, fmt.Errorf("%w: %s", ErrConsent, doc)
 		}
+	}
+	if len(req.OfferIDs) == 0 && req.ProductSlug != "" {
+		lt := req.LicenseType
+		if lt == "" {
+			lt = "regular"
+		}
+		id, err := s.Store.OfferFor(ctx, req.ProductSlug, lt, sf.Currency)
+		if err != nil {
+			return OrderView{}, err
+		}
+		req.OfferIDs = []string{id}
 	}
 	offers, err := s.Store.Offers(ctx, req.OfferIDs)
 	if err != nil {

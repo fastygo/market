@@ -48,6 +48,7 @@ type Handler struct {
 	Dict           *i18n.Dict
 	Now            func() time.Time
 	Log            *slog.Logger
+	Commerce       *Commerce // phase 1 routes; nil serves the catalog only
 	mux            *http.ServeMux
 }
 
@@ -65,6 +66,7 @@ func New(h Handler) *Handler {
 	m.HandleFunc("GET /catalog/{slug}", h.catalog)
 	m.HandleFunc("GET /products/{slug}", h.product)
 	m.HandleFunc("GET /products/{slug}/download", h.download)
+	h.mountCommerce(m)
 	m.Handle("GET /static/", http.StripPrefix("/static/", cacheStatic(http.FileServerFS(Static()))))
 	h.mux = m
 	return &h
@@ -207,13 +209,4 @@ func (h *Handler) product(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.render(w, r, http.StatusOK, screens.ProductPage(s, p))
-}
-
-// download is the plain product type delivery entry. Phase 0 has no
-// entitlements yet, so it answers 501 with a notice (ADR-0009, ADR-0019).
-func (h *Handler) download(w http.ResponseWriter, r *http.Request) {
-	if _, _, ok := h.loadProduct(w, r); !ok {
-		return
-	}
-	h.notice(w, r, http.StatusNotImplemented, "ui.product.download_soon")
 }

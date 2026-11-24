@@ -98,7 +98,7 @@ func TestPagesEndToEnd(t *testing.T) {
 		{"/catalog/plugins", 200, "SEO toolkit"},
 		{"/products/aurora-theme", 200, `data-action="download"`},
 		{"/products/aurora-theme", 200, `data-action="preview"`},
-		{"/products/aurora-theme/download", 501, "phase 1"},
+		{"/products/aurora-theme/download", 501, "not available"},
 		{"/products/missing", 404, "Page not found."},
 		{"/static/skins/godudy.css", 200, "Istok Web"},
 		{"/", 200, `href="/static/skins/godudy.css"`},
