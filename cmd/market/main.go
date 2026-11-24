@@ -24,6 +24,7 @@ import (
 	"github.com/fastygo/market/internal/i18n"
 	"github.com/fastygo/market/internal/licensing"
 	"github.com/fastygo/market/internal/mail"
+	"github.com/fastygo/market/internal/mail/pbmail"
 	"github.com/fastygo/market/internal/mail/resend"
 	"github.com/fastygo/market/internal/mail/unisender"
 	_ "github.com/fastygo/market/internal/migrations"
@@ -268,11 +269,28 @@ func clientIP(r *http.Request, header string) string {
 	return host
 }
 
-// mailSender builds the mail transport from env (ADR-0026). Without a
-// provider the messages are written as .eml files under pb_data/mail.
+// mailSender builds the mail transport from env (ADR-0026). The default
+// is the PocketBase mailer (admin UI Mail settings); while SMTP is
+// disabled, messages are written as .eml files under pb_data/mail.
 func mailSender(app core.App) mail.Sender {
 	from, name := os.Getenv("MARKET_MAIL_FROM"), os.Getenv("MARKET_MAIL_FROM_NAME")
-	switch p := env("MARKET_MAIL_PROVIDER", "file"); p {
+	fileSender := func() mail.Sender {
+		dir := env("MARKET_MAIL_DIR", filepath.Join(app.DataDir(), "mail"))
+		return mail.FileSender{Dir: dir, From: from}
+	}
+	switch p := env("MARKET_MAIL_PROVIDER", "pocketbase"); p {
+	case "pocketbase":
+		// PocketBase mailer with the admin UI Mail settings (ADR-0026); falls
+		// back to files while SMTP is disabled so development still works.
+		return &pbmail.Sender{
+			Client: app.NewMailClient,
+			Settings: func() pbmail.Settings {
+				st := app.Settings()
+				return pbmail.Settings{SMTPEnabled: st.SMTP.Enabled, SenderName: st.Meta.SenderName, SenderAddress: st.Meta.SenderAddress}
+			},
+			From: from, FromName: name, Sendmail: os.Getenv("MARKET_MAIL_SENDMAIL") == "1",
+			Fallback: fileSender(), Log: app.Logger(),
+		}
 	case "unisender":
 		s, err := unisender.New(unisender.Sender{APIKey: os.Getenv("MARKET_MAIL_API_KEY"), BaseURL: os.Getenv("MARKET_MAIL_API_URL"), From: from, FromName: name})
 		if err != nil {
@@ -289,9 +307,8 @@ func mailSender(app core.App) mail.Sender {
 		}
 		return s
 	case "file":
-		dir := env("MARKET_MAIL_DIR", filepath.Join(app.DataDir(), "mail"))
-		app.Logger().Warn("mail provider not configured: emails are written to files (development only)", "dir", dir)
-		return mail.FileSender{Dir: dir, From: from}
+		app.Logger().Warn("MARKET_MAIL_PROVIDER=file: emails are written to files (development only)")
+		return fileSender()
 	default:
 		log.Fatalf("unknown MARKET_MAIL_PROVIDER %q", p)
 		return nil
