@@ -10,7 +10,8 @@ code); GoDudY is one of its sellers.
 - Stack: PocketBase (Go extend mode) + templ SSR on UI8Kit. One Go binary at
   runtime; Node is build-time tooling only.
 
-Design docs: [.project](.project/README.md). Local gate: `scripts/verify.sh`.
+Design docs: [.project](.project/README.md). New to the repo: [HANDOFF.md](HANDOFF.md).
+Local gate: `scripts/verify.sh`.
 No secrets or real legal or personal data in this repo (ADR-0016).
 
 ## Run locally
@@ -73,9 +74,23 @@ curl -i $B/dl/{token}                                                         # 
 Open `/products/aurora-theme`, enter an email in the buy form and accept the
 terms: the fake payment page opens, "Pay" returns to
 `/checkout/return/{order}`. The purchase mail (with a cabinet magic link)
-lands in `pb_data/mail/*.eml` unless a mail provider is configured
-(ADR-0026). The cabinet lives at `/account` (orders, downloads, sign out).
+is sent with the SMTP account from the admin UI (Settings, Mail
+settings), the same one PocketBase uses for its verification and reset
+mail; while SMTP is off it lands in `pb_data/mail/*.eml` (ADR-0026). The
+cabinet lives at `/account` (orders, downloads, sign out).
 Set `MARKET_SESSION_SECRET` and `MARKET_PUBLIC_URL` for stable links.
+
+## Mail (ADR-0026)
+
+Recommended for self-hosting: the default `MARKET_MAIL_PROVIDER=pocketbase`.
+In the admin UI open Settings, Mail settings, enable SMTP and enter the
+server, port, user and password; set the sender name and address under
+Settings, Application (or `MARKET_MAIL_FROM` and `MARKET_MAIL_FROM_NAME`).
+Use "Send test email" there to check the account. Purchase and sign-in
+mail of the shop and PocketBase's own verification, password reset and OTP
+mail then share that SMTP account. Without SMTP the shop writes `.eml`
+files to `pb_data/mail` and logs a warning. Hosts without SMTP egress can
+use `unisender` or `resend` with `MARKET_MAIL_API_KEY`.
 
 ## YooKassa (ADR-0025)
 

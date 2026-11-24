@@ -39,3 +39,30 @@ engine already has a durable outbox (ADR-0007).
 - A verified sender domain (SPF, DKIM) at the provider is required before
   production.
 - Without a provider key the engine still works and writes `.eml` files.
+
+## Amendment 2026-11-25 (owner t242u): PocketBase mailer as the default
+
+Self-hosted deployments have outbound SMTP, so the default transport is
+the PocketBase mailer (`MARKET_MAIL_PROVIDER=pocketbase`, package
+`internal/mail/pbmail`):
+
+- It sends through `app.NewMailClient()` with the SMTP settings from the
+  admin UI (Settings, Mail settings). Settings are read on every send, so
+  turning SMTP on takes effect without a restart. PocketBase's own mail
+  (email verification, password reset, OTP, login alerts) uses the same
+  SMTP account and sender; it is not changed by the engine.
+- Sender: `MARKET_MAIL_FROM` and `MARKET_MAIL_FROM_NAME` when set,
+  otherwise Settings, Application, sender name and address.
+- While SMTP is disabled the engine logs one warning and writes `.eml`
+  files (the file sender), so development and previews keep working.
+  `MARKET_MAIL_SENDMAIL=1` uses PocketBase's local sendmail client
+  instead, as PocketBase itself does without SMTP.
+- Outbox semantics are unchanged: the send runs in the outbox worker
+  (no transaction), failures are retried with backoff up to the attempt
+  cap. SMTP has no idempotency key, so the Message-ID is derived from the
+  outbox key; a duplicate after a lost acknowledgement is possible but
+  recognizable. SMTP 550 to 554 answers are marked permanent; 4xx,
+  authentication and connection errors are retryable (fixable in the
+  admin UI).
+- Unisender Go and Resend stay as HTTP adapters for hosts without SMTP
+  egress.

@@ -45,7 +45,7 @@ the repo.
 | [0023](adr/0023-referral-attribution-seam.md) | Referral attribution and affiliate commissions (seam only) | Proposed |
 | [0024](adr/0024-digital-refund-and-anti-abuse-policy.md) | Digital goods refund and anti-abuse policy behind a region `RefundPolicy`; evidence logs, watermark seam | Proposed |
 | [0025](adr/0025-yookassa-adapter.md) | YooKassa adapter: redirect one-stage payments, 54-FZ receipts, verified notifications, refunds | Accepted |
-| [0026](adr/0026-mail-transport.md) | Transactional mail over HTTP APIs (Unisender Go for RU), outbox retries, file mailer for dev | Accepted |
+| [0026](adr/0026-mail-transport.md) | Transactional mail: PocketBase mailer (admin SMTP settings) by default, HTTP APIs (Unisender Go, Resend) without SMTP, file mailer for dev | Accepted |
 | [0027](adr/0027-buyer-cabinet.md) | Buyer cabinet: magic link and password sign-in, cookie session, CSRF, SSR checkout | Accepted |
 
 ADR format: Status, Context, Decision, Consequences. Status values: Proposed,
@@ -144,3 +144,9 @@ chargebacks, watermark seam; open questions C8 to C13.
 ADR-0025 YooKassa adapter (live keys pending; fake gateway emulates the
 flow), ADR-0026 mail transport (Unisender Go recommended), ADR-0027 buyer
 cabinet and SSR checkout.
+
+## Decision 2026-11-25 (owner t242u)
+
+ADR-0026 amendment: purchase and sign-in mail go through the PocketBase
+mailer (SMTP from Settings, Mail settings) by default; file fallback while
+SMTP is off. `HANDOFF.md` added for the next backend engineer.
