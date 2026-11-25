@@ -458,3 +458,34 @@ func TestCheckoutFreeGrantsImmediately(t *testing.T) {
 		t.Fatalf("outbox %v %v emails %d", did, err, r.emails.Load())
 	}
 }
+
+// Regression (load test 2026-11-25): every free order after the first one
+// failed with "payments: provider_payment_id: Value must be unique"
+// because the free payment id was a constant.
+func TestCheckoutFreeManyOrders(t *testing.T) {
+	r := newRig(t)
+	r.svc.Gateways = map[string]payments.Gateway{}
+	ctx := context.Background()
+	if _, err := r.app.DB().NewQuery(`UPDATE offers SET price_minor = 0`).Execute(); err != nil {
+		t.Fatal(err)
+	}
+	offs, err := r.app.FindAllRecords("offers")
+	if err != nil || len(offs) < 2 {
+		t.Fatalf("offers %d %v", len(offs), err)
+	}
+	seen := map[string]bool{}
+	for i, off := range offs[:2] {
+		r.offer = off.Id
+		v, err := r.svc.Checkout(ctx, r.req("k"+off.Id))
+		if err != nil {
+			t.Fatalf("free order %d: %v", i+1, err)
+		}
+		if v.Status != ordering.OrderPaid || seen[v.OrderID] {
+			t.Fatalf("free order %d: %+v", i+1, v)
+		}
+		seen[v.OrderID] = true
+	}
+	if r.n(t, "SELECT COUNT(DISTINCT provider_payment_id) FROM payments WHERE provider = 'free'") != 2 {
+		t.Fatal("free payments must have distinct provider ids")
+	}
+}

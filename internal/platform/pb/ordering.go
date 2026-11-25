@@ -274,7 +274,9 @@ func (s *Orders) PlaceOrder(ctx context.Context, o ordering.NewOrder) (ordering.
 		}
 		if o.PaidImmediately {
 			payFields["status"] = string(ordering.PaymentSucceeded)
-			payFields["provider_payment_id"] = "free"
+			// unique per order: (provider, provider_payment_id) is a
+			// unique index, a constant would allow one free order per shop
+			payFields["provider_payment_id"] = "free:" + ord.Id
 			payFields["next_reconcile_at"] = 0
 		}
 		if _, err := newRecord(app, "payments", payFields); err != nil {
