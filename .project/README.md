@@ -47,6 +47,7 @@ the repo.
 | [0025](adr/0025-yookassa-adapter.md) | YooKassa adapter: redirect one-stage payments, 54-FZ receipts, verified notifications, refunds | Accepted |
 | [0026](adr/0026-mail-transport.md) | Transactional mail: PocketBase mailer (admin SMTP settings) by default, HTTP APIs (Unisender Go, Resend) without SMTP, file mailer for dev | Accepted |
 | [0027](adr/0027-buyer-cabinet.md) | Buyer cabinet: magic link and password sign-in, cookie session, CSRF, SSR checkout | Accepted |
+| [0028](adr/0028-seller-item-authoring-and-content-i18n.md) | Seller item authoring, one account with role-based cabinet, content i18n | Proposed |
 
 ADR format: Status, Context, Decision, Consequences. Status values: Proposed,
 Accepted, Superseded. "Accepted" means the direction was confirmed by the

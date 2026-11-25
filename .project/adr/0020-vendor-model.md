@@ -274,9 +274,9 @@ Deviations and limits of slice 1 (to revisit in later slices):
   history or reserved list check yet (no slug editing exists).
 - Counters are computed per request (`COUNT` over the seller index), not
   cache columns; fine for the current catalog size.
-- Avatars and covers use `/api/files/...`, which needs a public view rule
-  or a file route for the `sellers` and `products` collections (same open
-  point as product covers).
+- Avatars and covers use `/api/files/...`. Correction 2026-11-25
+  (ADR-0028): PocketBase v0.40.6 serves non-protected file fields without
+  checking the view rule, so these URLs are already public.
 - GoDudY keeps `is_operator = true` and `sale_model = principal` from the
   phase 1 seed: switching it to a third-party seller (agent or sublicense
   scheme, share accounts, self-employed receipts) waits on counsel
