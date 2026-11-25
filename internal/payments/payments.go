@@ -104,6 +104,8 @@ var (
 	ErrNotFound         = errors.New("payments: payment not found at the provider")
 	ErrInvalidSignature = errors.New("payments: webhook signature is invalid")
 	// ErrPermanent wraps provider answers that a retry cannot fix (bad
-	// credentials, invalid request); the outbox stops after its cap.
+	// credentials, invalid request); the outbox marks the effect dead at
+	// once (ordering.IsPermanent), refunds and tax documents fail with an
+	// alert.
 	ErrPermanent = errors.New("payments: provider rejected the request")
 )

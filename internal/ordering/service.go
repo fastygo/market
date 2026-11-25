@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/fastygo/market/internal/mail"
 	"github.com/fastygo/market/internal/payments"
 	"github.com/fastygo/market/internal/platform/money"
 	"github.com/fastygo/market/internal/taxdocs"
@@ -431,7 +432,22 @@ func (s *Service) ProcessOutboxOnce(ctx context.Context) (bool, error) {
 	if backoff == 0 {
 		backoff = 30 * time.Second
 	}
+	if IsPermanent(perr) {
+		// a retry cannot fix it: the row goes dead now (attempts already
+		// counts this claim) and the worker logs it through onErr
+		if err := s.Store.FinishOutbox(ctx, it.ID, perr, s.now(), it.Attempts, backoff); err != nil {
+			return true, err
+		}
+		return true, fmt.Errorf("ordering: outbox %s %s failed permanently after %d attempt(s), not retried: %w", it.Topic, it.Key, it.Attempts, perr)
+	}
 	return true, s.Store.FinishOutbox(ctx, it.ID, perr, s.now(), s.maxAttempts(), backoff)
+}
+
+// IsPermanent reports provider errors a retry cannot fix
+// (payments.ErrPermanent, mail.ErrPermanent). Transient errors (network,
+// 5xx, SMTP 4xx and authentication) stay retryable with backoff.
+func IsPermanent(err error) bool {
+	return err != nil && (errors.Is(err, payments.ErrPermanent) || errors.Is(err, mail.ErrPermanent))
 }
 
 // Reconcile runs one reconciliation pass (cron every 5 min) through the

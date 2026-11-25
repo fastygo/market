@@ -82,7 +82,9 @@ func (s *Sender) Send(ctx context.Context, m mail.Message) error {
 		from = netmail.Address{Name: s.FromName, Address: s.From}
 	}
 	if from.Address == "" {
-		return fmt.Errorf("%w: no sender address (MARKET_MAIL_FROM or Settings > Application sender)", mail.ErrPermanent)
+		// fixable in the admin UI without a deploy: retryable like an
+		// authentication failure, so queued mail is not dropped
+		return errors.New("pbmail: no sender address (MARKET_MAIL_FROM or Settings > Application sender)")
 	}
 	msg := &mailer.Message{
 		From:    from,

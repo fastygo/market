@@ -663,6 +663,14 @@ func (s *Orders) ApplyRefund(ctx context.Context, id string, res payments.Refund
 		}
 		p := dbx.Params{"id": id, "now": pbDate(now), "prid": res.ProviderRefundID, "err": ""}
 		switch {
+		case ordering.IsPermanent(callErr):
+			// the provider rejected the refund for good: no retry
+			p["err"] = truncate(callErr.Error(), 500)
+			if err := exec(app, `UPDATE refunds SET status = 'failed', attempts = attempts + 1, updated = {:now},
+				last_error = {:err} WHERE id = {:id}`, p); err != nil {
+				return err
+			}
+			return alert(app, "refund_failed", "refund", id, truncate(callErr.Error(), 500))
 		case callErr != nil || res.State == payments.StatePending || res.State == "":
 			if callErr != nil {
 				p["err"] = truncate(callErr.Error(), 500)
@@ -777,7 +785,7 @@ func (s *Orders) ApplyTaxDoc(ctx context.Context, id string, res taxdocs.Result,
 				msg = callErr.Error()
 			}
 			p["err"] = truncate(msg, 500)
-			if d.Attempts+1 >= maxAttempts || res.Status == taxdocs.StatusFailed {
+			if d.Attempts+1 >= maxAttempts || res.Status == taxdocs.StatusFailed || ordering.IsPermanent(callErr) {
 				if err := exec(app, `UPDATE tax_documents SET status = 'failed', attempts = attempts + 1, last_error = {:err}, updated = {:now} WHERE id = {:id}`, p); err != nil {
 					return err
 				}

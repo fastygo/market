@@ -105,8 +105,8 @@ func TestErrorClassification(t *testing.T) {
 		}
 	}
 	s2 := newSender(&fakeClient{}, nil, Settings{SMTPEnabled: true})
-	if err := s2.Send(context.Background(), msg()); !errors.Is(err, mail.ErrPermanent) {
-		t.Fatalf("missing sender must be permanent: %v", err)
+	if err := s2.Send(context.Background(), msg()); err == nil || errors.Is(err, mail.ErrPermanent) {
+		t.Fatalf("missing sender is fixable in the admin UI and must be retryable: %v", err)
 	}
 	if err := s.Send(context.Background(), mail.Message{To: "bad", Subject: "x", Text: "y"}); !errors.Is(err, mail.ErrPermanent) {
 		t.Fatalf("invalid message must be permanent: %v", err)
