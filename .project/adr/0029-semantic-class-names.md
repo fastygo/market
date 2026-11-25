@@ -1,6 +1,8 @@
 # ADR-0029: Semantic class names generated at build time (no runtime class merge)
 
-- Status: Proposed (owner t363u-t365u, 2026-11-25; design only, no code).
+- Status: Accepted (owner t367u, 2026-11-25): path 1 implemented (kit
+  compositions and organisms semantic; primitives still merge), see
+  "Outcome: path 1". Proposed design: owner t363u-t365u.
   Builds on ADR-0010 (SSR templ on UI8Kit), ADR-0018 (skins, white label),
   `.project/loadtest/2026-11-25.md` and `slo.md`.
 
@@ -266,6 +268,94 @@ Tailwind v4 notes:
   `mergeTailwind` must be 0%; templ render histogram p95/p99 from
   `/metrics`; results in `.project/loadtest/<date>.md`.
 
+## Outcome: path 1 (implemented 2026-11-25)
+
+Scope: compositions and organisms (codegen-x/ui8kit 54c1c7db, registry
+ui8kit/site e1e2ce8, this repo f5d3269). Primitives (ui8kit/codegen) still
+run `uiutils.Cn` = `mergeTailwind` on their final class list.
+
+- Upstream (`packages/kit-compose`, templ): `compose.SetClassMode`,
+  `compose.SemanticRules()` (selector + utilities per rule, sorted, the
+  source of the generated CSS), `orgutils.SetClassMode` (`Cnv` becomes a
+  plain join). The markers `group`, `peer`, `group/*`, `peer/*` stay
+  literal. Recipes that draw nothing render no class. An unknown value
+  falls back to the default (utilities mode drops the axis).
+- Recipes of compositions over a primitive with its own recipe (Icon:
+  `icon`, `lucide-icon`) stay utilities in both modes: the primitive
+  merges them with its own `inline-flex`, which a components-layer rule
+  would lose to (first parity run: icons in buttons 16 px instead of
+  20 px, home page 4 px taller).
+- `scripts/uisem` (Go, build time) instead of a TS generator: reads
+  `compose.SemanticRules()`, normalizes each rule with the kit merge,
+  prunes to the recipes the screens, blocks and compositions use, drops
+  per skin the tokens that skin cannot `@apply` (today
+  `hover:bg-destructive-hover`, and `text-destructive-foreground` in the
+  default skin; they rendered nothing before either), and writes
+  `ui/styles/generated/kit.<skin>.css` (`@layer components.kit`),
+  `kit-layered.css` and `.ui8px/patterns.json`. `make css` runs it;
+  `verify.sh` runs `uisem -check`.
+- Risks of the design, resolved:
+  - Token hooks in `kit.css` (`[data-slot="button"]` radius, card shadow,
+    ...): `kit-layered.css` is the verbatim `kit.css` with its style rules
+    in `@layer utilities` (as before, unlayered rules beat every layer;
+    now a brand layer can still win), the hooks skip `ui-*` roots
+    (`[data-slot="x"]:not(.ui-a, ...)`), and the generator adds the
+    equivalent hook to the matching `ui-*` rule as
+    `:where([data-slot="x"])` (keyed by the composition `data-slot`, so
+    `LinkButton` gets the button hook).
+  - Layer order: each entry declares `theme, base, components (kit,
+    brand), utilities`; utility classes from callers and app screens
+    still win over kit rules, brand rules win over kit rules.
+  - Stale CSS: skin URLs carry `?v=<sha256[:12]>` of the embedded file.
+- Tests: `internal/web/classes_test.go` (every rendered `ui-*` class has a
+  rule in the linked skin; `?v=` is the content hash), upstream Go tests
+  for both modes, `BenchmarkRender`.
+
+### Measurements
+
+Go benchmark on the dev box (8 CPUs), fake catalog with 100 cards per
+list: `go test -run '^$' -bench BenchmarkRender ./internal/web`.
+
+| Route | before ms | path 1 ms | before allocs | path 1 allocs | path 2 probe ms |
+| --- | --- | --- | --- | --- | --- |
+| `/` | 15.1 | 12.7 (-16%) | 78.4k | 66.2k (-15%) | 6.7 (-56%) |
+| `/catalog` | 14.8 | 12.4 (-16%) | 77.1k | 65.0k (-16%) | 6.5 (-56%) |
+| `/products/{slug}` | 14.9 | 12.6 (-15%) | 78.8k | 66.6k (-15%) | 6.8 (-54%) |
+| `/authors/{slug}` | 14.7 | 12.3 (-16%) | 77.1k | 65.2k (-15%) | 6.6 (-55%) |
+
+- Merge calls per page (throw-away counter): primitives 2686-2752
+  unchanged; organism merges 200 -> 100 (`Cnv` gone; the remaining one
+  per card is `orgutils.Variant`, an organism recipe). CPU profile of
+  `/catalog`: `mergeTailwind` 45% -> 40% of render CPU. Path 1 makes the
+  merge inputs shorter; it does not remove the merge.
+- HTML (seeded store, raw / gzip bytes): catalog 267 223 / 10 373 ->
+  235 986 / 9 848 (-12% / -5%); home 45 849 -> 40 512; product 34 050 ->
+  28 489; author 59 376 -> 52 538; account orders 13 312 -> 10 381.
+- CSS per skin (min / gzip): storeee 50 541 / 9 719 -> 75 707 / 12 004;
+  default 44 891 / 9 119 -> 70 064 / 11 337 (+2.3 KB gzip, cached).
+- Load test (`scripts/loadtest`, 1 CPU, c=16, 20 s, one run each on a
+  shared dev box, so DB time and p95/p99 are noisy): templ render
+  ms/request catalog p1 178 -> 149, category 176 -> 134, search 256 ->
+  213, home 3.6 -> 2.9-7.5, product 3.5 -> 2.3; RPS catalog p1 51 -> 54-58,
+  category 51 -> 57-59, product 319 -> 364-376. p95/p99 did not move
+  beyond the noise (catalog p1 p95 624 -> 667-688 ms with DB time up 10x
+  in the same run); confirm on a quiet machine before quoting p95.
+- Visual parity: 17 routes (home, catalog p1/p3, search, product paid and
+  free, signed out and in, author, sign-in, 404, checkout pay and free
+  return, account orders empty and filled, order) at 1280 and 390 px:
+  34 of 34 screenshots pixel-identical to the base.
+
+### Gap to path 2
+
+Path 2 = the primitives join instead of merge in semantic mode
+(`uiutils.Cn` plain join; `uiutils.Compose`, used by primitives with
+their own recipe, keeps the merge). Probe (local edit of `ui/kit/utils`,
+not committed): render -56% vs before (-47% vs path 1), allocations
+-49%, and the same 34 screenshots pixel-identical. Path 1 keeps about
+16 of the 56 points (about 30% of the reachable gain). Path 2 needs an
+option in ui8kit/codegen `runtime/go/utils.go`, a release of the
+generated templ kit and a registry rebuild (owner decision).
+
 ## Consequences
 
 - No runtime class merging and no merge code on the hot path; class
@@ -294,19 +384,18 @@ Tailwind v4 notes:
 - W3C CSS Validator false positives on Tailwind v4 output: report, not a
   blind gate.
 
-## Decisions needed from the owner
+## Owner decisions (t367u, 2026-11-25)
 
-1. Prefix: `ui-*` for kit classes (recommended: ui8px namespace,
-   `patterns.json`, no clash with Tailwind) and bare names for brand
-   classes, or bare names everywhere as in `button button-primary` (clashes
-   with `block`, `grid`, `group`, `container`, `text-*`).
-2. Where the kit switch lives: upstream option in `codegen-x/ui8kit` for
-   the templ target (recommended; other runtimes unchanged) or a local
-   post-install patch of `ui/kit` in this repo first (faster, but breaks
-   "never edited" and the lock hashes until upstream catches up).
-3. Defaults: always emit the class of a non-empty default value
-   (recommended: `ui-stack-align-start` visible, no leaks) or fold
-   defaults into the base rule for shorter markup (`ui-button
-   ui-button-size-sm` instead of `ui-button ui-button-default
-   ui-button-size-sm`), which needs a generator check that every other
-   value overrides every property the default sets.
+1. Prefix: `ui-*` for kit classes (`ui-<recipe>`, `ui-<recipe>-<variant>`,
+   `ui-<recipe>-<axis>-<value>`); brand classes are bare, and the app level
+   may brand and override freely.
+2. The switch is an opt-in option upstream (codegen-x/ui8kit, templ
+   target). Default there: `ClassesUtilities` (output of every other
+   consumer unchanged); this repo turns on `ClassesSemantic` in
+   `internal/web/classes.go`. ui8kit/codegen (primitives) is not changed
+   in path 1.
+3. Defaults are baked into the base rule like a CSS framework: only
+   non-default values emit a class (`ui-button ui-button-size-sm`).
+   Default rules are `.ui-x:where(:not(.ui-x-a, .ui-x-b))`, so they never
+   leak onto a non-default value and add no specificity (no generator
+   overlap check needed).
