@@ -29,6 +29,9 @@ for _ in $(seq 100); do curl -fsS -o /dev/null "http://127.0.0.1:$PORT/" 2>/dev/
 echo "idle RSS after start: $(awk '/VmRSS/{print $2" "$3}' /proc/$pid/status)"
 taskset -c "${LT_CLIENT_CPUS:-1-3}" "$LT_DIR/lt-run" -base "http://127.0.0.1:$PORT" -metrics "http://127.0.0.1:$MPORT/metrics" \
   -data "$LT_DIR/run" -label "$label" "$@"
+# leak check: the runner has exited, so its keep-alive connections are gone
+sleep 3
+curl -fsS "http://127.0.0.1:$MPORT/metrics" | awk '/^(go_goroutines|go_memstats_heap_inuse_bytes|process_resident_memory_bytes) /{print "after clients closed: "$0}'
 echo "peak RSS (VmHWM): $(awk '/VmHWM/{print $2" "$3}' /proc/$pid/status)"
 t0=$(date +%s%N); kill -TERM $pid; wait $pid || true; t1=$(date +%s%N)
 echo "shutdown after SIGTERM: $(( (t1-t0)/1000000 )) ms"
