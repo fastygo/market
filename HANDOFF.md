@@ -16,7 +16,7 @@ taxes and receipts.
 ```sh
 make build                                    # Go only; generated code is committed
 ./bin/market superuser upsert admin@example.com 'a-long-password'
-MARKET_FAKE_GATEWAY=1 ./bin/market serve --http 127.0.0.1:8090
+MARKET_FAKE_GATEWAY=1 ./bin/market serve --http 127.0.0.1:8090   # or MARKET_DEV=1 without the fake gateway
 # storefront /, /catalog, /products/aurora-theme; cabinet /account; admin /_/
 ```
 
@@ -27,14 +27,52 @@ Production layout and every variable with comments:
 
 ## Environment variables (names only)
 
-- Core: `MARKET_STOREFRONT`, `MARKET_PUBLIC_URL`, `MARKET_CLIENT_IP_HEADER`,
-  `MARKET_PAYMENT_TIMEOUT`, `MARKET_TERMS_VERSION`, `MARKET_CHECKOUT_METHOD`,
-  `GOMEMLIMIT`.
-- Secrets (random per process when unset, which breaks links on restart):
+- Core: `MARKET_STOREFRONT`, `MARKET_PUBLIC_URL`, `MARKET_TRUSTED_PROXIES`,
+  `MARKET_CLIENT_IP_HEADER`, `MARKET_PAYMENT_TIMEOUT`, `MARKET_TERMS_VERSION`,
+  `MARKET_CHECKOUT_METHOD`, `MARKET_DEV`, `GOMEMLIMIT`.
+- Secrets (32+ characters, different from each other):
   `MARKET_SESSION_SECRET`, `MARKET_DOWNLOAD_SECRET`.
-- Files: `MARKET_S3_ENDPOINT`, `MARKET_S3_REGION`, `MARKET_S3_BUCKET`,
-  `MARKET_S3_ACCESS_KEY`, `MARKET_S3_SECRET_KEY`, `MARKET_S3_URL_TTL`,
-  `MARKET_S3_PATH_STYLE`, `MARKET_S3_LOCAL_BASE`, `MARKET_FILES_DIR`.
+- Files: local by default (`MARKET_FILES_DIR`, default `<pb_data>/files`);
+  S3 when `MARKET_S3_ENDPOINT` is set: `MARKET_S3_REGION`, `MARKET_S3_BUCKET`,
+  `MARKET_S3_ACCESS_KEY`, `MARKET_S3_SECRET_KEY`, `MARKET_S3_PREFIX`,
+  `MARKET_S3_URL_TTL`, `MARKET_S3_PATH_STYLE`.
+
+### Start-up checks (fail-fast)
+
+Production is any start without `MARKET_FAKE_GATEWAY=1` or `MARKET_DEV=1`.
+`serve` then refuses to start and lists every problem when:
+
+- `MARKET_SESSION_SECRET` or `MARKET_DOWNLOAD_SECRET` is missing, shorter
+  than 32 characters, or both are equal;
+- `MARKET_PUBLIC_URL` is missing, not `https`, or has a path;
+- `MARKET_TRUSTED_PROXIES` has a bad CIDR, or `MARKET_CLIENT_IP_HEADER` is set
+  without it;
+- `MARKET_S3_ENDPOINT` is set but region, bucket, keys or prefix are
+  missing or invalid, or the local files directory cannot be created;
+- a duration (`MARKET_S3_URL_TTL`, `MARKET_PAYMENT_TIMEOUT`) does not parse.
+
+Mail is not checked: the default mailer reads SMTP from the PocketBase admin
+settings (ADR-0026). Development mode keeps the old defaults (random
+per-process secrets, any public URL) and prints `WARNING` lines to stderr.
+Other commands (`superuser`, `migrate`) need no env.
+
+### Client IP
+
+The client address comes from `MARKET_CLIENT_IP_HEADER` (default
+`X-Forwarded-For` when proxies are set) only when the direct peer is in
+`MARKET_TRUSTED_PROXIES`; the rightmost hop that is not a trusted proxy
+wins, otherwise the peer address. Used by the YooKassa IP allowlist and the
+download and consent IP hashes. Behind the Incus edge:
+`MARKET_TRUSTED_PROXIES=10.10.40.10/32`.
+
+### Release files
+
+Storage keys (`product_releases.storage_key`) are relative. Local mode
+serves `<MARKET_FILES_DIR>/<key>` on `/files/` with HMAC-signed, expiring
+links (`MARKET_DOWNLOAD_SECRET`); S3 mode pre-signs
+`<bucket>/<MARKET_S3_PREFIX><key>`, so one bucket can be shared with other
+folders. Upload files to the same path the key names; `.` and `..` key
+segments are rejected.
 - Payments: `MARKET_YOOKASSA_SHOP_ID`, `MARKET_YOOKASSA_SECRET_KEY`,
   `MARKET_YOOKASSA_API_URL`, `MARKET_YOOKASSA_RECEIPTS`,
   `MARKET_YOOKASSA_REFUND_RECEIPTS`, `MARKET_YOOKASSA_CHECK_IP`;
@@ -53,7 +91,7 @@ Production layout and every variable with comments:
 | Payments: fake gateway | `MARKET_FAKE_GATEWAY=1` emulates redirect, return and webhook; must be 0 in production |
 | Mail | PocketBase mailer with the admin SMTP settings (default); `.eml` files while SMTP is off (ADR-0026) |
 | Buyer cabinet | Real: magic link or password sign-in, cookie session, CSRF, orders, downloads (ADR-0027). No password set/reset screen yet; PocketBase's built-in reset API exists |
-| Downloads | Signed `/dl` links to S3 pre-signed URLs; `MARKET_FILES_DIR` serves local files for dev and small installs |
+| Downloads | Signed `/dl` links to signed local files (`MARKET_FILES_DIR`, default) or S3 pre-signed URLs under `MARKET_S3_PREFIX` |
 | 54-FZ receipts | Through YooKassa receipts when enabled; fake issuer only with the fake gateway; no issuer with `MARKET_YOOKASSA_RECEIPTS=0` |
 | Russian texts | Not in the repo (no Cyrillic rule); only `ui/dict/en.json`. Delivery path is open question A1 |
 | Vendor marketplace (phase 3) | Docs only (ADR-0020 to ADR-0024) |
@@ -89,8 +127,12 @@ Production layout and every variable with comments:
   router never forwards them (`web.AllPatterns`).
 - Run one process per `pb_data`: the inbox and outbox workers assume a
   single instance.
-- The outbox retries every failed effect with backoff up to 8 attempts;
-  provider `ErrPermanent` is not yet short-circuited.
+- The outbox retries transient failures with backoff up to 8 attempts.
+  `payments.ErrPermanent` and `mail.ErrPermanent` are not retried: the row
+  goes `dead` at once and the worker logs it; a refund or tax document gets
+  `failed` plus an alert. PocketBase mailer: SMTP 550-554 is permanent;
+  SMTP off (file fallback), 4xx, auth errors and a missing sender address
+  stay retryable because they are fixed in the admin UI.
 - Generated files (`*_templ.go`, skin CSS, `ui/kit`) are committed; never
   edit them by hand (ADR-0014).
 - No secrets, real personal data or Cyrillic in the repo (ADR-0016).

@@ -26,9 +26,10 @@ make build                                   # CGO_ENABLED=0 go build ... -o bin
 
 Migrations (collections and a placeholder seed) apply on start. Use
 `--dir /path/to/pb_data` for another data directory (pass it to
-`superuser upsert` too). Development flags: `MARKET_FAKE_GATEWAY=1` (fake
-payment provider), `MARKET_DOWNLOAD_SECRET` (stable download links across
-restarts); see `deploy/market.env.example`.
+`superuser upsert` too). Without `MARKET_FAKE_GATEWAY=1` (fake payment
+provider) or `MARKET_DEV=1` the server runs in production mode and refuses
+to start without its secrets and `MARKET_PUBLIC_URL` (HANDOFF.md, start-up
+checks); see `deploy/market.env.example`.
 
 ### Windows (PowerShell)
 
@@ -51,8 +52,9 @@ window.
 ## Try the money path locally (fake gateway)
 
 With `MARKET_FAKE_GATEWAY=1` the fake gateway plays the provider (same
-redirect, return and webhook sequence as YooKassa); downloads redirect to a locally signed URL
-unless `MARKET_S3_*` is set (see `deploy/market.env.example`).
+redirect, return and webhook sequence as YooKassa); downloads redirect to a
+signed `/files/` URL served from `pb_data/files` unless `MARKET_S3_*` is set
+(see `deploy/market.env.example`).
 
 ```sh
 MARKET_FAKE_GATEWAY=1 MARKET_DOWNLOAD_SECRET=dev ./bin/market serve
@@ -105,7 +107,8 @@ use `unisender` or `resend` with `MARKET_MAIL_API_KEY`.
 4. Settings, Online cash register: enable the receipt test mode, or run with
    `MARKET_YOOKASSA_RECEIPTS=0`.
 5. Set `MARKET_PUBLIC_URL`; behind a proxy or tunnel also
-   `MARKET_CLIENT_IP_HEADER=X-Forwarded-For`. Test card
+   `MARKET_TRUSTED_PROXIES=<proxy CIDR>` (the header defaults to
+   `X-Forwarded-For`). Test card
    5555 5555 5555 4477 (any future date, any CVC).
 
 Going live changes only the shop id and the secret key.

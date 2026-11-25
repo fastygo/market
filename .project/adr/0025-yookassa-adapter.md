@@ -45,7 +45,7 @@ the approved shop must change only the shop id and the secret key.
   or refund by id (`GET /v3/payments/{id}`, `/v3/refunds/{id}`) and uses
   that state. Optional source IP allowlist (YooKassa published ranges,
   `MARKET_YOOKASSA_CHECK_IP`, default on; behind a proxy set
-  `MARKET_CLIENT_IP_HEADER=X-Forwarded-For`). Event id is
+  `MARKET_TRUSTED_PROXIES`, the header is honoured only from those peers). Event id is
   `event:object_id`, so redelivery is deduplicated. Handled events:
   payment.succeeded, payment.canceled, refund.succeeded.
 - Refunds: `POST /v3/refunds` with the return receipt when
