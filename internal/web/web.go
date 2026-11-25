@@ -6,13 +6,16 @@ package web
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"embed"
+	"encoding/hex"
 	"errors"
 	"io/fs"
 	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/a-h/templ"
@@ -158,14 +161,31 @@ func (h *Handler) shell(ctx context.Context, title, current string) (screens.She
 }
 
 // skinHref is the compiled stylesheet of a storefront skin; unknown or
-// empty skins fall back to the neutral default.
+// empty skins fall back to the neutral default. The query is a digest of
+// the embedded file, so a deploy never pairs new markup with a stylesheet
+// cached under the same URL (static files are cached for an hour).
 func skinHref(skin string) string {
 	if skin != "" {
-		if _, err := fs.Stat(Static(), "skins/"+skin+".css"); err == nil {
-			return "/static/skins/" + skin + ".css"
+		if v := skinVersion("skins/" + skin + ".css"); v != "" {
+			return "/static/skins/" + skin + ".css?v=" + v
 		}
 	}
-	return "/static/skins/default.css"
+	return "/static/skins/default.css?v=" + skinVersion("skins/default.css")
+}
+
+var skinVersions sync.Map // embedded path -> first 12 hex chars of its SHA-256 ("" when missing)
+
+func skinVersion(name string) string {
+	if v, ok := skinVersions.Load(name); ok {
+		return v.(string)
+	}
+	v := ""
+	if b, err := fs.ReadFile(Static(), name); err == nil {
+		sum := sha256.Sum256(b)
+		v = hex.EncodeToString(sum[:6])
+	}
+	skinVersions.Store(name, v)
+	return v
 }
 
 func (h *Handler) render(w http.ResponseWriter, r *http.Request, status int, c templ.Component) {

@@ -155,7 +155,7 @@ func TestPagesEndToEnd(t *testing.T) {
 		{"/products/missing", 404, "Page not found."},
 		{"/static/skins/godudy.css", 200, "Istok Web"},
 		{"/static/skins/storeee.css", 200, "Istok Web"},
-		{"/", 200, `href="/static/skins/storeee.css"`},
+		{"/", 200, `href="/static/skins/storeee.css?v=`},
 		{"/", 200, `<meta property="og:site_name" content="StorEEE Market">`},
 		{"/", 200, "Easy to find, Easy to learn, Easy to Sell"},
 		{"/products/aurora-theme", 200, "<title>Aurora theme | StorEEE Market</title>"},

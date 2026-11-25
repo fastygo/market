@@ -1,0 +1,633 @@
+{
+  "patterns": {
+    "ui-badge": [
+      "inline-flex",
+      "shrink-0",
+      "items-center",
+      "justify-center",
+      "whitespace-nowrap",
+      "font-medium",
+      "inset-ring",
+      "rounded-full",
+      "h-6",
+      "px-3",
+      "text-xs",
+      "bg-primary",
+      "text-primary-foreground",
+      "inset-ring-primary"
+    ],
+    "ui-badge-destructive": [
+      "bg-destructive",
+      "text-destructive-foreground",
+      "inset-ring-transparent",
+      "focus-visible:ring-destructive/20",
+      "dark:focus-visible:ring-destructive/40"
+    ],
+    "ui-badge-outline": [
+      "bg-transparent",
+      "text-foreground",
+      "inset-ring-border"
+    ],
+    "ui-badge-secondary": [
+      "bg-muted",
+      "text-foreground",
+      "inset-ring-transparent"
+    ],
+    "ui-badge-size-lg": [
+      "h-8",
+      "px-4",
+      "text-sm"
+    ],
+    "ui-badge-size-sm": [
+      "h-5",
+      "px-2",
+      "text-xs"
+    ],
+    "ui-button": [
+      "inline-flex",
+      "shrink-0",
+      "items-center",
+      "justify-center",
+      "whitespace-nowrap",
+      "font-medium",
+      "inset-ring",
+      "transition-colors",
+      "disabled:pointer-events-none",
+      "disabled:opacity-50",
+      "rounded",
+      "bg-primary",
+      "text-primary-foreground",
+      "inset-ring-primary",
+      "hover:bg-primary/90",
+      "h-10",
+      "px-4",
+      "text-sm",
+      "size-8",
+      "p-0",
+      "[\u0026\u003esvg]:size-4",
+      "size-10",
+      "[\u0026\u003esvg]:size-5",
+      "size-12",
+      "[\u0026\u003esvg]:size-6",
+      "text-muted-foreground"
+    ],
+    "ui-button-destructive": [
+      "bg-destructive",
+      "text-destructive-foreground",
+      "hover:bg-destructive-hover",
+      "inset-ring-transparent",
+      "focus-visible:ring-destructive/20",
+      "dark:focus-visible:ring-destructive/40"
+    ],
+    "ui-button-ghost": [
+      "bg-transparent",
+      "text-foreground",
+      "inset-ring-transparent",
+      "hover:bg-accent",
+      "hover:text-accent-foreground"
+    ],
+    "ui-button-link": [
+      "text-primary",
+      "inset-ring-transparent",
+      "underline-offset-4",
+      "hover:underline"
+    ],
+    "ui-button-outline": [
+      "bg-card",
+      "text-foreground",
+      "inset-ring-border",
+      "hover:bg-accent",
+      "hover:text-accent-foreground"
+    ],
+    "ui-button-secondary": [
+      "bg-secondary",
+      "text-secondary-foreground",
+      "inset-ring-border",
+      "hover:bg-secondary/80"
+    ],
+    "ui-button-size-lg": [
+      "h-12",
+      "px-6",
+      "text-base"
+    ],
+    "ui-button-size-sm": [
+      "h-8",
+      "px-3",
+      "text-sm"
+    ],
+    "ui-card": [
+      "flex",
+      "flex-col",
+      "gap-8",
+      "bg-card",
+      "p-6",
+      "text-card-foreground",
+      "inset-ring",
+      "inset-ring-border",
+      "rounded"
+    ],
+    "ui-card-compact": [
+      "gap-4",
+      "p-4"
+    ],
+    "ui-card-ghost": [
+      "bg-transparent"
+    ],
+    "ui-card-muted": [
+      "bg-muted"
+    ],
+    "ui-form": [
+      "grid",
+      "gap-4"
+    ],
+    "ui-grid": [
+      "grid",
+      "grid-cols-1"
+    ],
+    "ui-grid-cols-1-2": [
+      "grid-cols-1",
+      "md:grid-cols-2"
+    ],
+    "ui-grid-cols-1-3": [
+      "grid-cols-1",
+      "sm:grid-cols-2",
+      "lg:grid-cols-3"
+    ],
+    "ui-grid-cols-1-4": [
+      "grid-cols-1",
+      "sm:grid-cols-2",
+      "md:grid-cols-4"
+    ],
+    "ui-grid-cols-10": [
+      "grid-cols-10"
+    ],
+    "ui-grid-cols-11": [
+      "grid-cols-11"
+    ],
+    "ui-grid-cols-12": [
+      "grid-cols-12"
+    ],
+    "ui-grid-cols-2": [
+      "grid-cols-2"
+    ],
+    "ui-grid-cols-2-3": [
+      "grid-cols-2",
+      "md:grid-cols-3"
+    ],
+    "ui-grid-cols-2-4": [
+      "grid-cols-2",
+      "md:grid-cols-4"
+    ],
+    "ui-grid-cols-2-6": [
+      "grid-cols-2",
+      "md:grid-cols-6"
+    ],
+    "ui-grid-cols-3": [
+      "grid-cols-3"
+    ],
+    "ui-grid-cols-3-6": [
+      "grid-cols-3",
+      "md:grid-cols-6"
+    ],
+    "ui-grid-cols-4": [
+      "grid-cols-4"
+    ],
+    "ui-grid-cols-5": [
+      "grid-cols-5"
+    ],
+    "ui-grid-cols-6": [
+      "grid-cols-6"
+    ],
+    "ui-grid-cols-7": [
+      "grid-cols-7"
+    ],
+    "ui-grid-cols-8": [
+      "grid-cols-8"
+    ],
+    "ui-grid-cols-9": [
+      "grid-cols-9"
+    ],
+    "ui-group": [
+      "flex",
+      "min-w-0",
+      "items-center",
+      "justify-start"
+    ],
+    "ui-group-align-baseline": [
+      "items-baseline"
+    ],
+    "ui-group-align-end": [
+      "items-end"
+    ],
+    "ui-group-align-start": [
+      "items-start"
+    ],
+    "ui-group-align-stretch": [
+      "items-stretch"
+    ],
+    "ui-group-gap-0": [
+      "gap-0"
+    ],
+    "ui-group-gap-10": [
+      "gap-10"
+    ],
+    "ui-group-gap-12": [
+      "gap-12"
+    ],
+    "ui-group-gap-2": [
+      "gap-2"
+    ],
+    "ui-group-gap-4": [
+      "gap-4"
+    ],
+    "ui-group-gap-6": [
+      "gap-6"
+    ],
+    "ui-group-gap-8": [
+      "gap-8"
+    ],
+    "ui-group-justify-between": [
+      "justify-between"
+    ],
+    "ui-group-justify-center": [
+      "justify-center"
+    ],
+    "ui-group-justify-end": [
+      "justify-end"
+    ],
+    "ui-iconbadge": [
+      "inline-flex",
+      "shrink-0",
+      "items-center",
+      "justify-center",
+      "font-bold",
+      "rounded",
+      "bg-muted",
+      "text-muted-foreground",
+      "size-10",
+      "text-xs"
+    ],
+    "ui-iconbadge-accent": [
+      "bg-accent",
+      "text-accent-foreground"
+    ],
+    "ui-iconbadge-destructive": [
+      "bg-destructive",
+      "text-destructive-foreground"
+    ],
+    "ui-iconbadge-outline": [
+      "text-foreground",
+      "inset-ring",
+      "inset-ring-border"
+    ],
+    "ui-iconbadge-primary": [
+      "bg-primary",
+      "text-primary-foreground"
+    ],
+    "ui-iconbadge-secondary": [
+      "bg-secondary",
+      "text-secondary-foreground"
+    ],
+    "ui-iconbadge-size-lg": [
+      "size-12",
+      "text-sm"
+    ],
+    "ui-iconbadge-size-sm": [
+      "size-8",
+      "text-xs"
+    ],
+    "ui-iconbadge-size-xl": [
+      "size-20",
+      "text-base"
+    ],
+    "ui-iconbadge-size-xs": [
+      "size-6",
+      "text-xs"
+    ],
+    "ui-image": [
+      "block",
+      "max-w-full",
+      "aspect-auto",
+      "object-cover",
+      "object-center"
+    ],
+    "ui-image-aspect-square": [
+      "aspect-square"
+    ],
+    "ui-image-aspect-video": [
+      "aspect-video"
+    ],
+    "ui-image-fit-contain": [
+      "object-contain"
+    ],
+    "ui-image-fit-fill": [
+      "object-fill"
+    ],
+    "ui-image-fit-none": [
+      "object-none"
+    ],
+    "ui-image-fit-scale-down": [
+      "object-scale-down"
+    ],
+    "ui-image-logo": [
+      "object-contain"
+    ],
+    "ui-image-position-bottom": [
+      "object-bottom"
+    ],
+    "ui-image-position-left": [
+      "object-left"
+    ],
+    "ui-image-position-left-bottom": [
+      "object-left-bottom"
+    ],
+    "ui-image-position-left-top": [
+      "object-left-top"
+    ],
+    "ui-image-position-right": [
+      "object-right"
+    ],
+    "ui-image-position-right-bottom": [
+      "object-right-bottom"
+    ],
+    "ui-image-position-right-top": [
+      "object-right-top"
+    ],
+    "ui-image-position-top": [
+      "object-top"
+    ],
+    "ui-image-size-full": [
+      "h-full",
+      "w-full"
+    ],
+    "ui-image-size-lg": [
+      "size-16"
+    ],
+    "ui-image-size-md": [
+      "size-12"
+    ],
+    "ui-image-size-sm": [
+      "size-8"
+    ],
+    "ui-image-size-xl": [
+      "size-20"
+    ],
+    "ui-image-size-xs": [
+      "size-6"
+    ],
+    "ui-input": [
+      "w-full",
+      "min-w-0",
+      "bg-background",
+      "text-foreground",
+      "inset-ring",
+      "inset-ring-input",
+      "outline-none",
+      "placeholder:text-muted-foreground",
+      "disabled:cursor-not-allowed",
+      "disabled:opacity-50",
+      "focus-visible:inset-ring-ring",
+      "rounded",
+      "aria-invalid:inset-ring-destructive",
+      "h-10",
+      "px-3",
+      "text-base",
+      "md:text-sm"
+    ],
+    "ui-input-ghost": [
+      "bg-muted",
+      "inset-ring-transparent"
+    ],
+    "ui-input-size-lg": [
+      "h-12",
+      "px-4",
+      "text-base"
+    ],
+    "ui-input-size-sm": [
+      "h-8",
+      "px-3",
+      "text-base",
+      "md:text-sm"
+    ],
+    "ui-input-state-error": [
+      "inset-ring-destructive",
+      "focus-visible:inset-ring-destructive"
+    ],
+    "ui-label": [
+      "text-xs",
+      "font-bold",
+      "text-foreground"
+    ],
+    "ui-link": [
+      "inline-flex",
+      "items-center",
+      "underline-offset-4",
+      "gap-2",
+      "text-base",
+      "font-semibold",
+      "text-primary",
+      "hover:underline"
+    ],
+    "ui-link-block": [
+      "flex",
+      "w-full",
+      "text-foreground",
+      "hover:text-primary"
+    ],
+    "ui-link-button": [
+      "inline-flex",
+      "shrink-0",
+      "items-center",
+      "justify-center",
+      "whitespace-nowrap",
+      "font-medium",
+      "inset-ring",
+      "transition-colors",
+      "rounded",
+      "bg-primary",
+      "text-primary-foreground",
+      "inset-ring-primary",
+      "hover:bg-primary/90",
+      "h-10",
+      "px-4",
+      "text-sm"
+    ],
+    "ui-link-button-outline": [
+      "bg-card",
+      "text-foreground",
+      "inset-ring-border",
+      "hover:bg-accent",
+      "hover:text-accent-foreground"
+    ],
+    "ui-link-button-secondary": [
+      "bg-secondary",
+      "text-secondary-foreground",
+      "inset-ring-border",
+      "hover:bg-secondary/80"
+    ],
+    "ui-link-button-size-lg": [
+      "h-12",
+      "px-6",
+      "text-base"
+    ],
+    "ui-link-button-size-sm": [
+      "h-8",
+      "px-3",
+      "text-sm"
+    ],
+    "ui-link-external": [
+      "text-primary",
+      "hover:underline"
+    ],
+    "ui-link-muted": [
+      "text-muted-foreground",
+      "hover:text-foreground"
+    ],
+    "ui-link-nav": [
+      "text-foreground",
+      "hover:text-primary"
+    ],
+    "ui-link-size-lg": [
+      "gap-2",
+      "text-2xl",
+      "font-semibold"
+    ],
+    "ui-link-size-md": [
+      "gap-2",
+      "text-xl",
+      "font-semibold"
+    ],
+    "ui-link-size-sm": [
+      "gap-2",
+      "text-sm",
+      "font-medium"
+    ],
+    "ui-stack": [
+      "flex",
+      "flex-col",
+      "items-start",
+      "justify-start"
+    ],
+    "ui-stack-align-baseline": [
+      "items-baseline"
+    ],
+    "ui-stack-align-center": [
+      "items-center"
+    ],
+    "ui-stack-align-end": [
+      "items-end"
+    ],
+    "ui-stack-align-stretch": [
+      "items-stretch"
+    ],
+    "ui-stack-gap-0": [
+      "gap-0"
+    ],
+    "ui-stack-gap-10": [
+      "gap-10"
+    ],
+    "ui-stack-gap-12": [
+      "gap-12"
+    ],
+    "ui-stack-gap-2": [
+      "gap-2"
+    ],
+    "ui-stack-gap-4": [
+      "gap-4"
+    ],
+    "ui-stack-gap-6": [
+      "gap-6"
+    ],
+    "ui-stack-gap-8": [
+      "gap-8"
+    ],
+    "ui-stack-justify-between": [
+      "justify-between"
+    ],
+    "ui-stack-justify-center": [
+      "justify-center"
+    ],
+    "ui-stack-justify-end": [
+      "justify-end"
+    ],
+    "ui-text-size-2xl": [
+      "text-2xl"
+    ],
+    "ui-text-size-3xl": [
+      "text-3xl"
+    ],
+    "ui-text-size-4xl": [
+      "text-4xl"
+    ],
+    "ui-text-size-5xl": [
+      "text-5xl"
+    ],
+    "ui-text-size-base": [
+      "text-base"
+    ],
+    "ui-text-size-lg": [
+      "text-lg"
+    ],
+    "ui-text-size-sm": [
+      "text-sm"
+    ],
+    "ui-text-size-xl": [
+      "text-xl"
+    ],
+    "ui-text-size-xs": [
+      "text-xs"
+    ],
+    "ui-text-weight-bold": [
+      "font-bold"
+    ],
+    "ui-text-weight-medium": [
+      "font-medium"
+    ],
+    "ui-text-weight-regular": [
+      "font-normal"
+    ],
+    "ui-text-weight-semibold": [
+      "font-semibold"
+    ],
+    "ui-title": [
+      "text-foreground",
+      "font-semibold"
+    ],
+    "ui-title-size-2xl": [
+      "text-2xl"
+    ],
+    "ui-title-size-3xl": [
+      "text-3xl"
+    ],
+    "ui-title-size-4xl": [
+      "text-4xl"
+    ],
+    "ui-title-size-5xl": [
+      "text-5xl"
+    ],
+    "ui-title-size-base": [
+      "text-base"
+    ],
+    "ui-title-size-lg": [
+      "text-lg"
+    ],
+    "ui-title-size-sm": [
+      "text-sm"
+    ],
+    "ui-title-size-xl": [
+      "text-xl"
+    ],
+    "ui-title-size-xs": [
+      "text-xs"
+    ],
+    "ui-title-weight-bold": [
+      "font-bold"
+    ],
+    "ui-title-weight-medium": [
+      "font-medium"
+    ],
+    "ui-title-weight-regular": [
+      "font-normal"
+    ]
+  }
+}

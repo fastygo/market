@@ -408,7 +408,7 @@
       "version": "0.1.0",
       "runtime": "templ",
       "files": {
-        "compose/compose.go": "df577d4b10997cd3a7547d5d7a4ab362916751ef933ea55a40016092ba5a83f1",
+        "compose/compose.go": "6a40f3847def99c35ee9e205cd9725860779442306fdb8d0e7c89015e626d9af",
         "compose/compose.json": "0b2da150013e08566bcac895c9e44686d3c2c80ca65e7b4dc5234c53b74dda2d",
         "compose/lucide.go": "0637b98e713a2c2b3caca567130949a7064d763c84afa416bc3cdd6950fac684"
       }
@@ -503,7 +503,7 @@
         "go.mod": "9cbfe019ea7d1c2479ea1b8ddebeadfb29fa01dae2f4b4b62bdb97c15fb9d543",
         "go.sum": "522705c9e00606d3ae6e4ef5eafde21f079bcac8521ca86d5c14bba89eaedfe9",
         "orgutils/cn_merge.go": "b442cf7fa2f792fec5bee0432336d124ff2a5eb5dc5db1fd08f234b006a46585",
-        "orgutils/dyn.go": "de3c58f646cd91bdaed46a57c96a7230320cc137b67d1c5fbe32b3c14f6057c1",
+        "orgutils/dyn.go": "0de13d42cfdccc2c55cf068d4729e3fedff76c45abe8363d225605e72d6d6799",
         "orgutils/expr.go": "6e5b7ddb22fd5a051ac2064f5d14740f6e7110f3b57151df3c83852ac3a66a4a",
         "orgutils/heading.go": "f07d9704431ac6dfbc86a9c54d08abcd5556ead910b94bc3771c926000352677",
         "orgutils/safe.go": "6dd0606ca97ed74ca748892ca7c68d093be724ef6deb60a520f0812644beb037",

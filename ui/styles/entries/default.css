@@ -1,6 +1,13 @@
-/* Build entry of the "default" skin (ADR-0018): skin first (it imports Tailwind), then the kit CSS.
-   Compiled off-server to internal/web/static/skins/default.css by make css. */
+/* Build entry of the "default" skin (ADR-0018, ADR-0029). Compiled off-server to internal/web/static/skins/default.css by make css.
+   Layer order: theme < base < components.kit (generated ui-* rules) < components.brand (app) < utilities. The first
+   declaration fixes the order; the skin imports Tailwind, whose own declaration repeats it. */
+@layer theme, base, components, utilities;
+@layer components { @layer kit, brand; }
 @import "../skins/default.css";
-@import "../kit.css";
-@source "../../kit";
+@import "../generated/kit-layered.css";
+@import "../generated/kit.default.css";
+/* the kit's compositions render ui-* names (no utilities to scan); its organisms and icons still use utilities */
+@source "../../kit/blocks";
+@source "../../kit/icons";
+@source "../../kit/compose/*.templ";
 @source "../../../internal/web/screens";

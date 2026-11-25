@@ -52,7 +52,13 @@ if [ -f go.mod ]; then
     stale=$(git diff --name-only -- '*_templ.go' || true)
     if [ -n "$stale" ]; then echo "verify: *_templ.go out of date (run make generate and commit)"; echo "$stale"; fail=1; fi
   fi
-  unformatted=$(gofmt -l cmd internal ui/dict | grep -v '_templ.go' || true)
+  # ADR-0029: the generated semantic kit CSS matches ui/kit/compose/compose.json and ui/styles/kit.css
+  if [ -x node_modules/.bin/tailwindcss ]; then
+    go run ./scripts/uisem -check || { echo "verify: semantic kit CSS out of date (run make css and commit)"; fail=1; }
+  else
+    echo "verify: semantic kit CSS not verified (npm ci for the Tailwind CLI)"
+  fi
+  unformatted=$(gofmt -l cmd internal scripts/uisem ui/dict | grep -v '_templ.go' || true)
   test -z "$unformatted" || { echo "verify: gofmt"; echo "$unformatted"; fail=1; }
   go vet ./... || fail=1
   go test -race -count=1 ./... || fail=1

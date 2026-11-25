@@ -2,7 +2,7 @@
 TEMPL ?= templ
 BIN   ?= bin/market
 
-.PHONY: all generate css ui8kit build test run verify clean
+.PHONY: all generate uisem css ui8kit build test run verify clean
 
 all: generate css build test
 
@@ -11,7 +11,10 @@ generate:            ## templ -> *_templ.go (app screens and the installed kit, 
 
 SKINS ?= default godudy storeee
 
-css:                 ## Tailwind v4: one stylesheet per skin -> internal/web/static/skins/<skin>.css (needs npm ci once)
+uisem:               ## semantic kit CSS (ADR-0029): ui/styles/generated/*, .ui8px/patterns.json from ui/kit/compose/compose.json
+	go run ./scripts/uisem
+
+css: uisem           ## Tailwind v4: one stylesheet per skin -> internal/web/static/skins/<skin>.css (needs npm ci once)
 	for s in $(SKINS); do npx --no-install tailwindcss -i ui/styles/entries/$$s.css -o internal/web/static/skins/$$s.css --minify || exit 1; done
 
 ui8kit:              ## reinstall the pinned UI8Kit templ kit from the registry
