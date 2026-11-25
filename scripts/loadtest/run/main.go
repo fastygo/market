@@ -220,7 +220,7 @@ func main() {
 	products, free, sellers := lines("lt-products.txt"), lines("lt-free.txt"), lines("lt-sellers.txt")
 	users, password := lines("lt-users.txt"), lines("lt-password.txt")[0]
 	cats := []string{"ui-kits", "dashboards", "design-systems", "icons", "illustrations", "landing-pages"}
-	words := []string{"dashboard", "дизайн", "кабинет", "wallet", "ash", "UI kit", "иконок", "Fintech"}
+	words := []string{"dashboard", "\u0434\u0438\u0437\u0430\u0439\u043D", "\u043A\u0430\u0431\u0438\u043D\u0435\u0442", "wallet", "ash", "UI kit", "\u0438\u043A\u043E\u043D\u043E\u043A", "Fintech"}
 	lastPage := (len(products) + 99) / 100
 	plain := func(route string, u func(r *mrand.Rand) string) func(int) func(*mrand.Rand) (int, error) {
 		return func(int) func(*mrand.Rand) (int, error) {

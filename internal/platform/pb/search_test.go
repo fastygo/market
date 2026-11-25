@@ -19,7 +19,7 @@ func TestSearchFTS5(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p.Set("title", "Дизайн Система Ёлка")
+	p.Set("title", "\u0414\u0438\u0437\u0430\u0439\u043D \u0421\u0438\u0441\u0442\u0435\u043C\u0430 \u0401\u043B\u043A\u0430")
 	if err := app.Save(p); err != nil { // the update trigger re-indexes it
 		t.Fatal(err)
 	}
@@ -32,16 +32,16 @@ func TestSearchFTS5(t *testing.T) {
 		return len(got)
 	}
 	for q, want := range map[string]int{
-		"система":        1, // Cyrillic, case-insensitive (LIKE was ASCII-only)
-		"СИСТ":           1, // word prefix
-		"ёлка":           1, // ё matches ё; ё = е is not folded (unicode61 remove_diacritics covers Latin only)
-		"зайн сис":       1, // substring across words (trigram)
-		"система дизайн": 1, // all words, any order
-		"система плагин": 0,
-		`"`:              0, // quotes are never FTS syntax
-		`aurora" OR "x`:  0,
-		"themes":         2, // category title column
-		"godu":           6, // seller name prefix
+		"\u0441\u0438\u0441\u0442\u0435\u043C\u0430":  1, // Cyrillic, case-insensitive (LIKE was ASCII-only)
+		"\u0421\u0418\u0421\u0422":                    1, // word prefix
+		"\u0451\u043B\u043A\u0430":                    1, // yo (U+0451) matches yo; yo = ie (U+0435) is not folded (unicode61 remove_diacritics covers Latin only)
+		"\u0437\u0430\u0439\u043D \u0441\u0438\u0441": 1, // substring across words (trigram)
+		"\u0441\u0438\u0441\u0442\u0435\u043C\u0430 \u0434\u0438\u0437\u0430\u0439\u043D": 1, // all words, any order
+		"\u0441\u0438\u0441\u0442\u0435\u043C\u0430 \u043F\u043B\u0430\u0433\u0438\u043D": 0,
+		`"`:             0, // quotes are never FTS syntax
+		`aurora" OR "x`: 0,
+		"themes":        2, // category title column
+		"godu":          6, // seller name prefix
 	} {
 		if got := count(q); got != want {
 			t.Errorf("query %q: %d products, want %d", q, got, want)
@@ -50,11 +50,11 @@ func TestSearchFTS5(t *testing.T) {
 
 	// renaming a seller re-indexes its products (sellers trigger)
 	s, _ := app.FindFirstRecordByData("sellers", "slug", "godudy")
-	s.Set("display_name", "Мастерская Пикселей")
+	s.Set("display_name", "\u041C\u0430\u0441\u0442\u0435\u0440\u0441\u043A\u0430\u044F \u041F\u0438\u043A\u0441\u0435\u043B\u0435\u0439")
 	if err := app.Save(s); err != nil {
 		t.Fatal(err)
 	}
-	if got := count("пиксел"); got != 6 {
+	if got := count("\u043F\u0438\u043A\u0441\u0435\u043B"); got != 6 {
 		t.Errorf("after seller rename: %d", got)
 	}
 
@@ -71,7 +71,7 @@ func TestSearchFTS5(t *testing.T) {
 	var trig, bad int
 	_ = app.DB().NewQuery("SELECT COUNT(*) FROM sqlite_master WHERE type = 'trigger' AND name = 'products_fts_ai'").Row(&trig)
 	_ = app.DB().NewQuery("SELECT COUNT(*) FROM products_fts WHERE id = 'zzz'").Bind(dbx.Params{}).Row(&bad)
-	if trig != 1 || bad != 0 || count("система") != 1 {
+	if trig != 1 || bad != 0 || count("\u0441\u0438\u0441\u0442\u0435\u043C\u0430") != 1 {
 		t.Fatalf("repair: trigger %d, bad rows %d", trig, bad)
 	}
 }

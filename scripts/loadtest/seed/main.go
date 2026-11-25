@@ -35,13 +35,13 @@ var categories = []struct{ slug, title string }{
 
 var (
 	adjectives = []string{"Minimal", "Bold", "Clean", "Modern", "Dark", "Pastel", "Glass", "Neo", "Retro", "Soft",
-		"Тёмный", "Светлый", "Строгий", "Яркий", "Лёгкий", "Деловой"}
+		"\u0422\u0451\u043C\u043D\u044B\u0439", "\u0421\u0432\u0435\u0442\u043B\u044B\u0439", "\u0421\u0442\u0440\u043E\u0433\u0438\u0439", "\u042F\u0440\u043A\u0438\u0439", "\u041B\u0451\u0433\u043A\u0438\u0439", "\u0414\u0435\u043B\u043E\u0432\u043E\u0439"}
 	nouns = []string{"Dashboard", "Admin", "CRM", "Wallet", "Shop", "Blog", "Portfolio", "SaaS", "Fintech", "Booking",
-		"Дашборд", "Магазин", "Портфолио", "Лендинг", "Кабинет", "Аналитика"}
+		"\u0414\u0430\u0448\u0431\u043E\u0440\u0434", "\u041C\u0430\u0433\u0430\u0437\u0438\u043D", "\u041F\u043E\u0440\u0442\u0444\u043E\u043B\u0438\u043E", "\u041B\u0435\u043D\u0434\u0438\u043D\u0433", "\u041A\u0430\u0431\u0438\u043D\u0435\u0442", "\u0410\u043D\u0430\u043B\u0438\u0442\u0438\u043A\u0430"}
 	kinds = []string{"UI kit", "Figma template", "design system", "icon set", "starter", "wireframe kit",
-		"дизайн система", "набор иконок", "шаблон"}
-	first = []string{"Alex", "Maria", "Ivan", "Olga", "Pixel", "North", "Studio", "Nova", "Artem", "Daria", "Мастерская", "Студия"}
-	last  = []string{"Design", "Lab", "Works", "Craft", "Forge", "Petrov", "Smirnova", "Kit", "UI", "Дизайн", "Форма"}
+		"\u0434\u0438\u0437\u0430\u0439\u043D \u0441\u0438\u0441\u0442\u0435\u043C\u0430", "\u043D\u0430\u0431\u043E\u0440 \u0438\u043A\u043E\u043D\u043E\u043A", "\u0448\u0430\u0431\u043B\u043E\u043D"}
+	first = []string{"Alex", "Maria", "Ivan", "Olga", "Pixel", "North", "Studio", "Nova", "Artem", "Daria", "\u041C\u0430\u0441\u0442\u0435\u0440\u0441\u043A\u0430\u044F", "\u0421\u0442\u0443\u0434\u0438\u044F"}
+	last  = []string{"Design", "Lab", "Works", "Craft", "Forge", "Petrov", "Smirnova", "Kit", "UI", "\u0414\u0438\u0437\u0430\u0439\u043D", "\u0424\u043E\u0440\u043C\u0430"}
 )
 
 func pick(r *mrand.Rand, s []string) string { return s[r.IntN(len(s))] }

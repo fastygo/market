@@ -51,9 +51,9 @@ WHERE p.status = 'published'`
 		sellerF = ` AND s.slug = '` + seller + `'`
 	}
 	order := ` ORDER BY p.published_at DESC, p.created DESC`
-	searchF := ` AND p.id IN (SELECT id FROM products_fts WHERE products_fts MATCH '"дизайн"*' UNION SELECT id FROM products_fts_tri WHERE products_fts_tri MATCH '"дизайн"')`
+	searchF := " AND p.id IN (SELECT id FROM products_fts WHERE products_fts MATCH '\"\u0434\u0438\u0437\u0430\u0439\u043D\"*' UNION SELECT id FROM products_fts_tri WHERE products_fts_tri MATCH '\"\u0434\u0438\u0437\u0430\u0439\u043D\"')"
 	if *shape == "v1" {
-		searchF = ` AND (p.title LIKE '%дизайн%' OR p.excerpt LIKE '%дизайн%' OR s.display_name LIKE '%дизайн%' OR c.title LIKE '%дизайн%')`
+		searchF = " AND (p.title LIKE '%\u0434\u0438\u0437\u0430\u0439\u043D%' OR p.excerpt LIKE '%\u0434\u0438\u0437\u0430\u0439\u043D%' OR s.display_name LIKE '%\u0434\u0438\u0437\u0430\u0439\u043D%' OR c.title LIKE '%\u0434\u0438\u0437\u0430\u0439\u043D%')"
 	}
 	for _, q := range []struct{ name, sql string }{
 		{"home/catalog: newest 100", sel + order + ` LIMIT 100`},
@@ -62,7 +62,7 @@ WHERE p.status = 'published'`
 		{"author items", sel + sellerF + order + ` LIMIT 100`},
 		{"product by slug", sel + ` AND p.slug = '` + product + `' LIMIT 1`},
 		{"seller profile + count", `SELECT s.id, (SELECT COUNT(*) FROM products p WHERE p.seller = s.id AND p.status = 'published') AS items FROM sellers s WHERE s.slug = '` + seller + `' AND s.status = 'active' LIMIT 1`},
-		{"search 'дизайн' (v1 LIKE, v2 FTS5)", sel + searchF + order + ` LIMIT 100`},
+		{"search '\u0434\u0438\u0437\u0430\u0439\u043D' (v1 LIKE, v2 FTS5)", sel + searchF + order + ` LIMIT 100`},
 	} {
 		fmt.Printf("### %s\n```\n", q.name)
 		var plan []struct {

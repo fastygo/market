@@ -11,7 +11,7 @@ import (
 // Two FTS5 tables over the same columns, kept in sync by triggers:
 //
 //   - products_fts, tokenizer unicode61 remove_diacritics 2: whole words
-//     and word prefixes, case-insensitive for Cyrillic too (but ё and е
+//     and word prefixes, case-insensitive for Cyrillic too (but yo U+0451 and ie U+0435
 //     stay different: remove_diacritics covers Latin letters only). There
 //     is no Russian stemmer in FTS5 (porter is English only), so word
 //     forms are matched by prefix, not by stem.

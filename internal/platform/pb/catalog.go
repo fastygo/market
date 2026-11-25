@@ -212,7 +212,7 @@ func (c *Catalog) Storefront(ctx context.Context, code string) (storefront.Store
 }
 
 // searchMatch builds the FTS5 queries for a storefront search: words is
-// every token as a quoted prefix term ("dash"* "кабин"*, all must match,
+// every token as a quoted prefix term ("dash"* "kabin"*, all must match,
 // any order) for products_fts; sub is the whole query as one quoted
 // phrase for the trigram table (a substring, like LIKE '%q%'), only when
 // it has 3+ characters (trigram cannot match shorter strings). Quotes are

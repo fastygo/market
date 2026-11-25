@@ -23,17 +23,17 @@ func TestFTS5Available(t *testing.T) {
 	for _, q := range []string{
 		`CREATE VIRTUAL TABLE t_words USING fts5(title, tokenize = "unicode61 remove_diacritics 2")`,
 		`CREATE VIRTUAL TABLE t_tri USING fts5(title, tokenize = "trigram")`,
-		`INSERT INTO t_words(title) VALUES ('Дизайн Система UI8Kit')`,
-		`INSERT INTO t_tri(title) VALUES ('Дизайн Система UI8Kit')`,
+		"INSERT INTO t_words(title) VALUES ('\u0414\u0438\u0437\u0430\u0439\u043D \u0421\u0438\u0441\u0442\u0435\u043C\u0430 UI8Kit')",
+		"INSERT INTO t_tri(title) VALUES ('\u0414\u0438\u0437\u0430\u0439\u043D \u0421\u0438\u0441\u0442\u0435\u043C\u0430 UI8Kit')",
 	} {
 		if _, err := db.NewQuery(q).Execute(); err != nil {
 			t.Fatalf("%s: %v", q, err)
 		}
 	}
 	for _, c := range []struct{ table, match string }{
-		{"t_words", "система"}, // case folded Cyrillic word
-		{"t_words", "диза*"},   // prefix
-		{"t_tri", "истем"},     // substring (>= 3 chars)
+		{"t_words", "\u0441\u0438\u0441\u0442\u0435\u043C\u0430"}, // case folded Cyrillic word
+		{"t_words", "\u0434\u0438\u0437\u0430*"},                  // prefix
+		{"t_tri", "\u0438\u0441\u0442\u0435\u043C"},               // substring (>= 3 chars)
 		{"t_tri", "i8k"},
 	} {
 		var n int
