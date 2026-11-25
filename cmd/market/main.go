@@ -200,6 +200,14 @@ func main() {
 				}
 			})
 		}
+		if err := pb.OptimizeDB(se.App); err != nil {
+			se.App.Logger().Warn("db optimize", "err", err)
+		}
+		cron("market_db_optimize", "17 * * * *", func() {
+			if err := pb.OptimizeDB(se.App); err != nil {
+				se.App.Logger().Warn("db optimize", "err", err)
+			}
+		})
 		cron("market_payment_timeouts", "* * * * *", func() {
 			if n, err := svc.RequestTimeouts(ctx); err != nil || n > 0 {
 				se.App.Logger().Info("payment timeouts", "requested", n, "err", err)

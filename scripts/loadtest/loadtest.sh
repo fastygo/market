@@ -27,7 +27,7 @@ pid=$!
 trap 'kill $pid 2>/dev/null || true' EXIT
 for _ in $(seq 100); do curl -fsS -o /dev/null "http://127.0.0.1:$PORT/" 2>/dev/null && break; sleep 0.2; done
 echo "idle RSS after start: $(awk '/VmRSS/{print $2" "$3}' /proc/$pid/status)"
-taskset -c 1-7 "$LT_DIR/lt-run" -base "http://127.0.0.1:$PORT" -metrics "http://127.0.0.1:$MPORT/metrics" \
+taskset -c "${LT_CLIENT_CPUS:-1-3}" "$LT_DIR/lt-run" -base "http://127.0.0.1:$PORT" -metrics "http://127.0.0.1:$MPORT/metrics" \
   -data "$LT_DIR/run" -label "$label" "$@"
 echo "peak RSS (VmHWM): $(awk '/VmHWM/{print $2" "$3}' /proc/$pid/status)"
 t0=$(date +%s%N); kill -TERM $pid; wait $pid || true; t1=$(date +%s%N)

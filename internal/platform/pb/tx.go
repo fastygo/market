@@ -80,3 +80,19 @@ func isBusy(err error) bool {
 // ErrConflict is returned by conditional updates that matched no row (a
 // lost race or a stale status_version); callers treat it as a no-op.
 var ErrConflict = errors.New("pb: conditional update matched no row")
+
+// OptimizeDB refreshes SQLite planner stats where they are stale
+// (`PRAGMA optimize=0x10002`, bounded by analysis_limit) on the writer
+// connection. PocketBase does it nightly and after schema changes; a bulk
+// import between those leaves sqlite_stat1 describing a 6-row catalog and
+// the planner picks full scans (load test 2026-11-25), so the binary also
+// runs it at start and hourly. Tables whose size did not change much are
+// skipped, so a run is cheap.
+func OptimizeDB(app core.App) error {
+	db := app.NonconcurrentDB()
+	if _, err := db.NewQuery("PRAGMA analysis_limit=1000").Execute(); err != nil {
+		return err
+	}
+	_, err := db.NewQuery("PRAGMA optimize=0x10002").Execute()
+	return err
+}
