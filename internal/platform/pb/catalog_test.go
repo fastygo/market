@@ -135,7 +135,18 @@ func TestPagesEndToEnd(t *testing.T) {
 		code int
 		want string
 	}{
-		{"/", 200, "Featured products"},
+		{"/", 200, "New items"},
+		{"/", 200, `href="/authors/godudy"`},
+		{"/", 200, `data-form="search"`},
+		{"/catalog?q=seo", 200, "SEO toolkit"},
+		{"/catalog?q=seo", 200, "Results for: seo"},
+		{"/catalog/plugins?q=forms", 200, "Forms lite"},
+		{"/products/aurora-theme", 200, `data-slot="author-card"`},
+		{"/products/aurora-theme", 200, "More from GoDudY"},
+		{"/authors/godudy", 200, "<title>GoDudY | StorEEE Market</title>"},
+		{"/authors/godudy", 200, "6 items"},
+		{"/authors/godudy", 200, "Shop starter"},
+		{"/authors/missing", 404, "Page not found."},
 		{"/catalog", 200, "Aurora theme"},
 		{"/catalog/plugins", 200, "SEO toolkit"},
 		{"/products/aurora-theme", 200, `data-action="download"`},

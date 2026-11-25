@@ -1,0 +1,42 @@
+package screens
+
+import (
+	"github.com/fastygo/market/internal/catalog"
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/icons"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/link"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+)
+
+// AuthorCard is the author block of a product page: avatar, name linking
+// to the public profile, headline and item count.
+templ AuthorCard(s Shell, a catalog.Seller) {
+	@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "aside", Class: "flex flex-col gap-4 rounded-xl border border-border bg-card p-6", Attrs: templ.Attributes{"aria-label": s.T("ui.author.label"), "data-slot": "author-card"}}}) {
+		@compose.Group(compose.GroupProps{Gap: "4"}) {
+			@AuthorAvatar(a, "md")
+			@compose.Stack(compose.StackProps{Gap: "0"}) {
+				@compose.Text(compose.TextProps{Size: "xs", TextProps: text.TextProps{Class: "uppercase tracking-wide text-muted-foreground"}}) {
+					{ s.T("ui.author.label") }
+				}
+				@compose.Link(compose.LinkProps{Variant: "nav", LinkProps: link.LinkProps{Href: AuthorHref(a.Slug), Class: "text-lg font-bold"}}) {
+					{ a.DisplayName }
+				}
+			}
+		}
+		if a.Headline != "" {
+			@compose.Text(compose.TextProps{Size: "sm", TextProps: text.TextProps{Class: "text-muted-foreground"}}) {
+				{ a.Headline }
+			}
+		}
+		@compose.Group(compose.GroupProps{Gap: "4", Justify: "between", BoxProps: box.BoxProps{Class: "flex-wrap"}}) {
+			@compose.Text(compose.TextProps{Size: "sm", TextProps: text.TextProps{Class: "flex items-center gap-2 text-muted-foreground"}}) {
+				@icons.LucideIcon(icons.LucideIconProps{Name: "package", Size: 16})
+				{ itemsText(s, a.ItemsCount) }
+			}
+			@compose.LinkButton(compose.LinkButtonProps{Variant: "outline", Size: "sm", LinkProps: link.LinkProps{Href: AuthorHref(a.Slug), Attrs: templ.Attributes{"data-action": "author-profile"}}}) {
+				{ s.T("ui.author.view_profile") }
+			}
+		}
+	}
+}

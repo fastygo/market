@@ -21,7 +21,7 @@ func chipVariant(on bool) string {
 	return "outline"
 }
 
-func CatalogFilter(s Shell, activeSlug string) templ.Component {
+func CatalogFilter(s Shell, activeSlug, q string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -77,7 +77,7 @@ func CatalogFilter(s Shell, activeSlug string) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = compose.LinkButton(compose.LinkButtonProps{Variant: chipVariant(activeSlug == ""), Size: "sm", LinkProps: link.LinkProps{Href: "/catalog", AriaCurrent: current(activeSlug == "")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = compose.LinkButton(compose.LinkButtonProps{Variant: chipVariant(activeSlug == ""), Size: "sm", LinkProps: link.LinkProps{Href: filterHref("/catalog", q), AriaCurrent: current(activeSlug == "")}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -105,7 +105,7 @@ func CatalogFilter(s Shell, activeSlug string) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = compose.LinkButton(compose.LinkButtonProps{Variant: chipVariant(activeSlug == c.Slug), Size: "sm", LinkProps: link.LinkProps{Href: CategoryHref(c.Slug), AriaCurrent: current(activeSlug == c.Slug)}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = compose.LinkButton(compose.LinkButtonProps{Variant: chipVariant(activeSlug == c.Slug), Size: "sm", LinkProps: link.LinkProps{Href: filterHref(CategoryHref(c.Slug), q), AriaCurrent: current(activeSlug == c.Slug)}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

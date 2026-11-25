@@ -109,6 +109,21 @@
     "ui.fakepay.cancel": "Cancel payment",
     "ui.fakepay.amount": "Amount",
     "ui.order.status.fulfilled": "Completed",
-    "ui.meta.description": "Digital items from independent authors: themes, plugins and site templates with instant download and updates."
+    "ui.meta.description": "Digital items from independent authors: themes, plugins and site templates with instant download and updates.",
+    "ui.home.categories": "Browse categories",
+    "ui.home.new_items": "New items",
+    "ui.search.label": "Search items",
+    "ui.search.placeholder": "Search themes, plugins and templates",
+    "ui.search.submit": "Search",
+    "ui.catalog.results": "Results for: {0}",
+    "ui.author.label": "Author",
+    "ui.author.items": "{0} items",
+    "ui.author.items_one": "1 item",
+    "ui.author.joined": "Member since {0}",
+    "ui.author.about": "About",
+    "ui.author.portfolio": "Portfolio",
+    "ui.author.view_profile": "View profile",
+    "ui.author.more_from": "More from {0}",
+    "ui.author.website": "Website"
   }
 }

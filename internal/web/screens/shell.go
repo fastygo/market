@@ -4,8 +4,10 @@
 package screens
 
 import (
+	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/fastygo/market/internal/catalog"
 	"github.com/fastygo/market/internal/i18n"
@@ -120,26 +122,6 @@ func CategoryHref(slug string) string { return "/catalog/" + slug }
 // ProductHref is the URL of a product page.
 func ProductHref(slug string) string { return "/products/" + slug }
 
-// cards maps products to the UI8Kit product-card data shape.
-func cards(ps []catalog.Product) []any {
-	out := make([]any, 0, len(ps))
-	for _, p := range ps {
-		out = append(out, map[string]any{
-			"name": p.Title, "href": ProductHref(p.Slug), "image": p.CoverURL,
-			"category": p.Category.Title, "summary": p.Excerpt,
-			"price": float64(p.Price.Minor), "currency": p.Price.Currency, "inStock": p.HasOffer,
-		})
-	}
-	return out
-}
-
-func cardLabels(s Shell) map[string]any {
-	return map[string]any{
-		"add": s.T("ui.card.add"), "soldOut": s.T("ui.card.sold_out"), "was": s.T("ui.card.was"),
-		"ratingLabel": s.T("ui.card.rating"), "reviews": s.T("ui.card.reviews"), "empty": s.T("ui.catalog.empty"),
-	}
-}
-
 // paragraphs splits plain text on blank lines (product descriptions are
 // plain text in phase 0; rich content comes as Codex blocks later).
 func paragraphs(s string) []string {
@@ -150,4 +132,58 @@ func paragraphs(s string) []string {
 		}
 	}
 	return out
+}
+
+// AuthorHref is the public profile URL of a seller (ADR-0020).
+func AuthorHref(slug string) string { return "/authors/" + slug }
+
+// tpl fills {0} in a dictionary message.
+func tpl(msg string, v string) string { return strings.ReplaceAll(msg, "{0}", v) }
+
+func itemsText(s Shell, n int) string {
+	if n == 1 {
+		return s.T("ui.author.items_one")
+	}
+	return tpl(s.T("ui.author.items"), strconv.Itoa(n))
+}
+
+func joinedText(s Shell, t time.Time) string {
+	return tpl(s.T("ui.author.joined"), fmtDate(t))
+}
+
+func gridLabel(s Shell, title string) string {
+	if title != "" {
+		return title
+	}
+	return s.T("ui.catalog.title")
+}
+
+// initial is the first letter of a display name for the avatar fallback.
+func initial(name string) string {
+	for _, r := range strings.TrimSpace(name) {
+		return strings.ToUpper(string(r))
+	}
+	return "?"
+}
+
+func avatarClass(size string) string {
+	if size == "lg" {
+		return "size-24 text-4xl"
+	}
+	return "size-12 text-xl"
+}
+
+func avatarPx(size string) string {
+	if size == "lg" {
+		return "96"
+	}
+	return "48"
+}
+
+// filterHref keeps the search query when switching categories.
+func filterHref(base, q string) string {
+	if q == "" {
+		return base
+	}
+	return base + "?q=" + url.QueryEscape(q)
 }

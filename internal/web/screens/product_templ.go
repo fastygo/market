@@ -34,7 +34,10 @@ func crumbs(s Shell, p catalog.Product) []any {
 // ProductPage is the default (plain) product type page: media, title,
 // seller, price, Download and Preview (latte-shop views/pages/product.latte,
 // cart form replaced by the plain type actions).
-func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
+//
+// author is the active seller profile (empty Slug: no public profile, the
+// name is shown without a link); more are other items of the author.
+func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Seller, more []catalog.Product) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -113,7 +116,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = compose.Box(compose.BoxProps{BoxProps: box.BoxProps{Class: "overflow-hidden rounded-2xl border border-border bg-muted"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = compose.Box(compose.BoxProps{BoxProps: box.BoxProps{Class: "self-start overflow-hidden rounded-2xl border border-border bg-muted"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -156,7 +159,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 								var templ_7745c5c3_Var9 string
 								templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 40, Col: 16}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 43, Col: 16}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 								if templ_7745c5c3_Err != nil {
@@ -191,38 +194,72 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 								var templ_7745c5c3_Var11 string
 								templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.by"))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 44, Col: 29}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 47, Col: 29}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Var12 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-									templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-									templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-									if !templ_7745c5c3_IsBuffer {
-										defer func() {
-											templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-											if templ_7745c5c3_Err == nil {
-												templ_7745c5c3_Err = templ_7745c5c3_BufErr
-											}
-										}()
-									}
-									ctx = templ.InitializeContext(ctx)
-									var templ_7745c5c3_Var13 string
-									templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(p.SellerName)
-									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 46, Col: 22}
-									}
-									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " ")
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+								if author.Slug != "" {
+									templ_7745c5c3_Var12 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+										templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+										templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+										if !templ_7745c5c3_IsBuffer {
+											defer func() {
+												templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+												if templ_7745c5c3_Err == nil {
+													templ_7745c5c3_Err = templ_7745c5c3_BufErr
+												}
+											}()
+										}
+										ctx = templ.InitializeContext(ctx)
+										var templ_7745c5c3_Var13 string
+										templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(p.SellerName)
+										if templ_7745c5c3_Err != nil {
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 50, Col: 23}
+										}
+										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+										if templ_7745c5c3_Err != nil {
+											return templ_7745c5c3_Err
+										}
+										return nil
+									})
+									templ_7745c5c3_Err = compose.Link(compose.LinkProps{Variant: "default", Size: "sm", LinkProps: link.LinkProps{Href: AuthorHref(author.Slug), Class: "font-semibold", Attrs: templ.Attributes{"data-slot": "author"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var12), templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
-									return nil
-								})
-								templ_7745c5c3_Err = compose.Inline(compose.InlineProps{TextProps: text.TextProps{Class: "font-semibold text-foreground"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var12), templ_7745c5c3_Buffer)
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
+								} else {
+									templ_7745c5c3_Var14 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+										templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+										templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+										if !templ_7745c5c3_IsBuffer {
+											defer func() {
+												templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+												if templ_7745c5c3_Err == nil {
+													templ_7745c5c3_Err = templ_7745c5c3_BufErr
+												}
+											}()
+										}
+										ctx = templ.InitializeContext(ctx)
+										var templ_7745c5c3_Var15 string
+										templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(p.SellerName)
+										if templ_7745c5c3_Err != nil {
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 54, Col: 23}
+										}
+										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+										if templ_7745c5c3_Err != nil {
+											return templ_7745c5c3_Err
+										}
+										return nil
+									})
+									templ_7745c5c3_Err = compose.Inline(compose.InlineProps{TextProps: text.TextProps{Class: "font-semibold text-foreground"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
+									if templ_7745c5c3_Err != nil {
+										return templ_7745c5c3_Err
+									}
 								}
 								return nil
 							})
@@ -231,39 +268,6 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 								return templ_7745c5c3_Err
 							}
 							if p.HasOffer {
-								templ_7745c5c3_Var14 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-									templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-									templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-									if !templ_7745c5c3_IsBuffer {
-										defer func() {
-											templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-											if templ_7745c5c3_Err == nil {
-												templ_7745c5c3_Err = templ_7745c5c3_BufErr
-											}
-										}()
-									}
-									ctx = templ.InitializeContext(ctx)
-									var templ_7745c5c3_Var15 string
-									templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(uiutils.Money(float64(p.Price.Minor), p.Price.Currency))
-									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 51, Col: 65}
-									}
-									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
-									if templ_7745c5c3_Err != nil {
-										return templ_7745c5c3_Err
-									}
-									return nil
-								})
-								templ_7745c5c3_Err = compose.Text(compose.TextProps{Size: "3xl", Weight: "semibold", TextProps: text.TextProps{Attrs: templ.Attributes{"data-slot": "price"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " ")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							if p.Excerpt != "" {
 								templ_7745c5c3_Var16 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 									templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 									templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -277,9 +281,9 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 									}
 									ctx = templ.InitializeContext(ctx)
 									var templ_7745c5c3_Var17 string
-									templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(p.Excerpt)
+									templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(uiutils.Money(float64(p.Price.Minor), p.Price.Currency))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 56, Col: 19}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 60, Col: 65}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 									if templ_7745c5c3_Err != nil {
@@ -287,7 +291,40 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 									}
 									return nil
 								})
-								templ_7745c5c3_Err = compose.Text(compose.TextProps{TextProps: text.TextProps{Class: "text-muted-foreground"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var16), templ_7745c5c3_Buffer)
+								templ_7745c5c3_Err = compose.Text(compose.TextProps{Size: "3xl", Weight: "semibold", TextProps: text.TextProps{Attrs: templ.Attributes{"data-slot": "price"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var16), templ_7745c5c3_Buffer)
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " ")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							if p.Excerpt != "" {
+								templ_7745c5c3_Var18 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+									templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+									templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+									if !templ_7745c5c3_IsBuffer {
+										defer func() {
+											templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+											if templ_7745c5c3_Err == nil {
+												templ_7745c5c3_Err = templ_7745c5c3_BufErr
+											}
+										}()
+									}
+									ctx = templ.InitializeContext(ctx)
+									var templ_7745c5c3_Var19 string
+									templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(p.Excerpt)
+									if templ_7745c5c3_Err != nil {
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 65, Col: 19}
+									}
+									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+									if templ_7745c5c3_Err != nil {
+										return templ_7745c5c3_Err
+									}
+									return nil
+								})
+								templ_7745c5c3_Err = compose.Text(compose.TextProps{TextProps: text.TextProps{Class: "text-muted-foreground"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var18), templ_7745c5c3_Buffer)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -304,11 +341,11 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Var18 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+						templ_7745c5c3_Var20 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 							templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 							templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 							if !templ_7745c5c3_IsBuffer {
@@ -320,7 +357,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 								}()
 							}
 							ctx = templ.InitializeContext(ctx)
-							templ_7745c5c3_Var19 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+							templ_7745c5c3_Var21 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 								templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 								templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 								if !templ_7745c5c3_IsBuffer {
@@ -336,27 +373,27 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " ")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " ")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								var templ_7745c5c3_Var20 string
-								templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.download"))
+								var templ_7745c5c3_Var22 string
+								templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.download"))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 66, Col: 35}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 75, Col: 35}
 								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 								return nil
 							})
-							templ_7745c5c3_Err = compose.LinkButton(compose.LinkButtonProps{Size: "lg", LinkProps: link.LinkProps{Href: DownloadHref(p.Slug), Class: "gap-2", Attrs: templ.Attributes{"data-action": "download"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var19), templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = compose.LinkButton(compose.LinkButtonProps{Size: "lg", LinkProps: link.LinkProps{Href: DownloadHref(p.Slug), Class: "gap-2", Attrs: templ.Attributes{"data-action": "download"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var21), templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							if p.DemoURL != "" {
-								templ_7745c5c3_Var21 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+								templ_7745c5c3_Var23 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 									templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 									templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 									if !templ_7745c5c3_IsBuffer {
@@ -372,33 +409,33 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
-									templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " ")
+									templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " ")
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
-									var templ_7745c5c3_Var22 string
-									templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.preview"))
+									var templ_7745c5c3_Var24 string
+									templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.preview"))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 71, Col: 35}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 80, Col: 35}
 									}
-									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
 									return nil
 								})
-								templ_7745c5c3_Err = compose.LinkButton(compose.LinkButtonProps{Variant: "outline", Size: "lg", LinkProps: link.LinkProps{Href: p.DemoURL, External: true, Class: "gap-2", Attrs: templ.Attributes{"data-action": "preview"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var21), templ_7745c5c3_Buffer)
+								templ_7745c5c3_Err = compose.LinkButton(compose.LinkButtonProps{Variant: "outline", Size: "lg", LinkProps: link.LinkProps{Href: p.DemoURL, External: true, Class: "gap-2", Attrs: templ.Attributes{"data-action": "preview"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = compose.Group(compose.GroupProps{Gap: "4", BoxProps: box.BoxProps{Class: "flex-wrap rounded-xl border border-border bg-card p-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var18), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = compose.Group(compose.GroupProps{Gap: "4", BoxProps: box.BoxProps{Class: "flex-wrap rounded-xl border border-border bg-card p-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var20), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Var23 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+						templ_7745c5c3_Var25 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 							templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 							templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 							if !templ_7745c5c3_IsBuffer {
@@ -410,7 +447,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 								}()
 							}
 							ctx = templ.InitializeContext(ctx)
-							templ_7745c5c3_Var24 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+							templ_7745c5c3_Var26 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 								templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 								templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 								if !templ_7745c5c3_IsBuffer {
@@ -426,26 +463,26 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " ")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " ")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								var templ_7745c5c3_Var25 string
-								templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.instant_download"))
+								var templ_7745c5c3_Var27 string
+								templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.instant_download"))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 78, Col: 43}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 87, Col: 43}
 								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 								return nil
 							})
-							templ_7745c5c3_Err = compose.ListItem(compose.ListItemProps{BoxProps: box.BoxProps{Class: "flex items-center gap-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var24), templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = compose.ListItem(compose.ListItemProps{BoxProps: box.BoxProps{Class: "flex items-center gap-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var26), templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Var26 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+							templ_7745c5c3_Var28 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 								templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 								templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 								if !templ_7745c5c3_IsBuffer {
@@ -461,33 +498,33 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " ")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " ")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								var templ_7745c5c3_Var27 string
-								templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.updates_included"))
+								var templ_7745c5c3_Var29 string
+								templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.updates_included"))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 82, Col: 43}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 91, Col: 43}
 								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 								return nil
 							})
-							templ_7745c5c3_Err = compose.ListItem(compose.ListItemProps{BoxProps: box.BoxProps{Class: "flex items-center gap-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var26), templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = compose.ListItem(compose.ListItemProps{BoxProps: box.BoxProps{Class: "flex items-center gap-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var28), templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = compose.List(compose.ListProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-2 text-sm text-muted-foreground"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = compose.List(compose.ListProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-2 text-sm text-muted-foreground"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						if p.Description != "" {
-							templ_7745c5c3_Var28 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+							templ_7745c5c3_Var30 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 								templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 								templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 								if !templ_7745c5c3_IsBuffer {
@@ -499,7 +536,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 									}()
 								}
 								ctx = templ.InitializeContext(ctx)
-								templ_7745c5c3_Var29 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+								templ_7745c5c3_Var31 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 									templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 									templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 									if !templ_7745c5c3_IsBuffer {
@@ -511,23 +548,23 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 										}()
 									}
 									ctx = templ.InitializeContext(ctx)
-									var templ_7745c5c3_Var30 string
-									templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.description"))
+									var templ_7745c5c3_Var32 string
+									templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.description"))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 88, Col: 39}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 97, Col: 39}
 									}
-									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
+									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
 									return nil
 								})
-								templ_7745c5c3_Err = compose.Title(compose.TitleProps{As: "2", Size: "lg", TextProps: text.TextProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var29), templ_7745c5c3_Buffer)
+								templ_7745c5c3_Err = compose.Title(compose.TitleProps{As: "2", Size: "lg", TextProps: text.TextProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var31), templ_7745c5c3_Buffer)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 								for _, para := range paragraphs(p.Description) {
-									templ_7745c5c3_Var31 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+									templ_7745c5c3_Var33 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 										templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 										templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 										if !templ_7745c5c3_IsBuffer {
@@ -539,25 +576,35 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 											}()
 										}
 										ctx = templ.InitializeContext(ctx)
-										var templ_7745c5c3_Var32 string
-										templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(para)
+										var templ_7745c5c3_Var34 string
+										templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(para)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 92, Col: 15}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 101, Col: 15}
 										}
-										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
+										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 										if templ_7745c5c3_Err != nil {
 											return templ_7745c5c3_Err
 										}
 										return nil
 									})
-									templ_7745c5c3_Err = compose.Text(compose.TextProps{TextProps: text.TextProps{Class: "text-muted-foreground"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var31), templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = compose.Text(compose.TextProps{TextProps: text.TextProps{Class: "text-muted-foreground"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
 								}
 								return nil
 							})
-							templ_7745c5c3_Err = compose.Stack(compose.StackProps{Gap: "4", BoxProps: box.BoxProps{Class: "border-t border-border pt-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var28), templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = compose.Stack(compose.StackProps{Gap: "4", BoxProps: box.BoxProps{Class: "border-t border-border pt-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var30), templ_7745c5c3_Buffer)
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if author.Slug != "" {
+							templ_7745c5c3_Err = AuthorCard(s, author).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -573,6 +620,12 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView) templ.Component {
 				templ_7745c5c3_Err = compose.Grid(compose.GridProps{Cols: "1-2", BoxProps: box.BoxProps{Class: "gap-8 md:gap-16"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
+				}
+				if len(more) > 0 {
+					templ_7745c5c3_Err = ItemGrid(s, tpl(s.T("ui.author.more_from"), author.DisplayName), more).Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 				}
 				return nil
 			})

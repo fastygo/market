@@ -10,14 +10,13 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/fastygo/market/internal/catalog"
-	"github.com/ui8kit/codegen/generated/templ/blocks"
 	"github.com/ui8kit/codegen/generated/templ/compose"
 	"github.com/ui8kit/codegen/generated/templ/ui/box"
 )
 
-// HomePage: hero with perks, featured products (latte-shop
-// views/pages/front-page.latte; product cards from the UI8Kit product-grid).
-func HomePage(s Shell, featured []catalog.Product) templ.Component {
+// HomePage: hero with brand, tagline and search, categories, newest items
+// with their authors (Envato Market style front page).
+func HomePage(s Shell, items []catalog.Product) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -66,13 +65,17 @@ func HomePage(s Shell, featured []catalog.Product) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = blocks.ProductGrid(blocks.ProductGridProps{Title: s.T("ui.home.featured"), Products: cards(featured), Labels: cardLabels(s), Cols: "1-3", Rating: "hide", Action: "none"}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = HomeCategories(s).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = ItemGrid(s, s.T("ui.home.new_items"), items).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-8 py-8"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-12 py-8"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

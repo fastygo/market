@@ -7,7 +7,7 @@
     "runtime": "templ",
     "kit": ["ui/kit"],
     "composition": ["internal/web/screens"],
-    "blockRoot": ["internal/web/screens/home.templ", "internal/web/screens/catalog.templ", "internal/web/screens/product.templ", "internal/web/screens/notice.templ"]
+    "blockRoot": ["internal/web/screens/home.templ", "internal/web/screens/catalog.templ", "internal/web/screens/product.templ", "internal/web/screens/notice.templ", "internal/web/screens/author.templ"]
   },
   "scripts": {
     "css": "make css"

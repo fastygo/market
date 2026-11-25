@@ -1,0 +1,34 @@
+package screens
+
+import (
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/icons"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/link"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+)
+
+// HomeCategories: category tiles linking to the filtered catalog.
+templ HomeCategories(s Shell) {
+	@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "nav", Class: "flex flex-col gap-6", Attrs: templ.Attributes{"aria-label": s.T("ui.home.categories")}}}) {
+		@compose.Title(compose.TitleProps{As: "2", Size: "2xl", Weight: "bold", TextProps: text.TextProps{Class: "tracking-tight"}}) {
+			{ s.T("ui.home.categories") }
+		}
+		@compose.List(compose.ListProps{BoxProps: box.BoxProps{Class: "grid grid-cols-2 gap-4 md:grid-cols-4"}}) {
+			for _, c := range s.Categories {
+				@compose.ListItem(compose.ListItemProps{}) {
+					@compose.Link(compose.LinkProps{Variant: "block", LinkProps: link.LinkProps{Href: CategoryHref(c.Slug), Class: "items-center justify-between gap-2 rounded-xl border border-border bg-card p-4 font-semibold"}}) {
+						{ c.Title }
+						@icons.LucideIcon(icons.LucideIconProps{Name: "arrow-right", Size: 16})
+					}
+				}
+			}
+			@compose.ListItem(compose.ListItemProps{}) {
+				@compose.Link(compose.LinkProps{Variant: "block", LinkProps: link.LinkProps{Href: "/catalog", Class: "items-center justify-between gap-2 rounded-xl border border-border bg-muted p-4 font-semibold"}}) {
+					{ s.T("ui.catalog.all") }
+					@icons.LucideIcon(icons.LucideIconProps{Name: "arrow-right", Size: 16})
+				}
+			}
+		}
+	}
+}

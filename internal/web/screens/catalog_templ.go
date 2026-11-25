@@ -10,15 +10,14 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/fastygo/market/internal/catalog"
-	"github.com/ui8kit/codegen/generated/templ/blocks"
 	"github.com/ui8kit/codegen/generated/templ/compose"
 	"github.com/ui8kit/codegen/generated/templ/ui/box"
 	"github.com/ui8kit/codegen/generated/templ/ui/text"
 )
 
-// CatalogPage: archive title, category filter, product grid (latte-shop
-// views/pages/shop.latte).
-func CatalogPage(s Shell, active catalog.Category, products []catalog.Product) templ.Component {
+// CatalogPage: archive title, search, category filter, item grid with
+// authors (latte-shop views/pages/shop.latte, Envato style cards).
+func CatalogPage(s Shell, active catalog.Category, q string, products []catalog.Product) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -79,7 +78,7 @@ func CatalogPage(s Shell, active catalog.Category, products []catalog.Product) t
 						var templ_7745c5c3_Var5 string
 						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(active.Title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/catalog.templ`, Line: 18, Col: 19}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/catalog.templ`, Line: 17, Col: 19}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 						if templ_7745c5c3_Err != nil {
@@ -89,7 +88,7 @@ func CatalogPage(s Shell, active catalog.Category, products []catalog.Product) t
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.catalog.title"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/catalog.templ`, Line: 20, Col: 30}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/catalog.templ`, Line: 19, Col: 30}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -102,11 +101,48 @@ func CatalogPage(s Shell, active catalog.Category, products []catalog.Product) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = CatalogFilter(s, active.Slug).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = SearchForm(s, "catalog-search", q).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = blocks.ProductGrid(blocks.ProductGridProps{Products: cards(products), Labels: cardLabels(s), Cols: "1-3", Rating: "hide", Action: "none", LandmarkLabel: s.T("ui.catalog.title")}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = CatalogFilter(s, active.Slug, q).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if q != "" {
+					templ_7745c5c3_Var7 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+						templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+						templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+						if !templ_7745c5c3_IsBuffer {
+							defer func() {
+								templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+								if templ_7745c5c3_Err == nil {
+									templ_7745c5c3_Err = templ_7745c5c3_BufErr
+								}
+							}()
+						}
+						ctx = templ.InitializeContext(ctx)
+						var templ_7745c5c3_Var8 string
+						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(tpl(s.T("ui.catalog.results"), q))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/catalog.templ`, Line: 26, Col: 40}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						return nil
+					})
+					templ_7745c5c3_Err = compose.Text(compose.TextProps{TextProps: text.TextProps{Class: "text-muted-foreground", Attrs: templ.Attributes{"data-slot": "search-summary", "role": "status"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, " ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = ItemGrid(s, "", products).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

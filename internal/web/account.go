@@ -333,7 +333,8 @@ func (h *Handler) checkoutForm(w http.ResponseWriter, r *http.Request) {
 		}
 		v := h.checkoutView(w, r)
 		v.ErrorKey, v.Email = key, firstNonEmpty(v.Email, r.PostFormValue("email"))
-		h.render(w, r, http.StatusUnprocessableEntity, screens.ProductPage(s, p, v))
+		author, more := h.authorOf(r.Context(), p)
+		h.render(w, r, http.StatusUnprocessableEntity, screens.ProductPage(s, p, v, author, more))
 	}
 	r.SetPathValue("slug", slug)
 	if r.PostFormValue("terms") != "1" {

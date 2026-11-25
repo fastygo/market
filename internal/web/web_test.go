@@ -19,7 +19,10 @@ import (
 	"github.com/fastygo/market/ui/dict"
 )
 
-type fake struct{ products []catalog.Product }
+type fake struct {
+	products []catalog.Product
+	last     *catalog.Filter // the last product filter, for assertions
+}
 
 func (f fake) Storefront(context.Context, string) (storefront.Storefront, error) {
 	return storefront.Storefront{Code: "default", BrandName: "Brand", Currency: "RUB", DefaultLocale: "en",
@@ -34,7 +37,10 @@ func (f fake) Category(_ context.Context, slug string) (catalog.Category, error)
 	}
 	return catalog.Category{}, catalog.ErrNotFound
 }
-func (f fake) Products(context.Context, string, catalog.Filter) ([]catalog.Product, error) {
+func (f fake) Products(_ context.Context, _ string, flt catalog.Filter) ([]catalog.Product, error) {
+	if f.last != nil {
+		*f.last = flt
+	}
 	return f.products, nil
 }
 func (f fake) Seller(_ context.Context, slug string) (catalog.Seller, error) {
@@ -56,6 +62,8 @@ func (f fake) Product(_ context.Context, _ string, slug string) (catalog.Product
 
 func handler(t *testing.T) *web.Handler { return handlerWith(t, "") }
 
+var lastFilter = &catalog.Filter{}
+
 func handlerWith(t *testing.T, baseURL string) *web.Handler {
 	t.Helper()
 	en, err := i18n.Parse(dict.EN)
@@ -65,8 +73,8 @@ func handlerWith(t *testing.T, baseURL string) *web.Handler {
 	f := fake{products: []catalog.Product{{
 		Slug: "p1", Title: "Product one", Excerpt: "Short.", ProductType: "plain",
 		DemoURL: "https://example.com/demo", Category: catalog.Category{Slug: "themes", Title: "Themes"},
-		SellerName: "Seller", Price: money.Money{Minor: 150000, Currency: "RUB"}, HasOffer: true,
-	}}}
+		SellerName: "Seller", SellerSlug: "seller", Price: money.Money{Minor: 150000, Currency: "RUB"}, HasOffer: true,
+	}}, last: lastFilter}
 	return web.New(web.Handler{Catalog: f, Storefronts: f, StorefrontCode: "default", Dict: en,
 		Now: func() time.Time { return time.Date(2026, 11, 24, 0, 0, 0, 0, time.UTC) }, BaseURL: baseURL})
 }
@@ -144,5 +152,78 @@ func TestBrandMetaFromConfig(t *testing.T) {
 	dev := get(handler(t), "/products/p1").Body.String()
 	if strings.Contains(dev, `rel="canonical"`) || !strings.Contains(dev, "<title>Product one | Brand</title>") {
 		t.Error("development: no canonical without a base URL; product title with brand")
+	}
+}
+
+func TestHomeShowsSearchCategoriesAndAuthors(t *testing.T) {
+	body := get(handler(t), "/").Body.String()
+	for _, want := range []string{
+		`<search`, `action="/catalog"`, `name="q"`, `type="search"`, "Brand tagline", "Browse categories",
+		`href="/catalog/themes"`, "New items", `data-slot="item-card"`, `href="/authors/seller"`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("missing %q", want)
+		}
+	}
+}
+
+func TestCatalogSearchKeepsQuery(t *testing.T) {
+	rec := get(handler(t), "/catalog/themes?q=%20dark%20theme%20")
+	body := rec.Body.String()
+	if rec.Code != 200 || lastFilter.Query != "dark theme" || lastFilter.Category != "themes" {
+		t.Fatalf("code %d filter %+v", rec.Code, *lastFilter)
+	}
+	for _, want := range []string{`value="dark theme"`, `href="/catalog/themes?q=dark+theme"`, "Results for: dark theme"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("missing %q", want)
+		}
+	}
+}
+
+func TestProductPageAuthorBlock(t *testing.T) {
+	body := get(handler(t), "/products/p1").Body.String()
+	for _, want := range []string{`data-slot="author-card"`, `href="/authors/seller"`, "Seller headline", "More from Seller", "1 item"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("missing %q", want)
+		}
+	}
+	if lastFilter.Seller != "seller" || lastFilter.Exclude != "p1" || lastFilter.Limit != 4 {
+		t.Errorf("more-from filter %+v", *lastFilter)
+	}
+}
+
+func TestAuthorProfile(t *testing.T) {
+	h := handler(t)
+	rec := get(h, "/authors/seller")
+	body := rec.Body.String()
+	if rec.Code != 200 {
+		t.Fatalf("code %d", rec.Code)
+	}
+	for _, want := range []string{
+		"<title>Seller | Brand</title>", `<h1`, "Seller headline", "First paragraph.", "Second paragraph.",
+		"Portfolio", "1 item", "Member since 2026-11-01", `href="/products/p1"`, `<meta name="description" content="Seller headline">`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("missing %q", want)
+		}
+	}
+	if n := strings.Count(body, "<main"); n != 1 {
+		t.Errorf("want one main landmark, got %d", n)
+	}
+	if regexp.MustCompile(`>ui\.[a-z_.]+<`).MatchString(body) {
+		t.Error("unresolved dictionary key in output")
+	}
+	if rec := get(h, "/authors/nobody"); rec.Code != 404 {
+		t.Errorf("unknown author: %d", rec.Code)
+	}
+}
+
+func TestAuthorRouteIsForwarded(t *testing.T) {
+	found := false
+	for _, p := range web.AllPatterns() {
+		found = found || p == "GET /authors/{slug}"
+	}
+	if !found {
+		t.Error("GET /authors/{slug} missing in web.AllPatterns (PocketBase router)")
 	}
 }

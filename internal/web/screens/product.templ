@@ -26,12 +26,15 @@ func crumbs(s Shell, p catalog.Product) []any {
 // ProductPage is the default (plain) product type page: media, title,
 // seller, price, Download and Preview (latte-shop views/pages/product.latte,
 // cart form replaced by the plain type actions).
-templ ProductPage(s Shell, p catalog.Product, buy CheckoutView) {
+//
+// author is the active seller profile (empty Slug: no public profile, the
+// name is shown without a link); more are other items of the author.
+templ ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Seller, more []catalog.Product) {
 	@Layout(s) {
 		@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "article", Class: "flex flex-col gap-8 py-12", Attrs: templ.Attributes{"data-product-type": p.ProductType}}}) {
 			@blocks.PageCrumbs(blocks.PageCrumbsProps{Label: s.T("ui.product.breadcrumb"), Crumbs: crumbs(s, p)})
 			@compose.Grid(compose.GridProps{Cols: "1-2", BoxProps: box.BoxProps{Class: "gap-8 md:gap-16"}}) {
-				@compose.Box(compose.BoxProps{BoxProps: box.BoxProps{Class: "overflow-hidden rounded-2xl border border-border bg-muted"}}) {
+				@compose.Box(compose.BoxProps{BoxProps: box.BoxProps{Class: "self-start overflow-hidden rounded-2xl border border-border bg-muted"}}) {
 					@blocks.MediaFrame(blocks.MediaFrameProps{Alt: p.Title, Src: p.CoverURL, Ratio: "1/1"})
 				}
 				@compose.Stack(compose.StackProps{Gap: "6"}) {
@@ -42,8 +45,14 @@ templ ProductPage(s Shell, p catalog.Product, buy CheckoutView) {
 						@compose.Text(compose.TextProps{Size: "sm", TextProps: text.TextProps{Class: "flex items-center gap-2 text-muted-foreground"}}) {
 							@icons.LucideIcon(icons.LucideIconProps{Name: "user", Size: 16})
 							{ s.T("ui.product.by") }
-							@compose.Inline(compose.InlineProps{TextProps: text.TextProps{Class: "font-semibold text-foreground"}}) {
-								{ p.SellerName }
+							if author.Slug != "" {
+								@compose.Link(compose.LinkProps{Variant: "default", Size: "sm", LinkProps: link.LinkProps{Href: AuthorHref(author.Slug), Class: "font-semibold", Attrs: templ.Attributes{"data-slot": "author"}}}) {
+									{ p.SellerName }
+								}
+							} else {
+								@compose.Inline(compose.InlineProps{TextProps: text.TextProps{Class: "font-semibold text-foreground"}}) {
+									{ p.SellerName }
+								}
 							}
 						}
 						if p.HasOffer {
@@ -94,7 +103,13 @@ templ ProductPage(s Shell, p catalog.Product, buy CheckoutView) {
 							}
 						}
 					}
+					if author.Slug != "" {
+						@AuthorCard(s, author)
+					}
 				}
+			}
+			if len(more) > 0 {
+				@ItemGrid(s, tpl(s.T("ui.author.more_from"), author.DisplayName), more)
 			}
 		}
 	}

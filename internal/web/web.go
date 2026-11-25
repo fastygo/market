@@ -38,6 +38,7 @@ var Patterns = []string{
 	"GET /catalog/{slug}",
 	"GET /products/{slug}",
 	"GET /products/{slug}/download",
+	"GET /authors/{slug}",
 	"GET /static/{path...}",
 }
 
@@ -71,6 +72,7 @@ func New(h Handler) *Handler {
 	m.HandleFunc("GET /catalog/{slug}", h.catalog)
 	m.HandleFunc("GET /products/{slug}", h.product)
 	m.HandleFunc("GET /products/{slug}/download", h.download)
+	m.HandleFunc("GET /authors/{slug}", h.author)
 	h.mountCommerce(m)
 	m.Handle("GET /static/", http.StripPrefix("/static/", cacheStatic(http.FileServerFS(Static()))))
 	h.mux = m
@@ -185,12 +187,16 @@ func (h *Handler) catalog(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, r, err)
 		return
 	}
-	ps, err := h.Catalog.Products(r.Context(), sf.Currency, catalog.Filter{Category: active.Slug})
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	if len(q) > 100 {
+		q = q[:100]
+	}
+	ps, err := h.Catalog.Products(r.Context(), sf.Currency, catalog.Filter{Category: active.Slug, Query: q})
 	if err != nil {
 		h.fail(w, r, err)
 		return
 	}
-	h.render(w, r, http.StatusOK, screens.CatalogPage(s, active, ps))
+	h.render(w, r, http.StatusOK, screens.CatalogPage(s, active, q, ps))
 }
 
 func (h *Handler) loadProduct(w http.ResponseWriter, r *http.Request) (screens.Shell, catalog.Product, bool) {
@@ -221,5 +227,57 @@ func (h *Handler) product(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	h.render(w, r, http.StatusOK, screens.ProductPage(s, p, h.checkoutView(w, r)))
+	author, more := h.authorOf(r.Context(), p)
+	s.Description = p.Excerpt
+	h.render(w, r, http.StatusOK, screens.ProductPage(s, p, h.checkoutView(w, r), author, more))
+}
+
+// authorOf loads the product's active seller profile and up to four more
+// of the author's items; a seller without a public profile yields none.
+func (h *Handler) authorOf(ctx context.Context, p catalog.Product) (catalog.Seller, []catalog.Product) {
+	if p.SellerSlug == "" {
+		return catalog.Seller{}, nil
+	}
+	a, err := h.Catalog.Seller(ctx, p.SellerSlug)
+	if err != nil {
+		if !errors.Is(err, catalog.ErrNotFound) {
+			h.Log.Warn("web: author", "slug", p.SellerSlug, "err", err)
+		}
+		return catalog.Seller{}, nil
+	}
+	sf, err := h.Storefronts.Storefront(ctx, h.StorefrontCode)
+	if err != nil {
+		return a, nil
+	}
+	more, err := h.Catalog.Products(ctx, sf.Currency, catalog.Filter{Seller: a.Slug, Exclude: p.Slug, Limit: 4})
+	if err != nil {
+		h.Log.Warn("web: more from author", "slug", a.Slug, "err", err)
+		return a, nil
+	}
+	return a, more
+}
+
+// author is the public seller profile (ADR-0020): only active sellers.
+func (h *Handler) author(w http.ResponseWriter, r *http.Request) {
+	a, err := h.Catalog.Seller(r.Context(), r.PathValue("slug"))
+	if errors.Is(err, catalog.ErrNotFound) {
+		h.notice(w, r, http.StatusNotFound, "ui.error.not_found")
+		return
+	}
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	s, sf, err := h.shell(r.Context(), a.DisplayName, "")
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	ps, err := h.Catalog.Products(r.Context(), sf.Currency, catalog.Filter{Seller: a.Slug})
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	s.Description = a.Headline
+	h.render(w, r, http.StatusOK, screens.AuthorPage(s, a, ps))
 }

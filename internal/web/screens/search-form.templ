@@ -1,0 +1,28 @@
+package screens
+
+import (
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/icons"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/button"
+	"github.com/ui8kit/codegen/generated/templ/ui/form"
+	"github.com/ui8kit/codegen/generated/templ/ui/input"
+	"github.com/ui8kit/codegen/generated/templ/ui/label"
+)
+
+// SearchForm searches the catalog (GET /catalog?q=). id makes the input id
+// unique when a page has more than one form.
+templ SearchForm(s Shell, id, q string) {
+	@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "search", Class: "w-full max-w-2xl"}}) {
+		@compose.Form(compose.FormProps{FormProps: form.FormProps{Action: "/catalog", Method: "get", Class: "flex w-full items-center gap-2", Attrs: templ.Attributes{"data-form": "search"}}}) {
+			@compose.Label(compose.LabelProps{LabelProps: label.LabelProps{For: id, Class: "sr-only"}}) {
+				{ s.T("ui.search.label") }
+			}
+			@compose.Input(compose.InputProps{Size: "lg", InputProps: input.InputProps{Type: "search", ID: id, Name: "q", Value: strPtr(q), Placeholder: s.T("ui.search.placeholder"), Class: "flex-1 bg-background", Attrs: templ.Attributes{"autocomplete": "off", "maxlength": "100"}}})
+			@compose.Button(compose.ButtonProps{Size: "lg", ButtonProps: button.ButtonProps{Type: "submit", Class: "gap-2"}}) {
+				@icons.LucideIcon(icons.LucideIconProps{Name: "search", Size: 20})
+				{ s.T("ui.search.submit") }
+			}
+		}
+	}
+}
