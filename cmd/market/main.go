@@ -35,7 +35,6 @@ import (
 	"github.com/fastygo/market/internal/payments/yookassa"
 	"github.com/fastygo/market/internal/platform/clientip"
 	"github.com/fastygo/market/internal/platform/pb"
-	"github.com/fastygo/market/internal/platform/s3"
 	"github.com/fastygo/market/internal/region/ru"
 	"github.com/fastygo/market/internal/taxdocs"
 	"github.com/fastygo/market/internal/taxdocs/fakeissuer"
@@ -85,8 +84,25 @@ func main() {
 		for _, m := range mods {
 			se.App.Logger().Info("module", "id", m.ID, "version", m.Version)
 		}
+		cfg, err := loadConfig(os.Getenv, se.App.DataDir())
+		for _, w := range cfg.Warnings {
+			log.Printf("WARNING config: %s", w) // stderr: the app logger is not on the console in production
+			se.App.Logger().Warn("config: " + w)
+		}
+		if err != nil {
+			return err
+		}
+		if cfg.Dev {
+			log.Print("WARNING: DEVELOPMENT MODE (MARKET_FAKE_GATEWAY=1 or MARKET_DEV=1): defaults and fake providers are on; never use this in production")
+			se.App.Logger().Warn("DEVELOPMENT MODE: defaults and fake providers are on; never use this in production")
+		}
+		storageMode := "local files " + cfg.FilesDir
+		if cfg.S3 != nil {
+			storageMode = "s3 " + cfg.S3.Bucket + "/" + cfg.S3.Prefix
+		}
+		se.App.Logger().Info("release storage", "mode", storageMode)
 		repo := &pb.Catalog{App: se.App}
-		commerce, svc := wire(se.App, fake, func(ctx context.Context) string {
+		commerce, svc := wire(se.App, cfg, fake, func(ctx context.Context) string {
 			sf, err := repo.Storefront(ctx, code)
 			if err != nil {
 				return ""
@@ -124,7 +140,7 @@ func main() {
 
 // wire builds the ordering and licensing services from env (ADR-0016:
 // secrets only from env; nothing here has a real default).
-func wire(app core.App, fake bool, brand func(context.Context) string) (*web.Commerce, *ordering.Service) {
+func wire(app core.App, cfg config, fake bool, brand func(context.Context) string) (*web.Commerce, *ordering.Service) {
 	gateways := map[string]payments.Gateway{}
 	var fakeGW *fakegw.Gateway
 	if fake {
@@ -141,8 +157,7 @@ func wire(app core.App, fake bool, brand func(context.Context) string) (*web.Com
 		issuer, orders.TaxDocs, orders.IssuerCode = fi, ru.Receipts{}, fi.Code()
 		app.Logger().Warn("fake tax document issuer enabled (development only)")
 	}
-	publicURL := strings.TrimRight(os.Getenv("MARKET_PUBLIC_URL"), "/")
-	ip := clientIPResolver(app)
+	publicURL, ip := cfg.PublicURL, cfg.ClientIP
 	if gw := yooKassa(app, publicURL, ip); gw != nil {
 		gateways[string(yookassa.Code)] = gw
 		if os.Getenv("MARKET_YOOKASSA_RECEIPTS") != "0" {
@@ -151,16 +166,12 @@ func wire(app core.App, fake bool, brand func(context.Context) string) (*web.Com
 			issuer, orders.TaxDocs, orders.IssuerCode = yookassa.Receipts{G: gw}, ru.Receipts{}, string(yookassa.Code)
 		}
 	}
-	timeout, err := time.ParseDuration(env("MARKET_PAYMENT_TIMEOUT", "30m"))
-	if err != nil {
-		log.Fatal(err)
-	}
 	svc := &ordering.Service{
-		Store: orders, Tax: ru.TaxPolicy{}, Gateways: gateways, Issuer: issuer, PaymentTimeout: timeout,
+		Store: orders, Tax: ru.TaxPolicy{}, Gateways: gateways, Issuer: issuer, PaymentTimeout: cfg.PaymentTimeout,
 		RequiredConsents: []string{"terms"},
 		ReturnURL:        func(orderID string) string { return publicURL + "/checkout/return/" + orderID },
 	}
-	sessionKey := secret("MARKET_SESSION_SECRET", app)
+	sessionKey := cfg.SessionKey
 	users := &pb.Users{App: app}
 	magic := account.Magic{Key: sessionKey}
 	mailer := mailSender(app)
@@ -173,26 +184,18 @@ func wire(app core.App, fake bool, brand func(context.Context) string) (*web.Com
 			return err
 		},
 	}
-	dlKey := secret("MARKET_DOWNLOAD_SECRET", app)
-	var presigner licensing.Presigner = licensing.LocalPresigner{BaseURL: env("MARKET_S3_LOCAL_BASE", "http://127.0.0.1:9000/market-dev"), Key: dlKey}
+	dlKey := cfg.DownloadKey
+	// release files: S3 (pre-signed URLs) or local files served on /files
+	// with the same HMAC-signed, expiring links
+	var presigner licensing.Presigner
 	var files http.Handler
-	if dir := os.Getenv("MARKET_FILES_DIR"); dir != "" && os.Getenv("MARKET_S3_ENDPOINT") == "" {
-		// single-host releases: the app serves signed local URLs
+	if cfg.S3 != nil {
+		presigner = *cfg.S3
+	} else {
 		presigner = licensing.LocalPresigner{BaseURL: publicURL + "/files", Key: dlKey}
-		files = licensing.LocalFiles{Dir: dir, Key: dlKey}
+		files = licensing.LocalFiles{Dir: cfg.FilesDir, Key: dlKey}
 	}
-	if ep := os.Getenv("MARKET_S3_ENDPOINT"); ep != "" {
-		presigner = s3.Presigner{
-			Endpoint: ep, Region: os.Getenv("MARKET_S3_REGION"), Bucket: os.Getenv("MARKET_S3_BUCKET"),
-			AccessKey: os.Getenv("MARKET_S3_ACCESS_KEY"), SecretKey: os.Getenv("MARKET_S3_SECRET_KEY"),
-			PathStyle: os.Getenv("MARKET_S3_PATH_STYLE") != "0",
-		}
-	}
-	ttl, err := time.ParseDuration(env("MARKET_S3_URL_TTL", "5m"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	lic := &licensing.Service{Store: &pb.Downloads{App: app}, Signer: licensing.Signer{Key: dlKey}, Presigner: presigner, URLTTL: ttl}
+	lic := &licensing.Service{Store: &pb.Downloads{App: app}, Signer: licensing.Signer{Key: dlKey}, Presigner: presigner, URLTTL: cfg.URLTTL}
 	cab := &web.Cabinet{Users: users, Magic: magic, Orders: &pb.Account{App: app}, Mailer: note, CSRFKey: sessionKey,
 		Secure: strings.HasPrefix(publicURL, "https://"), AllowedOrigin: origin(publicURL),
 		TermsVersion: env("MARKET_TERMS_VERSION", "1"), Method: env("MARKET_CHECKOUT_METHOD", "card")}
@@ -251,24 +254,6 @@ func yooKassa(app core.App, publicURL string, ip clientip.Resolver) *yookassa.Ga
 	}
 	app.Logger().Info("payment provider enabled", "provider", "yookassa")
 	return gw
-}
-
-// clientIPResolver reads MARKET_CLIENT_IP_HEADER and MARKET_TRUSTED_PROXIES:
-// the header is honoured only from the listed proxies, and the rightmost
-// untrusted hop is the client (spoofed left entries are ignored).
-func clientIPResolver(app core.App) clientip.Resolver {
-	trusted, err := clientip.ParsePrefixes(os.Getenv("MARKET_TRUSTED_PROXIES"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	header := os.Getenv("MARKET_CLIENT_IP_HEADER")
-	if header == "" && len(trusted) > 0 {
-		header = "X-Forwarded-For"
-	}
-	if header != "" && len(trusted) == 0 {
-		app.Logger().Warn("MARKET_CLIENT_IP_HEADER is ignored without MARKET_TRUSTED_PROXIES", "header", header)
-	}
-	return clientip.Resolver{Header: header, Trusted: trusted}
 }
 
 // mailSender builds the mail transport from env (ADR-0026). The default
@@ -333,8 +318,8 @@ func env(k, def string) string {
 	return def
 }
 
-// secret reads a key from env; when unset it uses a random per-process key
-// (links and webhooks do not survive a restart) and warns.
+// secret reads a development-only key from env (fake gateway webhooks);
+// when unset it uses a random per-process key and warns.
 func secret(k string, app core.App) []byte {
 	if v := os.Getenv(k); v != "" {
 		return []byte(v)
