@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pocketbase/dbx"
@@ -45,6 +46,11 @@ import (
 )
 
 var dictEN *i18n.Dict
+
+// shutdownWait bounds the wait for workers and cron jobs on terminate;
+// it stays below systemd TimeoutStopSec (20 s) minus PocketBase's 1 s
+// HTTP shutdown.
+const shutdownWait = 10 * time.Second
 
 func main() {
 	// Memory budget (slo.md): GOMEMLIMIT wins; otherwise 512 MiB, or 85%
@@ -162,16 +168,44 @@ func main() {
 			se.Router.Route(method, path, wrapped)
 		}
 
-		// exactly one inbox and one outbox worker; reconciliation every 5 min
+		// exactly one inbox and one outbox worker; reconciliation every 5 min.
+		// Graceful shutdown uses only PocketBase's OnTerminate (it owns the
+		// SIGINT/SIGTERM handler): PocketBase first stops the HTTP server
+		// (in-flight requests such as webhooks finish), then this hook
+		// cancels the workers and cron jobs and waits for their current
+		// step, and only then the database is closed (WAL checkpoint).
 		ctx, stop := context.WithCancel(context.Background())
-		svc.RunWorkers(ctx, 2*time.Second, func(err error) { se.App.Logger().Warn("worker", "err", err) })
-		se.App.OnTerminate().BindFunc(func(e *core.TerminateEvent) error { stop(); return e.Next() })
-		se.App.Cron().MustAdd("market_payment_timeouts", "* * * * *", func() {
+		var jobs sync.RWMutex // cron runs hold RLock; shutdown takes Lock to wait for them
+		wait := svc.RunWorkers(ctx, 2*time.Second, func(err error) { se.App.Logger().Warn("worker", "err", err) })
+		se.App.OnTerminate().BindFunc(func(e *core.TerminateEvent) error {
+			stop()
+			if !wait(shutdownWait) {
+				se.App.Logger().Warn("shutdown: workers still busy after timeout; their leases expire and the step is retried", "timeout", shutdownWait)
+			}
+			done := make(chan struct{})
+			go func() { jobs.Lock(); close(done) }()
+			select {
+			case <-done:
+			case <-time.After(shutdownWait):
+				se.App.Logger().Warn("shutdown: cron job still running after timeout", "timeout", shutdownWait)
+			}
+			return e.Next()
+		})
+		cron := func(id, expr string, fn func()) {
+			se.App.Cron().MustAdd(id, expr, func() {
+				jobs.RLock()
+				defer jobs.RUnlock()
+				if ctx.Err() == nil {
+					fn()
+				}
+			})
+		}
+		cron("market_payment_timeouts", "* * * * *", func() {
 			if n, err := svc.RequestTimeouts(ctx); err != nil || n > 0 {
 				se.App.Logger().Info("payment timeouts", "requested", n, "err", err)
 			}
 		})
-		se.App.Cron().MustAdd("market_reconcile", "*/5 * * * *", func() {
+		cron("market_reconcile", "*/5 * * * *", func() {
 			if n, err := svc.Reconcile(ctx); err != nil || n > 0 {
 				se.App.Logger().Info("reconcile", "items", n, "err", err)
 			}

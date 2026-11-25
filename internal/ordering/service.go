@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/fastygo/market/internal/mail"
@@ -524,24 +525,42 @@ func (s *Service) Reconcile(ctx context.Context) (int, error) {
 }
 
 // RunWorkers runs exactly one inbox worker and one outbox worker until ctx
-// is done (shutdown: stop claiming; leases expire if a call is cut off).
-func (s *Service) RunWorkers(ctx context.Context, idle time.Duration, onErr func(error)) {
+// is cancelled. The returned wait blocks until both have finished their
+// current step (graceful shutdown: no step is cut off by closing the
+// database) or the timeout passes; it reports whether they finished.
+func (s *Service) RunWorkers(ctx context.Context, idle time.Duration, onErr func(error)) (wait func(timeout time.Duration) bool) {
+	var wg sync.WaitGroup
 	loop := func(step func(context.Context) (bool, error)) {
+		defer wg.Done()
+		t := time.NewTimer(idle)
+		defer t.Stop()
 		for ctx.Err() == nil {
 			did, err := step(ctx)
 			if err != nil && onErr != nil {
 				onErr(err)
 			}
 			if !did {
+				t.Reset(idle)
 				select {
 				case <-ctx.Done():
-				case <-time.After(idle):
+				case <-t.C:
 				}
 			}
 		}
 	}
+	wg.Add(2)
 	go loop(s.ProcessInboxOnce)
 	go loop(s.ProcessOutboxOnce)
+	return func(timeout time.Duration) bool {
+		done := make(chan struct{})
+		go func() { wg.Wait(); close(done) }()
+		select {
+		case <-done:
+			return true
+		case <-time.After(timeout):
+			return false
+		}
+	}
 }
 
 func (s *Service) lease() time.Duration {

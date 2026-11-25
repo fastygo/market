@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/textproto"
 	"testing"
+	"time"
 
 	"github.com/fastygo/market/internal/mail"
 	"github.com/pocketbase/pocketbase/tools/mailer"
@@ -110,5 +111,24 @@ func TestErrorClassification(t *testing.T) {
 	}
 	if err := s.Send(context.Background(), mail.Message{To: "bad", Subject: "x", Text: "y"}); !errors.Is(err, mail.ErrPermanent) {
 		t.Fatalf("invalid message must be permanent: %v", err)
+	}
+}
+
+type blockingClient struct{ release chan struct{} }
+
+func (b blockingClient) Send(*mailer.Message) error { <-b.release; return nil }
+
+func TestSendTimesOutOnSilentServer(t *testing.T) {
+	b := blockingClient{release: make(chan struct{})}
+	defer close(b.release)
+	s := &Sender{Client: func() mailer.Mailer { return b }, Timeout: 20 * time.Millisecond,
+		Settings: func() Settings { return Settings{SMTPEnabled: true, SenderAddress: "shop@example.com"} }}
+	start := time.Now()
+	err := s.Send(context.Background(), msg())
+	if !errors.Is(err, context.DeadlineExceeded) || errors.Is(err, mail.ErrPermanent) {
+		t.Fatalf("err = %v, want retryable deadline exceeded", err)
+	}
+	if d := time.Since(start); d > time.Second {
+		t.Fatalf("send took %v", d)
 	}
 }

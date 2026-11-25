@@ -19,6 +19,7 @@ import (
 	netmail "net/mail"
 	"net/textproto"
 	"sync"
+	"time"
 
 	"github.com/fastygo/market/internal/mail"
 	"github.com/fastygo/market/internal/platform/tx"
@@ -47,6 +48,10 @@ type Sender struct {
 	// Fallback receives messages while SMTP is disabled (file sender).
 	Fallback mail.Sender
 	Log      *slog.Logger
+	// Timeout bounds one SMTP send (default 60 s). The PocketBase SMTP
+	// client dials without a deadline, so a silent server would otherwise
+	// hold the single outbox worker forever.
+	Timeout time.Duration
 
 	warn sync.Once
 }
@@ -97,10 +102,32 @@ func (s *Sender) Send(ctx context.Context, m mail.Message) error {
 		sum := sha256.Sum256([]byte(m.IdempotencyKey))
 		msg.Headers = map[string]string{"Message-ID": "<" + hex.EncodeToString(sum[:16]) + "@" + domain(from.Address) + ">"}
 	}
-	if err := s.Client().Send(msg); err != nil {
-		return classify(err)
+	return s.send(ctx, msg)
+}
+
+// send runs the blocking SMTP client under ctx and Timeout. On timeout the
+// error is retryable and the client goroutine is left to finish on its own
+// (TCP keep-alive or the server closes it); a retry that duplicates a
+// late delivery carries the same Message-ID.
+func (s *Sender) send(ctx context.Context, msg *mailer.Message) error {
+	d := s.Timeout
+	if d <= 0 {
+		d = 60 * time.Second
 	}
-	return nil
+	ctx, cancel := context.WithTimeout(ctx, d)
+	defer cancel()
+	cl := s.Client()
+	errc := make(chan error, 1) // buffered: the goroutine never blocks after a timeout
+	go func() { errc <- cl.Send(msg) }()
+	select {
+	case err := <-errc:
+		if err != nil {
+			return classify(err)
+		}
+		return nil
+	case <-ctx.Done():
+		return fmt.Errorf("pbmail: smtp send: %w", ctx.Err())
+	}
 }
 
 // classify marks SMTP answers a retry cannot fix (mailbox unavailable,
