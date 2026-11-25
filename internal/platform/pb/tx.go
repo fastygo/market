@@ -16,12 +16,26 @@ import (
 // BusyTimeout is the explicit SQLite busy_timeout (ADR-0001, ADR-0007).
 const BusyTimeout = 5 * time.Second
 
+// DefaultMaxOpenConns caps the reader pool (PocketBase default: 120).
+// SQLite memory lives outside the Go heap, so GOMEMLIMIT does not see it:
+// every connection keeps its own page cache (CacheSizeKiB) and in-memory
+// temp b-trees. With 120 connections a 16-request burst on a 10k catalog
+// took RSS to 600 MB while the Go heap was 13 MB (load test 2026-11-25).
+// On a 1-2 vCPU host more readers than this only queue on the CPU.
+const DefaultMaxOpenConns = 8
+
+// CacheSizeKiB is the SQLite page cache per connection; worst case is
+// (DefaultMaxOpenConns + 1 writer) x 16 MiB = 144 MiB, and the OS page
+// cache holds the database file anyway.
+const CacheSizeKiB = 16000
+
 // DBConnect opens the data databases with an explicit busy_timeout and
 // `_txlock=immediate`, so every transaction starts with BEGIN IMMEDIATE and
 // takes the write lock up front (no deferred-to-write upgrade that
-// busy_timeout cannot retry). Other pragmas match PocketBase defaults.
+// busy_timeout cannot retry). Other pragmas match PocketBase defaults
+// except the per-connection cache size (CacheSizeKiB).
 func DBConnect(dbPath string) (*dbx.DB, error) {
-	pragmas := fmt.Sprintf("?_pragma=busy_timeout(%d)&_pragma=journal_mode(WAL)&_pragma=journal_size_limit(200000000)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=cache_size(-32000)&_defensive=1&_txlock=immediate", BusyTimeout.Milliseconds())
+	pragmas := fmt.Sprintf("?_pragma=busy_timeout(%d)&_pragma=journal_mode(WAL)&_pragma=journal_size_limit(200000000)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=cache_size(-%d)&_defensive=1&_txlock=immediate", BusyTimeout.Milliseconds(), CacheSizeKiB)
 	return dbx.Open("sqlite", dbPath+pragmas)
 }
 

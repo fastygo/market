@@ -293,7 +293,8 @@ func main() {
 	fmt.Println("| process | before | after |")
 	fmt.Println("| --- | --- | --- |")
 	for _, k := range []string{"process_resident_memory_bytes", "go_memstats_heap_inuse_bytes", "go_goroutines",
-		`go_sql_wait_duration_seconds_total{db_name="nonconcurrent"}`, `go_sql_wait_count_total{db_name="nonconcurrent"}`} {
+		`go_sql_wait_duration_seconds_total{db_name="nonconcurrent"}`, `go_sql_wait_count_total{db_name="nonconcurrent"}`,
+		`go_sql_open_connections{db_name="concurrent"}`, `go_sql_wait_duration_seconds_total{db_name="concurrent"}`} {
 		f := func(v float64) string {
 			if strings.HasSuffix(k, "_bytes") {
 				return fmt.Sprintf("%.1f MiB", v/(1<<20))

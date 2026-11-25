@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -68,7 +69,11 @@ func main() {
 	}
 	dictEN = en
 
-	app := pocketbase.NewWithConfig(pocketbase.Config{DBConnect: pb.DBConnect})
+	conns := pb.DefaultMaxOpenConns
+	if v, err := strconv.Atoi(os.Getenv("MARKET_DB_MAX_OPEN_CONNS")); err == nil && v > 0 {
+		conns = v
+	}
+	app := pocketbase.NewWithConfig(pocketbase.Config{DBConnect: pb.DBConnect, DataMaxOpenConns: conns, DataMaxIdleConns: conns})
 	pb.RegisterGuards(app)
 
 	// metrics (slo.md): statement timers on both SQLite pools, write tx
