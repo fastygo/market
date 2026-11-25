@@ -73,6 +73,9 @@ func main() {
 	if v, err := strconv.Atoi(os.Getenv("MARKET_DB_MAX_OPEN_CONNS")); err == nil && v > 0 {
 		conns = v
 	}
+	if v, err := strconv.Atoi(os.Getenv("MARKET_DB_CACHE_KIB")); err == nil && v >= 2000 {
+		pb.CacheSizeKiB = v
+	}
 	app := pocketbase.NewWithConfig(pocketbase.Config{DBConnect: pb.DBConnect, DataMaxOpenConns: conns, DataMaxIdleConns: conns})
 	pb.RegisterGuards(app)
 

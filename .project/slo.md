@@ -106,7 +106,7 @@ SLOs are per deployment; fiscal receipts generalized to region tax documents.
 | OS, systemd, journald, sshd | 250 MB |
 | Caddy | 60 MB |
 | Litestream | 60 MB |
-| market binary (Go heap + SQLite page cache) | soft limit 512 MiB via `GOMEMLIMIT`, alert at RSS 600 MB; SQLite memory is outside the Go heap: at most 8 readers + 1 writer x 16 MiB cache (`MARKET_DB_MAX_OPEN_CONNS`, `pb.CacheSizeKiB`) |
+| market binary (Go heap + SQLite page cache) | soft limit 512 MiB via `GOMEMLIMIT`, alert at RSS 450 MB; SQLite memory is outside the Go heap: at most 8 readers + 1 writer x 16 MiB cache (`MARKET_DB_MAX_OPEN_CONNS`, `MARKET_DB_CACHE_KIB`); measured peak RSS 290-390 MB under a 16-way burst on a 10k catalog, 140 MB with a 4 MiB cache |
 | SQLite OS page cache (database file) | the rest, about 1 GB |
 
 GOMEMLIMIT rule: about 85% of the hard limit of the box the binary runs

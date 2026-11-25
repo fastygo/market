@@ -26,8 +26,11 @@ const DefaultMaxOpenConns = 8
 
 // CacheSizeKiB is the SQLite page cache per connection; worst case is
 // (DefaultMaxOpenConns + 1 writer) x 16 MiB = 144 MiB, and the OS page
-// cache holds the database file anyway.
-const CacheSizeKiB = 16000
+// cache holds the database file anyway. Set it before the app bootstraps
+// (MARKET_DB_CACHE_KIB). Load test 2026-11-25 on 1 CPU, 10k catalog,
+// 16-way burst: 16 MiB -> RSS 290 MB; 4 MiB -> RSS 140 MB but search and
+// deep catalog pages lose about 20% RPS.
+var CacheSizeKiB = 16000
 
 // DBConnect opens the data databases with an explicit busy_timeout and
 // `_txlock=immediate`, so every transaction starts with BEGIN IMMEDIATE and
