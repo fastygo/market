@@ -94,9 +94,14 @@ func (c *Catalog) coverURL(productID, file string) string {
 	return "/api/files/" + col.Id + "/" + productID + "/" + file
 }
 
+// listSelect is productSelect without the description (up to 20 KB a
+// row; only the product page shows it), so list pages do not read or
+// sort it.
+var listSelect = strings.Replace(productSelect, "p.description,", "'' AS description,", 1)
+
 // Products lists published products, newest first.
 func (c *Catalog) Products(ctx context.Context, currency string, f catalog.Filter) ([]catalog.Product, error) {
-	q := productSelect
+	q := listSelect
 	params := dbx.Params{"currency": currency}
 	if f.Category != "" {
 		q += ` AND p.category = (SELECT id FROM categories WHERE slug = {:cat})`

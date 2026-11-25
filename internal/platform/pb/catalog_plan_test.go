@@ -1,6 +1,10 @@
 package pb_test
 
 import (
+	"context"
+
+	"github.com/fastygo/market/internal/catalog"
+	"github.com/fastygo/market/internal/platform/pb"
 	"strings"
 	"testing"
 
@@ -34,5 +38,23 @@ func TestCatalogQueryPlans(t *testing.T) {
 		if !strings.HasPrefix(got, "SEARCH p USING INDEX "+c.index) || strings.Contains(got, "TEMP B-TREE") {
 			t.Errorf("%s plan:\n%s\nwant products first via %s and no temp b-tree", name, got, c.index)
 		}
+	}
+}
+
+func TestListsSkipDescription(t *testing.T) {
+	app := newApp(t)
+	repo := &pb.Catalog{App: app}
+	ps, err := repo.Products(context.Background(), "RUB", catalog.Filter{})
+	if err != nil || len(ps) == 0 {
+		t.Fatal(err)
+	}
+	for _, p := range ps {
+		if p.Description != "" {
+			t.Fatalf("list returned a description for %s", p.Slug)
+		}
+	}
+	p, err := repo.Product(context.Background(), "RUB", ps[0].Slug)
+	if err != nil || p.Description == "" {
+		t.Fatalf("product page lost its description: %v", err)
 	}
 }
