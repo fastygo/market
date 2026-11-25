@@ -47,9 +47,13 @@ import (
 var dictEN *i18n.Dict
 
 func main() {
-	// Memory budget (slo.md): soft limit 512 MiB unless GOMEMLIMIT is set.
+	// Memory budget (slo.md): GOMEMLIMIT wins; otherwise 512 MiB, or 85%
+	// of the container memory limit when that is lower.
+	memSource := "GOMEMLIMIT"
 	if os.Getenv("GOMEMLIMIT") == "" {
-		debug.SetMemoryLimit(512 << 20)
+		var n int64
+		n, memSource = memLimit(readFile)
+		debug.SetMemoryLimit(n)
 	}
 
 	en, err := i18n.Parse(dict.EN)
@@ -105,6 +109,7 @@ func main() {
 		for _, m := range mods {
 			se.App.Logger().Info("module", "id", m.ID, "version", m.Version)
 		}
+		se.App.Logger().Info("memory limit", "bytes", debug.SetMemoryLimit(-1), "source", memSource)
 		cfg, err := loadConfig(os.Getenv, se.App.DataDir())
 		for _, w := range cfg.Warnings {
 			log.Printf("WARNING config: %s", w) // stderr: the app logger is not on the console in production

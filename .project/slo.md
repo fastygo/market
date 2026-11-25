@@ -109,6 +109,14 @@ SLOs are per deployment; fiscal receipts generalized to region tax documents.
 | market binary (Go heap + SQLite page cache) | soft limit 512 MiB via `GOMEMLIMIT`, alert at RSS 600 MB |
 | SQLite OS page cache (database file) | the rest, about 1 GB |
 
+GOMEMLIMIT rule: about 85% of the hard limit of the box the binary runs
+in (incus `limits.memory`, systemd `MemoryMax`), so the GC tightens before
+the OOM killer acts; 15% is headroom for goroutine stacks, SQLite memory
+outside the Go heap and fragmentation. Example: `limits.memory=768MiB` ->
+`GOMEMLIMIT=650MiB`. Without the variable the binary applies
+min(512 MiB, 85% of the cgroup limit) itself and logs the value and source.
+`go_gc_gomemlimit_bytes` on `/metrics` shows the effective value.
+
 Phase 0 measures idle RSS of the binary (recorded in `plan.md`); SQLite
 `cache_size` is set explicitly (start: 32 MiB). Swap: 1 GB swap file as a
 safety net, alert on swap-in.
