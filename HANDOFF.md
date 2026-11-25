@@ -17,7 +17,7 @@ taxes and receipts.
 make build                                    # Go only; generated code is committed
 ./bin/market superuser upsert admin@example.com 'a-long-password'
 MARKET_FAKE_GATEWAY=1 ./bin/market serve --http 127.0.0.1:8090   # or MARKET_DEV=1 without the fake gateway
-# storefront /, /catalog, /products/aurora-theme; cabinet /account; admin /_/
+# storefront /, /catalog?q=theme, /products/aurora-theme, /authors/godudy; cabinet /account; admin /_/
 ```
 
 Migrations and a placeholder catalog apply on start (`internal/migrations`).
@@ -96,7 +96,7 @@ segments are rejected.
 | Downloads | Signed `/dl` links to signed local files (`MARKET_FILES_DIR`, default) or S3 pre-signed URLs under `MARKET_S3_PREFIX` |
 | 54-FZ receipts | Through YooKassa receipts when enabled; fake issuer only with the fake gateway; no issuer with `MARKET_YOOKASSA_RECEIPTS=0` |
 | Russian texts | Not in the repo (no Cyrillic rule); only `ui/dict/en.json`. Delivery path is open question A1 |
-| Vendor marketplace (phase 3) | Docs only (ADR-0020 to ADR-0024) |
+| Vendor marketplace (phase 3) | Slice 1 real: brand config, seller profiles, author pages `/authors/{slug}`, item cards with authors, catalog search (ADR-0020). Applications, seller portal, earnings split and payouts: docs only (ADR-0020 to ADR-0024) |
 
 ## Where things are
 

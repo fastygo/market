@@ -176,6 +176,12 @@ before phase 3.
    as a reference skin. Still open: StorEEE's own tokens and logo.
 3. Production base URL (example `https://market.storeee.ru`) and whether
    the main domain gets a landing page that links to the market.
+4. Status 2026-11-25 (vendor slice 1): name "StorEEE Market", short name
+   "StorEEE" and the tagline are in the storefront brand (migration
+   `1764000006`); the market runs on `https://market.storeee.ru` and the
+   main domain has a landing page. Still open: alternate spellings for
+   structured data and search synonyms, StorEEE's own tokens and logo,
+   GoDudY's real profile text and avatar (placeholders now).
 
 ## Review r2 2026-11-24 (BalunMY)
 

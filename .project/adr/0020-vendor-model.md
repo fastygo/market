@@ -1,7 +1,8 @@
 # ADR-0020: Vendor model (Envato Market style): sellers, profiles, discovery
 
-- Status: Proposed (owner direction t229u/t230u, 2026-11-24; docs only, no
-  code yet)
+- Status: Accepted, slice 1 implemented 2026-11-25 (owner direction
+  t229u/t230u, 2026-11-24; owner t317u, 2026-11-25: build the vendor
+  design now). Implementation notes at the end.
 
 ## Context
 
@@ -231,3 +232,59 @@ superuser only.
 - GoDudY: self-employed, public pseudonym only; real identity only in the
   operator contract and private runtime data.
 - No exclusivity: `exclusivity` field and `exclusive` badge removed.
+
+## Slice 1 implemented 2026-11-25 (owner t317u)
+
+Done (commits on main, migrations idempotent and safe on the production
+database):
+
+- Brand as config: `storefronts.brand` carries `name`, `short_name`,
+  `tagline`, `alternate_names`, `logo`, `favicon`, `skin`, `og_image`
+  (`storefront.Brand`). Page titles, meta description, `og:site_name`,
+  `og:*`, canonical and the home `WebSite` + `Organization` JSON-LD (with a
+  `SearchAction` on `/catalog?q=`) read from it. Migration `1764000006`
+  moves a storefront that still has the seed brand (`name` "GoDudY") to
+  StorEEE Market with skin `storeee`; values come from
+  `internal/migrations/seed/storeee-brand.json`; an edited brand is left
+  alone. Skin `storeee` is a copy of the `godudy` tokens; `godudy` stays.
+- Base URL: `MARKET_BASE_URL` is an alias of the existing
+  `MARKET_PUBLIC_URL` (one value; both set and different refuses to
+  start). It feeds canonical, `og:url` and JSON-LD; empty in development,
+  then those absolute links are omitted.
+- Sellers: profile fields `headline`, `bio` (plain text), `avatar`,
+  `website`, `joined_at`; status values `applied`, `closed`, `rejected`
+  added (`pending_review` kept for existing rows). Migration `1764000007`
+  makes GoDudY `active` (only from `draft`), fills empty profile fields
+  from `seed/godudy-seller.json` and links products with an empty or
+  dangling `seller` to GoDudY. No legal data written.
+- Public UI: home (hero with brand, tagline, search; category tiles; new
+  items with author), catalog search `?q=` (title, excerpt, category,
+  author name; SQL `LIKE` until FTS5) combined with the category filter,
+  product page author block and "more from the author", author profile
+  `/authors/{slug}` (header, bio, portfolio, item count, member since).
+
+Deviations and limits of slice 1 (to revisit in later slices):
+
+- Public profiles and author links render in `single_store` too: they are
+  read-only discovery of already public catalog data. Applications, the
+  seller portal, earnings and payouts stay `marketplace` only.
+- Only `active` sellers have a public profile; `suspended` (neutral
+  notice) and `closed` (tombstone) pages are not built yet and answer 404.
+- The profile path prefix is fixed to `authors` (config later); no slug
+  history or reserved list check yet (no slug editing exists).
+- Counters are computed per request (`COUNT` over the seller index), not
+  cache columns; fine for the current catalog size.
+- Avatars and covers use `/api/files/...`, which needs a public view rule
+  or a file route for the `sellers` and `products` collections (same open
+  point as product covers).
+- GoDudY keeps `is_operator = true` and `sale_model = principal` from the
+  phase 1 seed: switching it to a third-party seller (agent or sublicense
+  scheme, share accounts, self-employed receipts) waits on counsel
+  (ADR-0021).
+- No sitemap exists yet; author URLs go into it when it is built.
+
+Next slices: seller applications (`seller_applications`, review queue,
+approval invariants), seller dashboard (profile and items editing,
+`item_stats_daily`), commission ledger split and payouts (ADR-0021; the
+agent or payout scheme waits on legal counsel), reviews and item comments,
+then followers, features (curated slots), FTS5 search and the sitemap.

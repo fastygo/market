@@ -340,3 +340,28 @@ goodwill refunds as platform expense, optional buyer fee and handling fee
 (default 0, owner question E14). Affiliate commissions stay in the
 platform share. Plan consequence: phase 3a scope above; the minimal
 marketplace part for GoDudY at go-live uses the same rules.
+
+## Vendor slice 1 status 2026-11-25 (owner t317u)
+
+Done (ADR-0020 "Slice 1 implemented"): brand step (skin `storeee`, brand
+config for titles, meta, `og:*` and JSON-LD, `MARKET_BASE_URL` alias),
+migrations `1764000006` (seed-branded storefront -> StorEEE Market, skin
+`storeee`) and `1764000007` (seller profile fields and statuses; GoDudY
+`active` with a pseudonymous placeholder profile), public vendor UI (home
+hero with search, categories, item cards with authors, catalog search,
+product author block and more from the author, `/authors/{slug}`). Checkout,
+cabinet and downloads unchanged.
+
+Next slices, in order:
+
+1. Seller applications: `seller_applications`, operator review queue,
+   approval invariants (sale model, contract version, region legal data
+   kept as private runtime data).
+2. Seller dashboard: profile and avatar, items and releases, stats
+   (`item_stats_daily`).
+3. Commission ledger split and payouts (ADR-0021): seller share accounts,
+   monthly close, payout minimum. The agent or payout scheme and
+   self-employed receipts wait on legal counsel.
+4. Reviews and item comments (entitlement required), reports.
+5. Followers, curated features, FTS5 search, sitemap, suspended and closed
+   profile pages, public file access for covers and avatars.
