@@ -2,6 +2,7 @@ package web_test
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -253,5 +254,23 @@ func TestObserverGetsRoutePatternAndStatus(t *testing.T) {
 	}
 	if len(o.renders) != 2 || o.renders[1] != "GET /catalog/{slug}" {
 		t.Fatalf("renders = %v", o.renders)
+	}
+}
+
+func TestCatalogPages(t *testing.T) {
+	h := handler(t)
+	if rec := get(h, "/catalog?page=1"); rec.Code != http.StatusOK || lastFilter.Offset != 0 || lastFilter.Limit != catalog.PageSize {
+		t.Fatalf("page 1: %d %+v", rec.Code, *lastFilter)
+	}
+	get(h, "/catalog?page=x")
+	if lastFilter.Offset != 0 {
+		t.Fatalf("bad page number: offset %d", lastFilter.Offset)
+	}
+	// the fake returns the same product for any page, so page 3 renders
+	if rec := get(h, "/catalog?page=3"); rec.Code != http.StatusOK || lastFilter.Offset != 2*catalog.PageSize {
+		t.Fatalf("page 3: %d offset %d", rec.Code, lastFilter.Offset)
+	}
+	if rec := get(h, fmt.Sprintf("/catalog?page=%d", catalog.MaxPage+1)); rec.Code != http.StatusNotFound {
+		t.Fatalf("page over the cap: %d", rec.Code)
 	}
 }

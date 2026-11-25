@@ -136,6 +136,9 @@ func (c *Catalog) Products(ctx context.Context, currency string, f catalog.Filte
 		limit = 100
 	}
 	q += fmt.Sprintf(` LIMIT %d`, limit)
+	if f.Offset > 0 && f.Offset <= catalog.PageSize*(catalog.MaxPage-1) {
+		q += fmt.Sprintf(` OFFSET %d`, f.Offset)
+	}
 	var rows []productRow
 	if err := c.App.DB().NewQuery(q).WithContext(ctx).Bind(params).All(&rows); err != nil {
 		return nil, fmt.Errorf("catalog: products: %w", err)

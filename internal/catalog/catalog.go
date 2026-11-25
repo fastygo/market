@@ -63,7 +63,17 @@ type Filter struct {
 	Query    string // search in title, excerpt, category and author name
 	Exclude  string // product slug left out (more from this author)
 	Limit    int
+	Offset   int // numbered storefront pages; capped by MaxPage
 }
+
+// PageSize and MaxPage bound the numbered catalog pages: OFFSET is cheap
+// at this size (the list reads in index order), and the cap keeps a
+// crawler from walking arbitrarily deep pages. Keyset pagination on
+// (created, id) is for an API or an endless feed, which do not exist yet.
+const (
+	PageSize = 100
+	MaxPage  = 100
+)
 
 // Reader is declared here (consumer side) and implemented by platform/pb.
 type Reader interface {

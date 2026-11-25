@@ -11,6 +11,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -239,9 +240,24 @@ func (h *Handler) catalog(w http.ResponseWriter, r *http.Request) {
 	if len(q) > 100 {
 		q = q[:100]
 	}
-	ps, err := h.Catalog.Products(r.Context(), sf.Currency, catalog.Filter{Category: active.Slug, Query: q})
+	page := 1
+	if v := r.URL.Query().Get("page"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 1 {
+			page = n
+		}
+	}
+	if page > catalog.MaxPage {
+		h.notice(w, r, http.StatusNotFound, "ui.error.not_found")
+		return
+	}
+	ps, err := h.Catalog.Products(r.Context(), sf.Currency, catalog.Filter{Category: active.Slug, Query: q,
+		Limit: catalog.PageSize, Offset: (page - 1) * catalog.PageSize})
 	if err != nil {
 		h.fail(w, r, err)
+		return
+	}
+	if page > 1 && len(ps) == 0 {
+		h.notice(w, r, http.StatusNotFound, "ui.error.not_found")
 		return
 	}
 	h.render(w, r, http.StatusOK, screens.CatalogPage(s, active, q, ps))
