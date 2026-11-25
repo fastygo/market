@@ -46,3 +46,25 @@ func TestOptimizeDBRefreshesStaleStats(t *testing.T) {
 		t.Fatalf("stats after optimize describe %d rows, want >= 400", n)
 	}
 }
+
+// Readers keep the planner stats they loaded; OptimizeDB drops the idle
+// ones so the next query opens a connection with the new stats.
+func TestOptimizeDBRecyclesIdleReaders(t *testing.T) {
+	app := newApp(t)
+	r := app.ConcurrentDB().(*dbx.DB).DB()
+	var n int
+	if err := app.ConcurrentDB().NewQuery("SELECT COUNT(*) FROM products").Row(&n); err != nil {
+		t.Fatal(err)
+	}
+	before := r.Stats()
+	if before.Idle == 0 {
+		t.Fatal("expected an idle reader")
+	}
+	if err := pb.OptimizeDB(app); err != nil {
+		t.Fatal(err)
+	}
+	after := r.Stats()
+	if after.Idle != 0 || after.MaxIdleClosed <= before.MaxIdleClosed || after.MaxOpenConnections != before.MaxOpenConnections {
+		t.Fatalf("idle readers not recycled: before %+v after %+v", before, after)
+	}
+}

@@ -102,11 +102,28 @@ var ErrConflict = errors.New("pb: conditional update matched no row")
 // the planner picks full scans (load test 2026-11-25), so the binary also
 // runs it at start and hourly. Tables whose size did not change much are
 // skipped, so a run is cheap.
+//
+// New stats reach only connections that load the schema afterwards: an
+// open reader keeps the plans it had (a 10k catalog page took 250 ms
+// instead of 10 ms on a reader opened before the optimize). So the reader
+// pool's idle connections are dropped after the optimize, and
+// ReaderMaxLifetime recycles busy ones.
 func OptimizeDB(app core.App) error {
 	db := app.NonconcurrentDB()
 	if _, err := db.NewQuery("PRAGMA analysis_limit=1000").Execute(); err != nil {
 		return err
 	}
-	_, err := db.NewQuery("PRAGMA optimize=0x10002").Execute()
-	return err
+	if _, err := db.NewQuery("PRAGMA optimize=0x10002").Execute(); err != nil {
+		return err
+	}
+	if r, ok := app.ConcurrentDB().(*dbx.DB); ok {
+		n := r.DB().Stats().MaxOpenConnections
+		r.DB().SetMaxIdleConns(0) // closes idle readers; they reopen with fresh stats
+		r.DB().SetMaxIdleConns(n)
+	}
+	return nil
 }
+
+// ReaderMaxLifetime bounds how long a reader connection keeps the planner
+// stats and schema it loaded (see OptimizeDB).
+const ReaderMaxLifetime = 15 * time.Minute

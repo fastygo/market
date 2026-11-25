@@ -87,6 +87,7 @@ func main() {
 		pools := map[string]*dbx.DB{}
 		if db, ok := e.App.ConcurrentDB().(*dbx.DB); ok {
 			pools["concurrent"] = db
+			db.DB().SetConnMaxLifetime(pb.ReaderMaxLifetime) // pick up new planner stats
 		}
 		if db, ok := e.App.NonconcurrentDB().(*dbx.DB); ok {
 			pools["nonconcurrent"] = db
