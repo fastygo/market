@@ -19,6 +19,7 @@ import (
 func main() {
 	path := flag.String("db", "", "data.db path (opened read-only)")
 	analyze := flag.Bool("analyze", false, "run ANALYZE first (opens read-write: use a copy)")
+	shape := flag.String("shape", "v2", "query shape: v1 (before 2026-11-25: implicit join order, slug filters on joined tables) or v2")
 	flag.Parse()
 	mode := "ro"
 	if *analyze {
@@ -40,14 +41,21 @@ func main() {
 	sel := `SELECT p.id, p.slug, p.title, p.excerpt, p.description, p.product_type, p.demo_url, p.cover,
        c.slug AS cat_slug, c.title AS cat_title, s.display_name AS seller_name, s.slug AS seller_slug,
        (SELECT MIN(o.price_minor) FROM offers o WHERE o.product = p.id AND o.active = TRUE AND o.currency = 'RUB') AS price_minor
-FROM products p JOIN sellers s ON s.id = p.seller LEFT JOIN categories c ON c.id = p.category
+FROM products p CROSS JOIN sellers s ON s.id = p.seller LEFT JOIN categories c ON c.id = p.category
 WHERE p.status = 'published'`
+	catF := ` AND p.category = (SELECT id FROM categories WHERE slug = '` + cat + `')`
+	sellerF := ` AND p.seller = (SELECT id FROM sellers WHERE slug = '` + seller + `')`
+	if *shape == "v1" {
+		sel = strings.Replace(sel, "CROSS JOIN", "JOIN", 1)
+		catF = ` AND c.slug = '` + cat + `'`
+		sellerF = ` AND s.slug = '` + seller + `'`
+	}
 	order := ` ORDER BY p.published_at DESC, p.created DESC`
 	for _, q := range []struct{ name, sql string }{
 		{"home/catalog: newest 100", sel + order + ` LIMIT 100`},
 		{"catalog page 50 (OFFSET 4900)", sel + order + ` LIMIT 100 OFFSET 4900`},
-		{"category", sel + ` AND c.slug = '` + cat + `'` + order + ` LIMIT 100`},
-		{"author items", sel + ` AND s.slug = '` + seller + `'` + order + ` LIMIT 100`},
+		{"category", sel + catF + order + ` LIMIT 100`},
+		{"author items", sel + sellerF + order + ` LIMIT 100`},
 		{"product by slug", sel + ` AND p.slug = '` + product + `' LIMIT 1`},
 		{"seller profile + count", `SELECT s.id, (SELECT COUNT(*) FROM products p WHERE p.seller = s.id AND p.status = 'published') AS items FROM sellers s WHERE s.slug = '` + seller + `' AND s.status = 'active' LIMIT 1`},
 		{"search LIKE", sel + ` AND (p.title LIKE '%дизайн%' OR p.excerpt LIKE '%дизайн%' OR s.display_name LIKE '%дизайн%' OR c.title LIKE '%дизайн%')` + order + ` LIMIT 100`},

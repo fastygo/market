@@ -18,6 +18,9 @@ if [ ! -f "$LT_DIR/seed/data.db" ]; then
   go run ./scripts/loadtest/seed -dir "$LT_DIR/seed" -products "${PRODUCTS:-10000}" -sellers "${SELLERS:-500}"
 fi
 rm -rf "$LT_DIR/run" && cp -r "$LT_DIR/seed" "$LT_DIR/run"
+# ANALYZE=1: fresh planner stats (as after PocketBase's nightly PRAGMA
+# optimize); default keeps the stats a bulk import leaves behind
+if [ "${ANALYZE:-0}" = 1 ]; then go run ./scripts/loadtest/explain -db "$LT_DIR/run/data.db" -analyze >/dev/null; fi
 MARKET_FAKE_GATEWAY=1 MARKET_MAIL_PROVIDER=file MARKET_METRICS_ADDR=127.0.0.1:$MPORT GOMAXPROCS=1 \
   taskset -c 0 "$LT_DIR/market" serve --http=127.0.0.1:$PORT --dir="$LT_DIR/run" >"$LT_DIR/server.log" 2>&1 &
 pid=$!

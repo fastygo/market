@@ -44,7 +44,16 @@ type productRow struct {
 	PriceMinor  sql.NullInt64  `db:"price_minor"`
 }
 
-// one query, no N+1: lowest active offer in the storefront currency
+// One query, no N+1: the lowest active offer in the storefront currency
+// is a correlated subquery, evaluated only for the rows returned.
+//
+// `products p CROSS JOIN sellers s` pins products as the outer loop
+// (SQLite treats CROSS JOIN as a join-order hint): with the stale planner
+// stats a bulk import leaves until the nightly PRAGMA optimize, SQLite
+// otherwise picked `SCAN sellers` x `SCAN products` and sorted the whole
+// catalog (2.4 s per page at 10k products, load test 2026-11-25). Filters
+// on category and seller compare ids (slug resolved by an uncorrelated
+// subquery) so the composite indexes of migration 1764000008 apply.
 const productSelect = `
 SELECT p.id, p.slug, p.title, p.excerpt, p.description, p.product_type, p.demo_url, p.cover,
        c.slug AS cat_slug, c.title AS cat_title,
@@ -52,7 +61,7 @@ SELECT p.id, p.slug, p.title, p.excerpt, p.description, p.product_type, p.demo_u
        (SELECT MIN(o.price_minor) FROM offers o
          WHERE o.product = p.id AND o.active = TRUE AND o.currency = {:currency}) AS price_minor
 FROM products p
-JOIN sellers s ON s.id = p.seller
+CROSS JOIN sellers s ON s.id = p.seller
 LEFT JOIN categories c ON c.id = p.category
 WHERE p.status = 'published'`
 
@@ -88,11 +97,11 @@ func (c *Catalog) Products(ctx context.Context, currency string, f catalog.Filte
 	q := productSelect
 	params := dbx.Params{"currency": currency}
 	if f.Category != "" {
-		q += ` AND c.slug = {:cat}`
+		q += ` AND p.category = (SELECT id FROM categories WHERE slug = {:cat})`
 		params["cat"] = f.Category
 	}
 	if f.Seller != "" {
-		q += ` AND s.slug = {:seller}`
+		q += ` AND p.seller = (SELECT id FROM sellers WHERE slug = {:seller})`
 		params["seller"] = f.Seller
 	}
 	if f.Exclude != "" {
