@@ -49,6 +49,8 @@ the repo.
 | [0027](adr/0027-buyer-cabinet.md) | Buyer cabinet: magic link and password sign-in, cookie session, CSRF, SSR checkout | Accepted |
 | [0028](adr/0028-seller-item-authoring-and-content-i18n.md) | Seller item authoring, one account with role-based cabinet, content i18n | Proposed |
 | [0029](adr/0029-semantic-class-names.md) | Semantic `ui-*` and brand class names generated with `@apply` in cascade layers; no runtime class merge | Accepted (paths 1 and 2) |
+| [0030](adr/0030-seller-cabinet-in-the-monolith.md) | Seller cabinet UI and data stay in the monolith; AI and heavy jobs run in an isolated Incus worker | Accepted |
+| [0031](adr/0031-editory-island-in-the-cabinet.md) | Embed EditorY (Solid) as a cabinet island; store Markdown, render sanitized HTML on the server | Proposed |
 
 ADR format: Status, Context, Decision, Consequences. Status values: Proposed,
 Accepted, Superseded. "Accepted" means the direction was confirmed by the
