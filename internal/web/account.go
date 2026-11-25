@@ -360,7 +360,7 @@ func (h *Handler) checkoutForm(w http.ResponseWriter, r *http.Request) {
 	v, err := c.Orders.Checkout(r.Context(), ordering.CheckoutRequest{
 		StorefrontCode: h.StorefrontCode, BuyerID: b.ID, BuyerEmail: b.Email, IdempotencyKey: "form:" + key,
 		ProductSlug: slug, LicenseType: firstNonEmpty(r.PostFormValue("license"), "regular"), Method: c.Cabinet.Method,
-		Consents: []ordering.Consent{{Document: "terms", Version: c.Cabinet.TermsVersion}}, IPHash: c.hash(clientIP(r)),
+		Consents: []ordering.Consent{{Document: "terms", Version: c.Cabinet.TermsVersion}}, IPHash: c.hash(c.clientIP(r)),
 	})
 	switch {
 	case errors.Is(err, ordering.ErrNotFound), errors.Is(err, ordering.ErrFree), errors.Is(err, ordering.ErrOfferInactive), errors.Is(err, ordering.ErrMethod):

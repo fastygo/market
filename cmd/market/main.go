@@ -7,7 +7,6 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -34,6 +33,7 @@ import (
 	"github.com/fastygo/market/internal/payments"
 	"github.com/fastygo/market/internal/payments/fakegw"
 	"github.com/fastygo/market/internal/payments/yookassa"
+	"github.com/fastygo/market/internal/platform/clientip"
 	"github.com/fastygo/market/internal/platform/pb"
 	"github.com/fastygo/market/internal/platform/s3"
 	"github.com/fastygo/market/internal/region/ru"
@@ -142,7 +142,8 @@ func wire(app core.App, fake bool, brand func(context.Context) string) (*web.Com
 		app.Logger().Warn("fake tax document issuer enabled (development only)")
 	}
 	publicURL := strings.TrimRight(os.Getenv("MARKET_PUBLIC_URL"), "/")
-	if gw := yooKassa(app, publicURL); gw != nil {
+	ip := clientIPResolver(app)
+	if gw := yooKassa(app, publicURL, ip); gw != nil {
 		gateways[string(yookassa.Code)] = gw
 		if os.Getenv("MARKET_YOOKASSA_RECEIPTS") != "0" {
 			// receipts are registered with the payment; the issuer only
@@ -196,7 +197,7 @@ func wire(app core.App, fake bool, brand func(context.Context) string) (*web.Com
 		Secure: strings.HasPrefix(publicURL, "https://"), AllowedOrigin: origin(publicURL),
 		TermsVersion: env("MARKET_TERMS_VERSION", "1"), Method: env("MARKET_CHECKOUT_METHOD", "card")}
 	return &web.Commerce{Auth: auth(app), Operator: operator(app), Orders: svc, Licenses: lic, FakePay: fakeGW,
-		HashSalt: string(dlKey), Cabinet: cab, Files: files}, svc
+		HashSalt: string(dlKey), Cabinet: cab, Files: files, ClientIP: ip.IP}, svc
 }
 
 // auth reads a PocketBase users auth token from the Authorization header.
@@ -231,7 +232,7 @@ func operator(app core.App) func(r *http.Request) (string, bool) {
 
 // yooKassa builds the YooKassa adapter from env (ADR-0025); nil when no
 // shop id is set. Test and live stores differ only in these values.
-func yooKassa(app core.App, publicURL string) *yookassa.Gateway {
+func yooKassa(app core.App, publicURL string, ip clientip.Resolver) *yookassa.Gateway {
 	shop := os.Getenv("MARKET_YOOKASSA_SHOP_ID")
 	if shop == "" {
 		return nil
@@ -239,12 +240,11 @@ func yooKassa(app core.App, publicURL string) *yookassa.Gateway {
 	if publicURL == "" {
 		log.Fatal("MARKET_PUBLIC_URL is required with YooKassa (absolute return URL)")
 	}
-	header := os.Getenv("MARKET_CLIENT_IP_HEADER") // e.g. X-Forwarded-For behind a reverse proxy
 	gw, err := yookassa.New(yookassa.Config{
 		ShopID: shop, SecretKey: os.Getenv("MARKET_YOOKASSA_SECRET_KEY"), BaseURL: os.Getenv("MARKET_YOOKASSA_API_URL"),
 		Receipts: os.Getenv("MARKET_YOOKASSA_RECEIPTS") != "0", RefundReceipts: os.Getenv("MARKET_YOOKASSA_REFUND_RECEIPTS") == "1",
 		VATCode: ru.YooKassaVATCode, CheckIP: os.Getenv("MARKET_YOOKASSA_CHECK_IP") != "0",
-		ClientIP: func(r *http.Request) string { return clientIP(r, header) },
+		ClientIP: ip.IP,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -253,20 +253,22 @@ func yooKassa(app core.App, publicURL string) *yookassa.Gateway {
 	return gw
 }
 
-// clientIP is the request address; behind a reverse proxy the first entry
-// of the configured forwarded header.
-func clientIP(r *http.Request, header string) string {
-	if header != "" {
-		if v := r.Header.Get(header); v != "" {
-			first, _, _ := strings.Cut(v, ",")
-			return strings.TrimSpace(first)
-		}
-	}
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
+// clientIPResolver reads MARKET_CLIENT_IP_HEADER and MARKET_TRUSTED_PROXIES:
+// the header is honoured only from the listed proxies, and the rightmost
+// untrusted hop is the client (spoofed left entries are ignored).
+func clientIPResolver(app core.App) clientip.Resolver {
+	trusted, err := clientip.ParsePrefixes(os.Getenv("MARKET_TRUSTED_PROXIES"))
 	if err != nil {
-		return r.RemoteAddr
+		log.Fatal(err)
 	}
-	return host
+	header := os.Getenv("MARKET_CLIENT_IP_HEADER")
+	if header == "" && len(trusted) > 0 {
+		header = "X-Forwarded-For"
+	}
+	if header != "" && len(trusted) == 0 {
+		app.Logger().Warn("MARKET_CLIENT_IP_HEADER is ignored without MARKET_TRUSTED_PROXIES", "header", header)
+	}
+	return clientip.Resolver{Header: header, Trusted: trusted}
 }
 
 // mailSender builds the mail transport from env (ADR-0026). The default

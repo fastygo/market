@@ -38,6 +38,9 @@ type Commerce struct {
 	// Files serves local release files (LocalPresigner URLs); nil when
 	// releases live in S3.
 	Files http.Handler
+	// ClientIP resolves the client address behind trusted proxies
+	// (clientip.Resolver); nil means the direct peer (RemoteAddr).
+	ClientIP func(r *http.Request) string
 }
 
 // CommercePatterns are the phase 1 routes (Go 1.22 ServeMux syntax).
@@ -105,7 +108,7 @@ func (h *Handler) checkout(w http.ResponseWriter, r *http.Request) {
 	req := ordering.CheckoutRequest{
 		StorefrontCode: h.StorefrontCode, BuyerID: buyer.ID, BuyerEmail: buyer.Email,
 		IdempotencyKey: r.Header.Get("Idempotency-Key"), OfferIDs: b.OfferIDs, ProductSlug: b.Product,
-		LicenseType: b.LicenseType, Method: b.Method, IPHash: c.hash(clientIP(r)),
+		LicenseType: b.LicenseType, Method: b.Method, IPHash: c.hash(c.clientIP(r)),
 	}
 	for doc, ver := range b.Consents {
 		req.Consents = append(req.Consents, ordering.Consent{Document: doc, Version: ver})
@@ -292,7 +295,7 @@ func (h *Handler) dl(w http.ResponseWriter, r *http.Request) {
 		h.notice(w, r, http.StatusNotFound, "ui.error.not_found")
 		return
 	}
-	url, err := c.Licenses.Resolve(r.Context(), r.PathValue("token"), c.hash(clientIP(r)), c.hash(r.UserAgent()))
+	url, err := c.Licenses.Resolve(r.Context(), r.PathValue("token"), c.hash(c.clientIP(r)), c.hash(r.UserAgent()))
 	switch {
 	case errors.Is(err, licensing.ErrTokenExpired):
 		h.notice(w, r, http.StatusGone, "ui.product.download_expired")
@@ -317,7 +320,10 @@ func (c *Commerce) hash(s string) string {
 	return hex.EncodeToString(sum[:12])
 }
 
-func clientIP(r *http.Request) string {
+func (c *Commerce) clientIP(r *http.Request) string {
+	if c.ClientIP != nil {
+		return c.ClientIP(r)
+	}
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return r.RemoteAddr

@@ -10,6 +10,7 @@ import (
 	"github.com/fastygo/market/internal/payments"
 	"github.com/fastygo/market/internal/payments/yookassa"
 	"github.com/fastygo/market/internal/payments/yookassa/yktest"
+	"github.com/fastygo/market/internal/platform/clientip"
 	"github.com/fastygo/market/internal/platform/money"
 	"github.com/fastygo/market/internal/platform/tx"
 	"github.com/fastygo/market/internal/region/ru"
@@ -208,5 +209,35 @@ func TestAmounts(t *testing.T) {
 		if err != nil || back != c.m {
 			t.Fatalf("%v -> %v %v", a, back, err)
 		}
+	}
+}
+
+// TestWebhookBehindProxy: behind the edge the IP allowlist sees the
+// client address resolved by clientip; a spoofed X-Forwarded-For entry
+// (YooKassa address prepended by the sender) does not pass.
+func TestWebhookBehindProxy(t *testing.T) {
+	f := yktest.New()
+	edge, _ := clientip.ParsePrefixes("10.10.40.10/32")
+	res := clientip.Resolver{Header: "X-Forwarded-For", Trusted: edge}
+	g := gateway(t, f, func(c *yookassa.Config) { c.CheckIP, c.ClientIP = true, res.IP })
+	p := create(t, g)
+	good := `{"type":"notification","event":"payment.succeeded","object":{"id":"` + p.ProviderPaymentID + `","status":"succeeded"}}`
+	send := func(remote string, xff ...string) error {
+		r := httptest.NewRequest("POST", "/hooks/pay/yookassa", strings.NewReader(good))
+		r.RemoteAddr = remote
+		for _, v := range xff {
+			r.Header.Add("X-Forwarded-For", v)
+		}
+		_, err := g.ParseWebhook(context.Background(), r)
+		return err
+	}
+	if err := send("10.10.40.10:1234", "185.71.76.5"); err != nil {
+		t.Fatalf("yookassa through edge: %v", err)
+	}
+	if err := send("10.10.40.10:1234", "185.71.76.5, 203.0.113.9"); !errors.Is(err, payments.ErrInvalidSignature) {
+		t.Fatalf("spoofed leftmost hop accepted: %v", err)
+	}
+	if err := send("203.0.113.9:1234", "185.71.76.5"); !errors.Is(err, payments.ErrInvalidSignature) {
+		t.Fatalf("header from an untrusted peer accepted: %v", err)
 	}
 }
