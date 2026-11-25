@@ -7,9 +7,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/tools/types"
 
 	"github.com/fastygo/market/internal/catalog"
 	"github.com/fastygo/market/internal/platform/money"
@@ -89,6 +91,19 @@ func (c *Catalog) Products(ctx context.Context, currency string, f catalog.Filte
 		q += ` AND c.slug = {:cat}`
 		params["cat"] = f.Category
 	}
+	if f.Seller != "" {
+		q += ` AND s.slug = {:seller}`
+		params["seller"] = f.Seller
+	}
+	if f.Exclude != "" {
+		q += ` AND p.slug != {:exclude}`
+		params["exclude"] = f.Exclude
+	}
+	if like := likePattern(f.Query); like != "" {
+		q += ` AND (p.title LIKE {:q} ESCAPE '\' OR p.excerpt LIKE {:q} ESCAPE '\'
+			OR s.display_name LIKE {:q} ESCAPE '\' OR c.title LIKE {:q} ESCAPE '\')`
+		params["q"] = like
+	}
 	q += ` ORDER BY p.published_at DESC, p.created DESC`
 	limit := f.Limit
 	if limit <= 0 || limit > 100 {
@@ -165,4 +180,56 @@ func (c *Catalog) Storefront(ctx context.Context, code string) (storefront.Store
 		Code: rec.GetString("code"), BrandName: brand.Name, Skin: brand.Skin, Currency: rec.GetString("currency"),
 		DefaultLocale: rec.GetString("default_locale"), CommerceMode: rec.GetString("commerce_mode"), Brand: brand,
 	}, nil
+}
+
+// likePattern is a LIKE pattern for a search query (case-insensitive for
+// ASCII in SQLite); "" for an empty query. FTS5 replaces it later
+// (ADR-0020 discovery).
+func likePattern(q string) string {
+	q = strings.TrimSpace(q)
+	if q == "" {
+		return ""
+	}
+	if len(q) > 100 {
+		q = q[:100]
+	}
+	r := strings.NewReplacer(`\`, `\\`, "%", `\%`, "_", `\_`)
+	return "%" + r.Replace(q) + "%"
+}
+
+// Seller loads an active seller's public profile by slug (ADR-0020); other
+// statuses are not public yet and read as not found.
+func (c *Catalog) Seller(ctx context.Context, slug string) (catalog.Seller, error) {
+	var r struct {
+		ID          string `db:"id"`
+		Slug        string `db:"slug"`
+		DisplayName string `db:"display_name"`
+		Headline    string `db:"headline"`
+		Bio         string `db:"bio"`
+		Avatar      string `db:"avatar"`
+		Website     string `db:"website"`
+		JoinedAt    string `db:"joined_at"`
+		Items       int    `db:"items"`
+	}
+	err := c.App.DB().NewQuery(`SELECT s.id, s.slug, s.display_name, s.headline, s.bio, s.avatar, s.website, s.joined_at,
+		(SELECT COUNT(*) FROM products p WHERE p.seller = s.id AND p.status = 'published') AS items
+		FROM sellers s WHERE s.slug = {:slug} AND s.status = 'active' LIMIT 1`).WithContext(ctx).
+		Bind(dbx.Params{"slug": slug}).One(&r)
+	if errors.Is(err, sql.ErrNoRows) {
+		return catalog.Seller{}, catalog.ErrNotFound
+	}
+	if err != nil {
+		return catalog.Seller{}, fmt.Errorf("catalog: seller: %w", err)
+	}
+	out := catalog.Seller{ID: r.ID, Slug: r.Slug, DisplayName: r.DisplayName, Headline: r.Headline, Bio: r.Bio,
+		Website: r.Website, ItemsCount: r.Items}
+	if dt, err := types.ParseDateTime(r.JoinedAt); err == nil {
+		out.JoinedAt = dt.Time()
+	}
+	if r.Avatar != "" {
+		if col, err := c.App.FindCachedCollectionByNameOrId("sellers"); err == nil {
+			out.AvatarURL = "/api/files/" + col.Id + "/" + r.ID + "/" + r.Avatar
+		}
+	}
+	return out, nil
 }

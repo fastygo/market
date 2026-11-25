@@ -6,6 +6,7 @@ package catalog
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/fastygo/market/internal/platform/money"
 )
@@ -40,9 +41,27 @@ type Product struct {
 	HasOffer    bool
 }
 
+// Seller is the public author profile (ADR-0020): only `display_name`
+// and public profile fields, never legal data. Only `active` sellers are
+// public.
+type Seller struct {
+	ID          string
+	Slug        string
+	DisplayName string
+	Headline    string
+	Bio         string // plain text, paragraphs on blank lines
+	AvatarURL   string
+	Website     string
+	JoinedAt    time.Time
+	ItemsCount  int // published products
+}
+
 // Filter narrows a product list.
 type Filter struct {
 	Category string
+	Seller   string // seller slug
+	Query    string // search in title, excerpt, category and author name
+	Exclude  string // product slug left out (more from this author)
 	Limit    int
 }
 
@@ -52,4 +71,6 @@ type Reader interface {
 	Category(ctx context.Context, slug string) (Category, error)
 	Products(ctx context.Context, currency string, f Filter) ([]Product, error)
 	Product(ctx context.Context, currency, slug string) (Product, error)
+	// Seller loads an active seller's public profile by slug.
+	Seller(ctx context.Context, slug string) (Seller, error)
 }

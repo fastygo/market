@@ -86,3 +86,94 @@ func TestUpgradeKeepsEditedBrand(t *testing.T) {
 		t.Fatalf("operator brand overwritten: %v", b)
 	}
 }
+
+// downgradeSellers puts the sellers schema and GoDudY back to the state
+// before 1764000007 (production on 2026-11-25): no profile fields, the
+// old status list, GoDudY `draft`, plus one product with a dangling seller.
+func downgradeSellers(t *testing.T, app core.App, status string) {
+	t.Helper()
+	col, err := app.FindCollectionByNameOrId("sellers")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range []string{"headline", "bio", "avatar", "website", "joined_at"} {
+		col.Fields.RemoveByName(f)
+	}
+	col.Fields.GetByName("status").(*core.SelectField).Values = []string{"draft", "pending_review", "active", "suspended"}
+	if err := app.Save(col); err != nil {
+		t.Fatal(err)
+	}
+	s, err := app.FindFirstRecordByData("sellers", "slug", "godudy")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s.Set("status", status)
+	if err := app.Save(s); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := app.DB().NewQuery("UPDATE products SET seller = 'gone' WHERE slug = 'forms-lite'").Execute(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestFreshDatabaseHasGoDudYSeller(t *testing.T) {
+	app := pbtest.New(t)
+	s, err := app.FindFirstRecordByData("sellers", "slug", "godudy")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s.GetString("status") != "active" || s.GetString("display_name") != "GoDudY" || s.GetString("headline") == "" ||
+		s.GetString("bio") == "" || s.GetDateTime("joined_at").IsZero() {
+		t.Fatalf("seller %v", s.FieldsData())
+	}
+	// ADR-0016: no legal or KYC data in seeds
+	if s.GetString("legal_name") != "" || s.GetString("legal_ids") != "{}" && s.GetString("legal_ids") != "" {
+		t.Fatalf("legal data in seed: %q %q", s.GetString("legal_name"), s.GetString("legal_ids"))
+	}
+	n := 0
+	if err := app.DB().NewQuery("SELECT COUNT(*) FROM products WHERE seller != {:s}").Bind(dbx.Params{"s": s.Id}).Row(&n); err != nil || n != 0 {
+		t.Fatalf("products not linked to GoDudY: %d %v", n, err)
+	}
+}
+
+func TestUpgradeSellerProfiles(t *testing.T) {
+	app := pbtest.New(t)
+	downgradeSellers(t, app, "draft")
+	rerun(t, app, "1764000007_seller_profiles.go")
+	s, err := app.FindFirstRecordByData("sellers", "slug", "godudy")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s.GetString("status") != "active" || s.GetString("headline") == "" || s.GetDateTime("joined_at").IsZero() {
+		t.Fatalf("seller %v", s.FieldsData())
+	}
+	p, err := app.FindFirstRecordByData("products", "slug", "forms-lite")
+	if err != nil || p.GetString("seller") != s.Id {
+		t.Fatalf("dangling product not linked: %v %v", p, err)
+	}
+	// operator edits survive a second run
+	s.Set("headline", "Edited")
+	if err := app.Save(s); err != nil {
+		t.Fatal(err)
+	}
+	rerun(t, app, "1764000007_seller_profiles.go")
+	s, _ = app.FindFirstRecordByData("sellers", "slug", "godudy")
+	if s.GetString("headline") != "Edited" || s.GetString("status") != "active" {
+		t.Fatalf("second run changed the seller: %v", s.FieldsData())
+	}
+	col, _ := app.FindCollectionByNameOrId("sellers")
+	vals := col.Fields.GetByName("status").(*core.SelectField).Values
+	if len(vals) != 7 {
+		t.Fatalf("status values %v", vals)
+	}
+}
+
+func TestUpgradeKeepsSuspendedSeller(t *testing.T) {
+	app := pbtest.New(t)
+	downgradeSellers(t, app, "suspended")
+	rerun(t, app, "1764000007_seller_profiles.go")
+	s, _ := app.FindFirstRecordByData("sellers", "slug", "godudy")
+	if s.GetString("status") != "suspended" {
+		t.Fatalf("status %q", s.GetString("status"))
+	}
+}

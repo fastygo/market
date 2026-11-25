@@ -35,8 +35,11 @@ func TestMigrationsAndSeed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if seller.GetString("status") != "draft" || seller.GetString("legal_name") != "" {
-		t.Errorf("seed seller must be draft without legal data (ADR-0016)")
+	// ADR-0020 slice 1: GoDudY is an active seller with a pseudonymous
+	// public profile and still no legal data (ADR-0016)
+	if seller.GetString("status") != "active" || seller.GetString("legal_name") != "" ||
+		seller.GetString("display_name") != "GoDudY" || seller.GetString("headline") == "" {
+		t.Errorf("seed seller must be active, pseudonymous, without legal data: %v", seller.FieldsData())
 	}
 	// unique (product, license_type, currency) on offers
 	off, err := app.FindFirstRecordByFilter("offers", "license_type = 'regular'")
@@ -77,6 +80,45 @@ func TestCatalogRepository(t *testing.T) {
 	} // product exists, no EUR offer
 	if _, err := repo.Product(ctx, sf.Currency, "missing"); !errors.Is(err, catalog.ErrNotFound) {
 		t.Errorf("missing product: %v", err)
+	}
+	if p.SellerSlug != "godudy" || p.SellerName != "GoDudY" {
+		t.Errorf("product author: %q %q", p.SellerSlug, p.SellerName)
+	}
+
+	// search over title, excerpt, category and author name; LIKE wildcards are literal
+	for q, want := range map[string]int{"aurora": 1, "THEME": 2, "godudy": 6, "plugins": 2, "%": 0, "_": 0, "  ": 6} {
+		got, err := repo.Products(ctx, sf.Currency, catalog.Filter{Query: q})
+		if err != nil || len(got) != want {
+			t.Errorf("query %q: %d products, want %d (%v)", q, len(got), want, err)
+		}
+	}
+	more, _ := repo.Products(ctx, sf.Currency, catalog.Filter{Seller: "godudy", Exclude: "aurora-theme", Limit: 3})
+	if len(more) != 3 {
+		t.Errorf("more from author: %d", len(more))
+	}
+	for _, m := range more {
+		if m.Slug == "aurora-theme" {
+			t.Error("excluded product listed")
+		}
+	}
+	if none, _ := repo.Products(ctx, sf.Currency, catalog.Filter{Seller: "nobody"}); len(none) != 0 {
+		t.Errorf("unknown seller: %d", len(none))
+	}
+
+	s, err := repo.Seller(ctx, "godudy")
+	if err != nil || s.DisplayName != "GoDudY" || s.ItemsCount != 6 || s.JoinedAt.IsZero() || s.Bio == "" {
+		t.Fatalf("seller: %+v %v", s, err)
+	}
+	if _, err := repo.Seller(ctx, "missing"); !errors.Is(err, catalog.ErrNotFound) {
+		t.Errorf("missing seller: %v", err)
+	}
+	rec, _ := app.FindFirstRecordByData("sellers", "slug", "godudy")
+	rec.Set("status", "suspended")
+	if err := app.Save(rec); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := repo.Seller(ctx, "godudy"); !errors.Is(err, catalog.ErrNotFound) {
+		t.Errorf("suspended seller must not have a public profile: %v", err)
 	}
 }
 

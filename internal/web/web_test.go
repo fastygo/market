@@ -37,6 +37,14 @@ func (f fake) Category(_ context.Context, slug string) (catalog.Category, error)
 func (f fake) Products(context.Context, string, catalog.Filter) ([]catalog.Product, error) {
 	return f.products, nil
 }
+func (f fake) Seller(_ context.Context, slug string) (catalog.Seller, error) {
+	if slug == "seller" {
+		return catalog.Seller{ID: "s1", Slug: "seller", DisplayName: "Seller", Headline: "Seller headline",
+			Bio: "First paragraph.\n\nSecond paragraph.", ItemsCount: len(f.products),
+			JoinedAt: time.Date(2026, 11, 1, 0, 0, 0, 0, time.UTC)}, nil
+	}
+	return catalog.Seller{}, catalog.ErrNotFound
+}
 func (f fake) Product(_ context.Context, _ string, slug string) (catalog.Product, error) {
 	for _, p := range f.products {
 		if p.Slug == slug {
