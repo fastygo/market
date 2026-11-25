@@ -1,8 +1,9 @@
 # ADR-0029: Semantic class names generated at build time (no runtime class merge)
 
 - Status: Accepted (owner t367u, 2026-11-25): path 1 implemented (kit
-  compositions and organisms semantic; primitives still merge), see
-  "Outcome: path 1". Proposed design: owner t363u-t365u.
+  compositions and organisms semantic), then path 2 (primitives join;
+  owner approval 2026-11-25), see "Outcome: path 1" and "Outcome: path 2".
+  Proposed design: owner t363u-t365u.
   Builds on ADR-0010 (SSR templ on UI8Kit), ADR-0018 (skins, white label),
   `.project/loadtest/2026-11-25.md` and `slo.md`.
 
@@ -355,6 +356,64 @@ not committed): render -56% vs before (-47% vs path 1), allocations
 16 of the 56 points (about 30% of the reachable gain). Path 2 needs an
 option in ui8kit/codegen `runtime/go/utils.go`, a release of the
 generated templ kit and a registry rebuild (owner decision).
+
+## Outcome: path 2 (implemented 2026-11-25)
+
+Scope: the primitives join too. ui8kit/codegen 3.5.0 (bfa6be3, tag
+v3.5.0) adds `uiutils.SetClassMode` to the templ runtime: in
+`ClassesSemantic` `uiutils.Cn` only joins the non-empty fragments, and
+`uiutils.Compose` (primitives with their own recipe: Icon) keeps merging.
+Default `ClassesUtilities`: output byte-identical, other targets
+unchanged. Chain: npm `@ui8kit/registry@3.5.0` (ui8kit/registry 5bcbcbd)
+-> codegen-x/ui8kit 1d00f63f (`packages/kit/*` on 3.5.0) ->
+ui8kit/site d078c6a (registry.buildy.tw) -> this repo dbb7eee
+(`scripts/ui8kit.sh` installs `utils` too; `internal/web/classes.go`
+calls `uiutils.SetClassMode`).
+
+Not changed: `orgutils.Variant` (one call per card, the media frame
+recipe) keeps merging, because several organism recipes override their
+own base (switcher-item, nav-item-content, icon-tab: a join would keep
+both `px-4` and `px-2`).
+
+### Measurements, before / path 1 / path 2
+
+Go benchmark (`go test -run '^$' -bench BenchmarkRender ./internal/web`,
+dev box, 8 CPUs, 3 runs, 100 cards per list):
+
+| Route | before ms | path 1 ms | path 2 ms | allocs before -> path 2 |
+| --- | --- | --- | --- | --- |
+| `/` | 15.8 | 12.6 | 7.3 (-54%) | 78.4k -> 49.4k (-37%) |
+| `/catalog` | 15.0 | 12.3 | 7.3 (-52%) | 77.1k -> 48.4k (-37%) |
+| `/products/{slug}` | 14.9 | 12.5 | 7.4 (-51%) | 78.8k -> 49.7k (-37%) |
+| `/authors/{slug}` | 14.4 | 12.5 | 7.2 (-50%) | 77.1k -> 48.6k (-37%) |
+
+- Merge calls per page (throw-away counter): primitives 2686-2752 ->
+  8-20 (Icon only); organisms 200 -> 100 (`orgutils.Variant`). CPU
+  profile of `/catalog`: `mergeTailwind` 45% -> 4% (Variant), the join
+  7%.
+- HTML: as path 1 (+0.3%: the join keeps duplicate tokens the merge
+  dropped), for example catalog 267 223 -> 236 686 bytes, gzip 10 373 ->
+  9 852.
+- CSS: unchanged from path 1.
+- Load test (`scripts/loadtest`, 1 CPU, c=16, 20 s, one pass per build
+  on a shared dev box; p95/p99 and DB time are noisy, take the render
+  column and RPS):
+
+| Scenario | RPS before / p1 / p2 | p50 ms before / p2 | render ms/req before / p1 / p2 |
+| --- | --- | --- | --- |
+| home | 249 / 152 / 423 | 58 / 18 | 3.9 / 3.6 / 4.8 |
+| catalog p1 | 49 / 57 / 91 | 305 / 96 | 187 / 138 / 54 |
+| category | 48 / 37 / 94 | 315 / 115 | 190 / 223 / 43 |
+| product | 312 / 275 / 491 | 37 / 22 | 3.0 / 2.3 / 1.9 |
+| author | 195 / 199 / 323 | 78 / 43 | 4.8 / 28.7 / 2.9 |
+| search | 36 / 28 / 53 | 446 / 281 | 265 / 183 / 119 |
+
+  p95 of catalog p1 stayed about 640-690 ms in all three runs (the run
+  is dominated by queueing on one CPU and by noisy neighbours); confirm
+  p95/p99 on a quiet machine or the host before quoting them.
+- Visual parity: the 17 routes of path 1 at 1280 and 390 px plus home,
+  catalog and product in dark mode: 38 of 38 screenshots pixel-identical
+  to the base for path 1 and for path 2.
 
 ## Consequences
 

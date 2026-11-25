@@ -48,7 +48,7 @@ the repo.
 | [0026](adr/0026-mail-transport.md) | Transactional mail: PocketBase mailer (admin SMTP settings) by default, HTTP APIs (Unisender Go, Resend) without SMTP, file mailer for dev | Accepted |
 | [0027](adr/0027-buyer-cabinet.md) | Buyer cabinet: magic link and password sign-in, cookie session, CSRF, SSR checkout | Accepted |
 | [0028](adr/0028-seller-item-authoring-and-content-i18n.md) | Seller item authoring, one account with role-based cabinet, content i18n | Proposed |
-| [0029](adr/0029-semantic-class-names.md) | Semantic `ui-*` and brand class names generated with `@apply` in cascade layers; no runtime class merge | Accepted (path 1) |
+| [0029](adr/0029-semantic-class-names.md) | Semantic `ui-*` and brand class names generated with `@apply` in cascade layers; no runtime class merge | Accepted (paths 1 and 2) |
 
 ADR format: Status, Context, Decision, Consequences. Status values: Proposed,
 Accepted, Superseded. "Accepted" means the direction was confirmed by the
