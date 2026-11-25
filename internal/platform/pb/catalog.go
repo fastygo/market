@@ -8,6 +8,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
@@ -108,10 +110,20 @@ func (c *Catalog) Products(ctx context.Context, currency string, f catalog.Filte
 		q += ` AND p.slug != {:exclude}`
 		params["exclude"] = f.Exclude
 	}
-	if like := likePattern(f.Query); like != "" {
-		q += ` AND (p.title LIKE {:q} ESCAPE '\' OR p.excerpt LIKE {:q} ESCAPE '\'
-			OR s.display_name LIKE {:q} ESCAPE '\' OR c.title LIKE {:q} ESCAPE '\')`
-		params["q"] = like
+	if words, sub := searchMatch(f.Query); strings.TrimSpace(f.Query) != "" && words == "" && sub == "" {
+		q += ` AND 0` // only punctuation: nothing to search for
+	} else if words != "" || sub != "" {
+		// FTS5 (migration 1764000009): word prefixes OR a substring
+		var parts []string
+		if words != "" {
+			parts = append(parts, `SELECT id FROM products_fts WHERE products_fts MATCH {:qw}`)
+			params["qw"] = words
+		}
+		if sub != "" {
+			parts = append(parts, `SELECT id FROM products_fts_tri WHERE products_fts_tri MATCH {:qs}`)
+			params["qs"] = sub
+		}
+		q += ` AND p.id IN (` + strings.Join(parts, " UNION ") + `)`
 	}
 	q += ` ORDER BY p.published_at DESC, p.created DESC`
 	limit := f.Limit
@@ -191,19 +203,33 @@ func (c *Catalog) Storefront(ctx context.Context, code string) (storefront.Store
 	}, nil
 }
 
-// likePattern is a LIKE pattern for a search query (case-insensitive for
-// ASCII in SQLite); "" for an empty query. FTS5 replaces it later
-// (ADR-0020 discovery).
-func likePattern(q string) string {
-	q = strings.TrimSpace(q)
+// searchMatch builds the FTS5 queries for a storefront search: words is
+// every token as a quoted prefix term ("dash"* "кабин"*, all must match,
+// any order) for products_fts; sub is the whole query as one quoted
+// phrase for the trigram table (a substring, like LIKE '%q%'), only when
+// it has 3+ characters (trigram cannot match shorter strings). Quotes are
+// doubled, so user input is never FTS5 syntax.
+func searchMatch(q string) (words, sub string) {
+	q = strings.ToValidUTF8(strings.TrimSpace(q), "")
+	if r := []rune(q); len(r) > 100 {
+		q = string(r[:100])
+	}
 	if q == "" {
-		return ""
+		return "", ""
 	}
-	if len(q) > 100 {
-		q = q[:100]
+	quote := func(s string) string { return `"` + strings.ReplaceAll(s, `"`, `""`) + `"` }
+	var terms []string
+	for _, tok := range strings.Fields(q) {
+		if strings.IndexFunc(tok, func(r rune) bool { return unicode.IsLetter(r) || unicode.IsDigit(r) }) < 0 {
+			continue // punctuation only: no token for unicode61
+		}
+		terms = append(terms, quote(tok)+"*")
 	}
-	r := strings.NewReplacer(`\`, `\\`, "%", `\%`, "_", `\_`)
-	return "%" + r.Replace(q) + "%"
+	words = strings.Join(terms, " ")
+	if utf8.RuneCountInString(q) >= 3 {
+		sub = quote(q)
+	}
+	return words, sub
 }
 
 // Seller loads an active seller's public profile by slug (ADR-0020); other

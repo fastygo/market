@@ -29,7 +29,7 @@ import (
 	"github.com/fastygo/market/internal/mail/pbmail"
 	"github.com/fastygo/market/internal/mail/resend"
 	"github.com/fastygo/market/internal/mail/unisender"
-	_ "github.com/fastygo/market/internal/migrations"
+	"github.com/fastygo/market/internal/migrations"
 	"github.com/fastygo/market/internal/modules"
 	"github.com/fastygo/market/internal/notify"
 	"github.com/fastygo/market/internal/ordering"
@@ -207,6 +207,11 @@ func main() {
 		}
 		if err := pb.OptimizeDB(se.App); err != nil {
 			se.App.Logger().Warn("db optimize", "err", err)
+		}
+		// FTS5 search index: re-create missing triggers, rebuild if out of
+		// sync (e.g. rowids renumbered by a VACUUM INTO backup restore)
+		if err := migrations.EnsureProductSearch(se.App, false); err != nil {
+			return err
 		}
 		cron("market_db_optimize", "17 * * * *", func() {
 			if err := pb.OptimizeDB(se.App); err != nil {
