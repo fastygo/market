@@ -9,7 +9,7 @@ all: generate css build test
 generate:            ## templ -> *_templ.go (app screens and the installed kit, from the repo root)
 	$(TEMPL) generate
 
-SKINS ?= default godudy
+SKINS ?= default godudy storeee
 
 css:                 ## Tailwind v4: one stylesheet per skin -> internal/web/static/skins/<skin>.css (needs npm ci once)
 	for s in $(SKINS); do npx --no-install tailwindcss -i ui/styles/entries/$$s.css -o internal/web/static/skins/$$s.css --minify || exit 1; done

@@ -27,7 +27,8 @@ Production layout and every variable with comments:
 
 ## Environment variables (names only)
 
-- Core: `MARKET_STOREFRONT`, `MARKET_PUBLIC_URL`, `MARKET_TRUSTED_PROXIES`,
+- Core: `MARKET_STOREFRONT`, `MARKET_PUBLIC_URL` (alias `MARKET_BASE_URL`;
+  also canonical, `og:url` and JSON-LD links), `MARKET_TRUSTED_PROXIES`,
   `MARKET_CLIENT_IP_HEADER`, `MARKET_PAYMENT_TIMEOUT`, `MARKET_TERMS_VERSION`,
   `MARKET_CHECKOUT_METHOD`, `MARKET_DEV`, `GOMEMLIMIT`.
 - Secrets (32+ characters, different from each other):
@@ -44,7 +45,8 @@ Production is any start without `MARKET_FAKE_GATEWAY=1` or `MARKET_DEV=1`.
 
 - `MARKET_SESSION_SECRET` or `MARKET_DOWNLOAD_SECRET` is missing, shorter
   than 32 characters, or both are equal;
-- `MARKET_PUBLIC_URL` is missing, not `https`, or has a path;
+- `MARKET_PUBLIC_URL` (alias `MARKET_BASE_URL`) is missing, not `https`, or
+  has a path, or both are set to different values;
 - `MARKET_TRUSTED_PROXIES` has a bad CIDR, or `MARKET_CLIENT_IP_HEADER` is set
   without it;
 - `MARKET_S3_ENDPOINT` is set but region, bucket, keys or prefix are

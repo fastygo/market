@@ -109,7 +109,8 @@ func main() {
 			}
 			return sf.BrandName
 		})
-		h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: code, Dict: en, Log: se.App.Logger(), Commerce: commerce})
+		h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: code, Dict: en, Log: se.App.Logger(), Commerce: commerce,
+			BaseURL: cfg.PublicURL})
 		wrapped := apis.WrapStdHandler(h)
 		for _, p := range web.AllPatterns() {
 			method, path, _ := strings.Cut(p, " ")

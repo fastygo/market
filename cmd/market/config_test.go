@@ -134,3 +134,21 @@ func TestProductionErrorHasNoDevWarnings(t *testing.T) {
 		t.Fatal(err, c.Warnings)
 	}
 }
+
+func TestBaseURLAlias(t *testing.T) {
+	e := prodEnv(t)
+	delete(e, "MARKET_PUBLIC_URL")
+	e["MARKET_BASE_URL"] = "https://market.example.com/"
+	c, err := loadConfig(envOf(e), t.TempDir())
+	if err != nil || c.PublicURL != "https://market.example.com" {
+		t.Fatal(c.PublicURL, err)
+	}
+	e["MARKET_PUBLIC_URL"] = "https://market.example.com"
+	if c, err := loadConfig(envOf(e), t.TempDir()); err != nil || c.PublicURL != "https://market.example.com" {
+		t.Fatal("same value in both must pass", err)
+	}
+	e["MARKET_PUBLIC_URL"] = "https://other.example.com"
+	if _, err := loadConfig(envOf(e), t.TempDir()); err == nil || !strings.Contains(err.Error(), "differ") {
+		t.Fatal("different values must fail", err)
+	}
+}

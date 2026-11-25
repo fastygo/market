@@ -9,6 +9,7 @@ import (
 
 	"github.com/fastygo/market/internal/catalog"
 	"github.com/fastygo/market/internal/i18n"
+	"github.com/fastygo/market/internal/storefront"
 )
 
 // Shell is the data every page needs: dictionary, brand and navigation.
@@ -21,6 +22,18 @@ type Shell struct {
 	Current    string // "home" | "catalog"
 	CSSHref    string
 	Categories []catalog.Category
+	// BrandInfo is the storefront brand config (ADR-0020): tagline,
+	// short name, alternate names, og image.
+	BrandInfo storefront.Brand
+	// BaseURL is the public origin (no trailing slash); empty in
+	// development, then canonical, og:url and absolute JSON-LD ids are
+	// omitted.
+	BaseURL string
+	Path    string // request path, for the canonical link
+	// Description overrides the meta description (default ui.meta.description).
+	Description string
+	// JSONLD is the schema.org graph of the page (nil: none).
+	JSONLD any
 }
 
 // T resolves a dictionary key.
@@ -28,9 +41,66 @@ func (s Shell) T(key string) string { return s.Dict.T(key) }
 
 func (s Shell) pageTitle() string {
 	if s.Title == "" || s.Title == s.Brand {
+		if s.BrandInfo.Tagline != "" {
+			return s.Brand + " | " + s.BrandInfo.Tagline
+		}
 		return s.Brand
 	}
 	return s.Title + " | " + s.Brand
+}
+
+// Tagline is the brand tagline (data, ADR-0020).
+func (s Shell) Tagline() string { return s.BrandInfo.Tagline }
+
+func (s Shell) metaDescription() string {
+	if s.Description != "" {
+		return s.Description
+	}
+	return s.T("ui.meta.description")
+}
+
+// abs is an absolute URL on the public origin, or "" without one.
+func (s Shell) abs(path string) string {
+	if s.BaseURL == "" {
+		return ""
+	}
+	return s.BaseURL + path
+}
+
+func (s Shell) canonical() string { return s.abs(s.Path) }
+
+func (s Shell) ogImage() string {
+	img := s.BrandInfo.OGImage
+	if img == "" || strings.HasPrefix(img, "https://") || strings.HasPrefix(img, "http://") {
+		return img
+	}
+	return s.abs(img)
+}
+
+// SiteJSONLD is the schema.org WebSite and Organization graph of the home
+// page, read from the brand config (ADR-0020).
+func SiteJSONLD(s Shell) map[string]any {
+	org := map[string]any{"@type": "Organization", "name": s.Brand}
+	site := map[string]any{"@type": "WebSite", "name": s.Brand}
+	if alt := s.BrandInfo.AlternateNames; len(alt) > 0 {
+		site["alternateName"], org["alternateName"] = alt, alt
+	}
+	if s.BrandInfo.Tagline != "" {
+		org["slogan"] = s.BrandInfo.Tagline
+	}
+	if s.BaseURL != "" {
+		org["@id"], org["url"] = s.BaseURL+"/#organization", s.BaseURL+"/"
+		site["@id"], site["url"] = s.BaseURL+"/#website", s.BaseURL+"/"
+		site["publisher"] = map[string]any{"@id": s.BaseURL + "/#organization"}
+		site["potentialAction"] = map[string]any{
+			"@type": "SearchAction", "target": s.BaseURL + "/catalog?q={search_term_string}",
+			"query-input": "required name=search_term_string",
+		}
+		if s.BrandInfo.Logo != "" {
+			org["logo"] = s.abs(s.BrandInfo.Logo)
+		}
+	}
+	return map[string]any{"@context": "https://schema.org", "@graph": []any{site, org}}
 }
 
 func (s Shell) copyright() string {

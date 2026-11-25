@@ -5,7 +5,11 @@
   commit `fe247e6`, MIT License, UI8Kit). Do not edit.
 - `skins/godudy.css`: GoDudY skin written by the owner (t224u, 2026-11-24),
   kept verbatim except `--spacing: 0.25rem` (owner decision t225u; the
-  original value was 0.24rem, see `.project/plan.md`).
+  original value was 0.24rem, see `.project/plan.md`). Reference skin and
+  GoDudY's look since StorEEE (owner t237u).
+- `skins/storeee.css`: StorEEE Market platform default (ADR-0020, owner
+  t237u): a copy of the `godudy` tokens until the owner provides StorEEE's
+  own tokens and logo (open question G2).
 - `fonts.css`: self-hosted `@font-face` for Istok Web, Fenix and Fira Code
   (SIL OFL 1.1; files in `internal/web/static/fonts/`, latin, latin-ext,
   cyrillic, cyrillic-ext subsets), so the skin needs no runtime CDN.

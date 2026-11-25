@@ -159,13 +159,10 @@ func (c *Catalog) Storefront(ctx context.Context, code string) (storefront.Store
 	if err != nil {
 		return storefront.Storefront{}, fmt.Errorf("storefront %q: %w", code, err)
 	}
-	brand := struct {
-		Name string `json:"name"`
-		Skin string `json:"skin"`
-	}{}
+	var brand storefront.Brand
 	_ = rec.UnmarshalJSONField("brand", &brand)
 	return storefront.Storefront{
 		Code: rec.GetString("code"), BrandName: brand.Name, Skin: brand.Skin, Currency: rec.GetString("currency"),
-		DefaultLocale: rec.GetString("default_locale"), CommerceMode: rec.GetString("commerce_mode"),
+		DefaultLocale: rec.GetString("default_locale"), CommerceMode: rec.GetString("commerce_mode"), Brand: brand,
 	}, nil
 }

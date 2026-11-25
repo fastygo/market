@@ -11,6 +11,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/a-h/templ"
@@ -49,7 +50,11 @@ type Handler struct {
 	Now            func() time.Time
 	Log            *slog.Logger
 	Commerce       *Commerce // phase 1 routes; nil serves the catalog only
-	mux            *http.ServeMux
+	// BaseURL is the public origin for absolute links (canonical, og:url,
+	// JSON-LD): MARKET_PUBLIC_URL or its alias MARKET_BASE_URL, no trailing
+	// slash. Empty (development) omits the absolute links.
+	BaseURL string
+	mux     *http.ServeMux
 }
 
 // New builds the handler and its routes.
@@ -72,7 +77,12 @@ func New(h Handler) *Handler {
 	return &h
 }
 
-func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) { h.mux.ServeHTTP(w, r) }
+type pathKey struct{}
+
+// ServeHTTP keeps the request path in the context for the canonical link.
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	h.mux.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), pathKey{}, r.URL.Path)))
+}
 
 func cacheStatic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -93,9 +103,11 @@ func (h *Handler) shell(ctx context.Context, title, current string) (screens.She
 	if title == "" {
 		title = sf.BrandName
 	}
+	path, _ := ctx.Value(pathKey{}).(string)
 	return screens.Shell{
 		Dict: h.Dict, Lang: h.Dict.Locale, Brand: sf.BrandName, Year: h.Now().Year(),
 		Title: title, Current: current, CSSHref: skinHref(sf.Skin), Categories: cats,
+		BrandInfo: sf.Brand, BaseURL: strings.TrimRight(h.BaseURL, "/"), Path: path,
 	}, sf, nil
 }
 
@@ -146,6 +158,7 @@ func (h *Handler) home(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, r, err)
 		return
 	}
+	s.JSONLD = screens.SiteJSONLD(s)
 	h.render(w, r, http.StatusOK, screens.HomePage(s, ps))
 }
 

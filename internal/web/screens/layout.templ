@@ -16,6 +16,21 @@ templ Layout(s Shell) {
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ s.pageTitle() }</title>
+			<meta name="description" content={ s.metaDescription() }/>
+			<meta property="og:site_name" content={ s.Brand }/>
+			<meta property="og:title" content={ s.pageTitle() }/>
+			<meta property="og:description" content={ s.metaDescription() }/>
+			<meta property="og:type" content="website"/>
+			if s.canonical() != "" {
+				<link rel="canonical" href={ s.canonical() }/>
+				<meta property="og:url" content={ s.canonical() }/>
+			}
+			if s.ogImage() != "" {
+				<meta property="og:image" content={ s.ogImage() }/>
+			}
+			if s.JSONLD != nil {
+				@templ.JSONScript("ld-json", s.JSONLD).WithType("application/ld+json")
+			}
 			<meta name="color-scheme" content="light dark"/>
 			<link rel="stylesheet" href={ s.CSSHref }/>
 			<script>

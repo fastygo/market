@@ -1,0 +1,7 @@
+/* Build entry of the "storeee" skin (ADR-0018): skin first (it imports Tailwind), then the kit CSS.
+   Compiled off-server to internal/web/static/skins/storeee.css by make css. */
+@import "../skins/storeee.css";
+@import "../fonts.css";
+@import "../kit.css";
+@source "../../kit";
+@source "../../../internal/web/screens";

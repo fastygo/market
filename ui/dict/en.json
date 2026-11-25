@@ -7,11 +7,11 @@
     "ui.site.home": "Home",
     "ui.site.catalog": "Catalog",
     "ui.site.theme_dark": "Dark theme",
-    "ui.site.footer_about": "Ready-made sites, themes and extensions. Fast, accessible, no page builders.",
+    "ui.site.footer_about": "A marketplace of digital items from independent authors: themes, plugins and site templates.",
     "ui.site.footer_catalog": "Catalog",
     "ui.site.footer_seller": "Seller",
     "ui.site.rights": "All rights reserved.",
-    "ui.home.lead": "Digital goods: download right after purchase, updates included.",
+    "ui.home.lead": "Themes, plugins and site templates from independent authors. Download right after purchase, updates included.",
     "ui.home.shop_now": "Browse the catalog",
     "ui.home.featured": "Featured products",
     "ui.home.perk_download": "Instant download",
@@ -108,6 +108,7 @@
     "ui.fakepay.pay": "Pay (test card)",
     "ui.fakepay.cancel": "Cancel payment",
     "ui.fakepay.amount": "Amount",
-    "ui.order.status.fulfilled": "Completed"
+    "ui.order.status.fulfilled": "Completed",
+    "ui.meta.description": "Digital items from independent authors: themes, plugins and site templates with instant download and updates."
   }
 }

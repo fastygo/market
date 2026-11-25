@@ -22,7 +22,8 @@ import (
 type fake struct{ products []catalog.Product }
 
 func (f fake) Storefront(context.Context, string) (storefront.Storefront, error) {
-	return storefront.Storefront{Code: "default", BrandName: "Brand", Currency: "RUB", DefaultLocale: "en"}, nil
+	return storefront.Storefront{Code: "default", BrandName: "Brand", Currency: "RUB", DefaultLocale: "en",
+		Brand: storefront.Brand{Name: "Brand", Tagline: "Brand tagline", AlternateNames: []string{"Brnd"}}}, nil
 }
 func (f fake) Categories(context.Context) ([]catalog.Category, error) {
 	return []catalog.Category{{Slug: "themes", Title: "Themes"}}, nil
@@ -45,7 +46,9 @@ func (f fake) Product(_ context.Context, _ string, slug string) (catalog.Product
 	return catalog.Product{}, catalog.ErrNotFound
 }
 
-func handler(t *testing.T) *web.Handler {
+func handler(t *testing.T) *web.Handler { return handlerWith(t, "") }
+
+func handlerWith(t *testing.T, baseURL string) *web.Handler {
 	t.Helper()
 	en, err := i18n.Parse(dict.EN)
 	if err != nil {
@@ -57,7 +60,7 @@ func handler(t *testing.T) *web.Handler {
 		SellerName: "Seller", Price: money.Money{Minor: 150000, Currency: "RUB"}, HasOffer: true,
 	}}}
 	return web.New(web.Handler{Catalog: f, Storefronts: f, StorefrontCode: "default", Dict: en,
-		Now: func() time.Time { return time.Date(2026, 11, 24, 0, 0, 0, 0, time.UTC) }})
+		Now: func() time.Time { return time.Date(2026, 11, 24, 0, 0, 0, 0, time.UTC) }, BaseURL: baseURL})
 }
 
 func get(h http.Handler, path string) *httptest.ResponseRecorder {
@@ -113,5 +116,25 @@ func TestDictionaryCoversScreens(t *testing.T) {
 				t.Errorf("%s: key %s missing in ui/dict/en.json", f, m[1])
 			}
 		}
+	}
+}
+
+// Title, og:site_name and JSON-LD come from the brand config; absolute
+// links only with a base URL (ADR-0020).
+func TestBrandMetaFromConfig(t *testing.T) {
+	body := get(handlerWith(t, "https://market.example.com/"), "/").Body.String()
+	for _, want := range []string{
+		"<title>Brand | Brand tagline</title>", `<meta property="og:site_name" content="Brand">`,
+		`<link rel="canonical" href="https://market.example.com/">`, `type="application/ld+json"`,
+		`"@type":"WebSite"`, `"slogan":"Brand tagline"`, `"alternateName":["Brnd"]`,
+		`"target":"https://market.example.com/catalog?q={search_term_string}"`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("missing %q", want)
+		}
+	}
+	dev := get(handler(t), "/products/p1").Body.String()
+	if strings.Contains(dev, `rel="canonical"`) || !strings.Contains(dev, "<title>Product one | Brand</title>") {
+		t.Error("development: no canonical without a base URL; product title with brand")
 	}
 }

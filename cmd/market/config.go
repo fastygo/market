@@ -26,7 +26,7 @@ const minSecretLen = 32
 // SMTP from the PocketBase admin settings (ADR-0026).
 type config struct {
 	Dev         bool
-	PublicURL   string // no trailing slash
+	PublicURL   string // MARKET_PUBLIC_URL or its alias MARKET_BASE_URL; no trailing slash
 	SessionKey  []byte
 	DownloadKey []byte
 	ClientIP    clientip.Resolver
@@ -75,7 +75,16 @@ func loadConfig(getenv func(string) string, dataDir string) (config, error) {
 		fail("MARKET_SESSION_SECRET and MARKET_DOWNLOAD_SECRET must differ")
 	}
 
+	// MARKET_BASE_URL (ADR-0020 name) is an alias of MARKET_PUBLIC_URL: either
+	// may be set; both set to different values is a configuration error.
 	c.PublicURL = strings.TrimRight(getenv("MARKET_PUBLIC_URL"), "/")
+	if base := strings.TrimRight(getenv("MARKET_BASE_URL"), "/"); base != "" {
+		if c.PublicURL == "" {
+			c.PublicURL = base
+		} else if base != c.PublicURL {
+			hard("MARKET_BASE_URL %q and MARKET_PUBLIC_URL %q differ (MARKET_BASE_URL is an alias; set one of them)", base, c.PublicURL)
+		}
+	}
 	if c.PublicURL == "" {
 		fail("MARKET_PUBLIC_URL is required (https origin, e.g. https://market.example.com)")
 	} else if u, err := url.Parse(c.PublicURL); err != nil || u.Host == "" || (u.Scheme != "https" && u.Scheme != "http") {
