@@ -4,7 +4,6 @@ import (
 	"github.com/fastygo/market/internal/catalog"
 	"github.com/ui8kit/codegen/generated/templ/blocks"
 	"github.com/ui8kit/codegen/generated/templ/compose"
-	uiutils "github.com/ui8kit/codegen/generated/templ/orgutils"
 	"github.com/ui8kit/codegen/generated/templ/ui/box"
 	"github.com/ui8kit/codegen/generated/templ/ui/link"
 	"github.com/ui8kit/codegen/generated/templ/ui/text"
@@ -39,7 +38,7 @@ templ ItemCard(s Shell, p catalog.Product) {
 			}
 			if p.HasOffer {
 				@compose.Text(compose.TextProps{Size: "lg", Weight: "bold", TextProps: text.TextProps{Class: "mt-auto pt-2", Attrs: templ.Attributes{"data-slot": "price"}}}) {
-					{ uiutils.Money(float64(p.Price.Minor), p.Price.Currency) }
+					{ PriceLabel(s, p) }
 				}
 			}
 		}

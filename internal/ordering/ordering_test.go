@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/fastygo/market/internal/payments"
 	"github.com/fastygo/market/internal/platform/money"
 )
 
@@ -184,5 +185,17 @@ func TestRefundDisputeTransitionsAndReverse(t *testing.T) {
 	}
 	if ok, _ := Completable(true, []ProductState{{Status: "published", HasPublishedRel: true}}); !ok {
 		t.Fatal("published product is completable")
+	}
+}
+
+func TestMissingGateways(t *testing.T) {
+	gws := map[string]payments.Gateway{"yookassa": nil}
+	got := MissingGateways(map[string]string{"card": "yookassa"}, gws)
+	if len(got) != 0 {
+		t.Fatalf("configured provider: %v", got)
+	}
+	got = MissingGateways(map[string]string{"card": "missing", "sbp": "also-missing"}, gws)
+	if len(got) != 2 {
+		t.Fatalf("want 2 warnings, got %v", got)
 	}
 }

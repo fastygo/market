@@ -216,19 +216,41 @@ func (s *Orders) PlaceOrder(ctx context.Context, o ordering.NewOrder) (ordering.
 		if !errors.Is(err, sql.ErrNoRows) {
 			return err
 		}
+		if o.PaidImmediately {
+			for _, l := range o.Lines {
+				var already string
+				err := app.DB().NewQuery(`SELECT o.id FROM entitlements e
+					JOIN order_items i ON i.id = e.order_item
+					JOIN orders o ON o.id = i."order"
+					WHERE e.user = {:u} AND e.product = {:p} AND e.status = 'active'
+					ORDER BY e.granted_at DESC LIMIT 1`).Bind(dbx.Params{"u": o.BuyerID, "p": l.Offer.ProductID}).Row(&already)
+				if err == nil && already != "" {
+					v, err = orderView(app, already)
+					return err
+				}
+				if err != nil && !errors.Is(err, sql.ErrNoRows) {
+					return err
+				}
+			}
+		}
 		year := o.Now.UTC().Format("2006")
 		prefix := o.Storefront.OrderPrefix + "-" + year + "-"
 		n, err := count(app, "SELECT COUNT(*) FROM orders WHERE number LIKE {:p}", dbx.Params{"p": prefix + "%"})
 		if err != nil {
 			return err
 		}
-		ord, err := newRecord(app, "orders", map[string]any{
+		orderFields := map[string]any{
 			"number": fmt.Sprintf("%s%06d", prefix, n+1), "buyer": o.BuyerID, "buyer_email": o.BuyerEmail,
 			"status": string(ordering.OrderPending), "currency": o.Totals.Currency, "storefront": o.Storefront.ID,
 			"region": o.Storefront.Region, "subtotal_minor": o.Totals.Subtotal, "discount_minor": o.Totals.Discount,
 			"tax_minor": o.Totals.Tax, "total_minor": o.Totals.Sum, "tax_display": string(o.Storefront.Display),
 			"idempotency_key": o.OrderKey, "terms_version": o.TermsVersion, "snapshot_digest": o.Digest, "status_version": 0,
-		})
+		}
+		if o.PaidImmediately {
+			orderFields["status"] = string(ordering.OrderPaid)
+			orderFields["paid_at"] = pbDate(o.Now)
+		}
+		ord, err := newRecord(app, "orders", orderFields)
 		if err != nil {
 			return err
 		}
@@ -245,11 +267,17 @@ func (s *Orders) PlaceOrder(ctx context.Context, o ordering.NewOrder) (ordering.
 				return err
 			}
 		}
-		if _, err := newRecord(app, "payments", map[string]any{
+		payFields := map[string]any{
 			"order": ord.Id, "seller": o.SellerID, "provider": o.Provider, "method": o.Method,
 			"status": string(ordering.PaymentCreated), "amount_minor": o.Totals.Sum, "currency": o.Totals.Currency,
 			"idempotency_key": o.PaymentKey, "status_version": 0, "next_reconcile_at": ms(o.Now.Add(10 * time.Minute)),
-		}); err != nil {
+		}
+		if o.PaidImmediately {
+			payFields["status"] = string(ordering.PaymentSucceeded)
+			payFields["provider_payment_id"] = "free"
+			payFields["next_reconcile_at"] = 0
+		}
+		if _, err := newRecord(app, "payments", payFields); err != nil {
 			return err
 		}
 		for _, c := range o.Consents {
@@ -257,6 +285,11 @@ func (s *Orders) PlaceOrder(ctx context.Context, o ordering.NewOrder) (ordering.
 				"user": o.BuyerID, "document": c.Document, "version": c.Version,
 				"accepted_at": pbDate(o.Now), "ip_hash": o.IPHash, "order_key": o.OrderKey,
 			}); err != nil {
+				return err
+			}
+		}
+		if o.PaidImmediately {
+			if _, err := deliveryEffects(app, ord.Id, o.Now); err != nil {
 				return err
 			}
 		}

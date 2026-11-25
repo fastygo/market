@@ -109,6 +109,14 @@ func main() {
 			}
 			return sf.BrandName
 		})
+		if sf, err := svc.Store.Storefront(context.Background(), code); err != nil {
+			se.App.Logger().Warn("storefront for gateway check", "code", code, "err", err)
+		} else {
+			for _, w := range ordering.MissingGateways(sf.Providers, svc.Gateways) {
+				log.Printf("WARNING storefront %s: %s", code, w)
+				se.App.Logger().Warn("storefront method has no gateway", "storefront", code, "detail", w)
+			}
+		}
 		h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: code, Dict: en, Log: se.App.Logger(), Commerce: commerce,
 			BaseURL: cfg.PublicURL})
 		wrapped := apis.WrapStdHandler(h)

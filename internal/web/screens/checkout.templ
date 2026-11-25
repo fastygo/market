@@ -27,27 +27,43 @@ templ BuyForm(s Shell, p catalog.Product, v CheckoutView) {
 				{ s.T(v.ErrorKey) }
 			}
 		}
-		if v.Signed {
+		if IsFree(p) && !v.Signed {
 			@compose.Text(compose.TextProps{Size: "sm", TextProps: text.TextProps{Class: "text-muted-foreground"}}) {
-				{ s.T("ui.checkout.signed_in") }
-				@compose.Inline(compose.InlineProps{TextProps: text.TextProps{Class: "font-semibold text-foreground"}}) {
-					{ v.Email }
-				}
+				{ s.T("ui.checkout.signin_for_free") }
+			}
+			@compose.LinkButton(compose.LinkButtonProps{Size: "lg", LinkProps: link.LinkProps{Href: FreeSignInHref(p.Slug), Class: "gap-2", Attrs: templ.Attributes{"data-action": "signin-free"}}}) {
+				{ s.T("ui.checkout.get_free") }
 			}
 		} else {
-			@blocks.Field(blocks.FieldProps{Label: s.T("ui.checkout.email"), HtmlFor: "buy-email", Hint: s.T("ui.checkout.email_hint")}) {
-				@compose.Input(compose.InputProps{InputProps: input.InputProps{Type: "email", ID: "buy-email", Name: "email", Value: strPtr(v.Email), Required: true, Attrs: templ.Attributes{"autocomplete": "email"}}})
+			if v.Signed {
+				@compose.Text(compose.TextProps{Size: "sm", TextProps: text.TextProps{Class: "text-muted-foreground"}}) {
+					{ s.T("ui.checkout.signed_in") }
+					@compose.Inline(compose.InlineProps{TextProps: text.TextProps{Class: "font-semibold text-foreground"}}) {
+						{ v.Email }
+					}
+				}
+			} else {
+				@blocks.Field(blocks.FieldProps{Label: s.T("ui.checkout.email"), HtmlFor: "buy-email", Hint: s.T("ui.checkout.email_hint")}) {
+					@compose.Input(compose.InputProps{InputProps: input.InputProps{Type: "email", ID: "buy-email", Name: "email", Value: strPtr(v.Email), Required: true, Attrs: templ.Attributes{"autocomplete": "email"}}})
+				}
 			}
-		}
-		@compose.Group(compose.GroupProps{Gap: "2"}) {
-			@compose.Input(compose.InputProps{InputProps: input.InputProps{Type: "checkbox", ID: "buy-terms", Name: "terms", Value: strPtr("1"), Required: true, Class: "size-4"}})
-			@compose.Label(compose.LabelProps{LabelProps: label.LabelProps{For: "buy-terms", Class: "font-normal"}}) {
-				{ s.T("ui.checkout.terms") }
+			@compose.Group(compose.GroupProps{Gap: "2"}) {
+				@compose.Input(compose.InputProps{InputProps: input.InputProps{Type: "checkbox", ID: "buy-terms", Name: "terms", Value: strPtr("1"), Required: true, Class: "size-4"}})
+				@compose.Label(compose.LabelProps{LabelProps: label.LabelProps{For: "buy-terms", Class: "font-normal"}}) {
+					{ s.T("ui.checkout.terms") }
+				}
 			}
-		}
-		@compose.Button(compose.ButtonProps{Size: "lg", ButtonProps: button.ButtonProps{Type: "submit", Class: "gap-2", Attrs: templ.Attributes{"data-action": "buy"}}}) {
-			@icons.LucideIcon(icons.LucideIconProps{Name: "shopping-cart", Size: 20})
-			{ s.T("ui.checkout.buy") + " " + uiutils.Money(float64(p.Price.Minor), p.Price.Currency) }
+			if IsFree(p) {
+				@compose.Button(compose.ButtonProps{Size: "lg", ButtonProps: button.ButtonProps{Type: "submit", Class: "gap-2", Attrs: templ.Attributes{"data-action": "get-free"}}}) {
+					@icons.LucideIcon(icons.LucideIconProps{Name: "download", Size: 20})
+					{ s.T("ui.checkout.get_free") }
+				}
+			} else {
+				@compose.Button(compose.ButtonProps{Size: "lg", ButtonProps: button.ButtonProps{Type: "submit", Class: "gap-2", Attrs: templ.Attributes{"data-action": "buy"}}}) {
+					@icons.LucideIcon(icons.LucideIconProps{Name: "shopping-cart", Size: 20})
+					{ s.T("ui.checkout.buy") + " " + PriceLabel(s, p) }
+				}
+			}
 		}
 	}
 }

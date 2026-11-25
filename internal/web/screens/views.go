@@ -1,11 +1,15 @@
 package screens
 
 import (
+	"net/url"
 	"strings"
 	"time"
 
 	"github.com/fastygo/market/internal/account"
+	"github.com/fastygo/market/internal/catalog"
 	"github.com/fastygo/market/internal/platform/money"
+
+	uiutils "github.com/ui8kit/codegen/generated/templ/orgutils"
 )
 
 // SignInView is the sign-in page state.
@@ -65,3 +69,24 @@ func licenseTitle(s Shell, l string) string {
 }
 
 var _ = account.Order{}
+
+// PriceLabel is the catalog price, or the "Free" label for a 0-amount offer.
+func PriceLabel(s Shell, p catalog.Product) string {
+	if !p.HasOffer {
+		return ""
+	}
+	if p.Price.Minor == 0 {
+		return s.T("ui.checkout.free")
+	}
+	return uiutils.Money(float64(p.Price.Minor), p.Price.Currency)
+}
+
+// IsFree is true when the product has a 0-amount offer.
+func IsFree(p catalog.Product) bool {
+	return p.HasOffer && p.Price.Minor == 0
+}
+
+// FreeSignInHref is the sign-in page with a return to the product.
+func FreeSignInHref(slug string) string {
+	return "/account?next=" + url.QueryEscape("/products/"+slug)
+}

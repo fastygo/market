@@ -337,11 +337,19 @@ func (h *Handler) checkoutForm(w http.ResponseWriter, r *http.Request) {
 		h.render(w, r, http.StatusUnprocessableEntity, screens.ProductPage(s, p, v, author, more))
 	}
 	r.SetPathValue("slug", slug)
+	_, prod, ok := h.loadProduct(w, r)
+	if !ok {
+		return
+	}
+	b, signed := c.buyer(r)
+	if prod.HasOffer && prod.Price.Minor == 0 && !signed {
+		http.Redirect(w, r, "/account?next="+url.QueryEscape("/products/"+slug), http.StatusSeeOther)
+		return
+	}
 	if r.PostFormValue("terms") != "1" {
 		again("ui.checkout.terms_required")
 		return
 	}
-	b, signed := c.buyer(r)
 	if !signed {
 		u, _, err := c.Cabinet.Users.Ensure(r.Context(), r.PostFormValue("email"))
 		if errors.Is(err, account.ErrInvalidEmail) {
@@ -364,7 +372,11 @@ func (h *Handler) checkoutForm(w http.ResponseWriter, r *http.Request) {
 		Consents: []ordering.Consent{{Document: "terms", Version: c.Cabinet.TermsVersion}}, IPHash: c.hash(c.clientIP(r)),
 	})
 	switch {
-	case errors.Is(err, ordering.ErrNotFound), errors.Is(err, ordering.ErrFree), errors.Is(err, ordering.ErrOfferInactive), errors.Is(err, ordering.ErrMethod):
+	case errors.Is(err, ordering.ErrMethod):
+		h.Log.Error("checkout form", "err", err, "method", c.Cabinet.Method, "product", slug)
+		again("ui.checkout.unavailable")
+		return
+	case errors.Is(err, ordering.ErrNotFound), errors.Is(err, ordering.ErrFree), errors.Is(err, ordering.ErrOfferInactive):
 		again("ui.checkout.unavailable")
 		return
 	case err != nil:

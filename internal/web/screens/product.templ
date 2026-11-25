@@ -5,7 +5,6 @@ import (
 	"github.com/ui8kit/codegen/generated/templ/blocks"
 	"github.com/ui8kit/codegen/generated/templ/compose"
 	"github.com/ui8kit/codegen/generated/templ/icons"
-	uiutils "github.com/ui8kit/codegen/generated/templ/orgutils"
 	"github.com/ui8kit/codegen/generated/templ/ui/box"
 	"github.com/ui8kit/codegen/generated/templ/ui/link"
 	"github.com/ui8kit/codegen/generated/templ/ui/text"
@@ -57,7 +56,7 @@ templ ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.S
 						}
 						if p.HasOffer {
 							@compose.Text(compose.TextProps{Size: "3xl", Weight: "semibold", TextProps: text.TextProps{Attrs: templ.Attributes{"data-slot": "price"}}}) {
-								{ uiutils.Money(float64(p.Price.Minor), p.Price.Currency) }
+								{ PriceLabel(s, p) }
 							}
 						}
 						if p.Excerpt != "" {

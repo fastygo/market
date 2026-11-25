@@ -12,7 +12,6 @@ import (
 	"github.com/fastygo/market/internal/catalog"
 	"github.com/ui8kit/codegen/generated/templ/blocks"
 	"github.com/ui8kit/codegen/generated/templ/compose"
-	uiutils "github.com/ui8kit/codegen/generated/templ/orgutils"
 	"github.com/ui8kit/codegen/generated/templ/ui/box"
 	"github.com/ui8kit/codegen/generated/templ/ui/link"
 	"github.com/ui8kit/codegen/generated/templ/ui/text"
@@ -104,7 +103,7 @@ func ItemCard(s Shell, p catalog.Product) templ.Component {
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(p.Category.Title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 24, Col: 23}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 23, Col: 23}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -148,7 +147,7 @@ func ItemCard(s Shell, p catalog.Product) templ.Component {
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 29, Col: 14}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 28, Col: 14}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -182,7 +181,7 @@ func ItemCard(s Shell, p catalog.Product) templ.Component {
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.by") + " ")
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 34, Col: 33}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 33, Col: 33}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -203,7 +202,7 @@ func ItemCard(s Shell, p catalog.Product) templ.Component {
 							var templ_7745c5c3_Var13 string
 							templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(p.SellerName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 36, Col: 20}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 35, Col: 20}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 							if templ_7745c5c3_Err != nil {
@@ -240,9 +239,9 @@ func ItemCard(s Shell, p catalog.Product) templ.Component {
 						}
 						ctx = templ.InitializeContext(ctx)
 						var templ_7745c5c3_Var15 string
-						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(uiutils.Money(float64(p.Price.Minor), p.Price.Currency))
+						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(PriceLabel(s, p))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 42, Col: 62}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 41, Col: 23}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {

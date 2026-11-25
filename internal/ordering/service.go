@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/fastygo/market/internal/mail"
@@ -56,6 +57,9 @@ type NewOrder struct {
 	IPHash       string
 	Digest       string
 	Now          time.Time
+	// PaidImmediately writes the order as paid with delivery effects and
+	// no payment provider (0-amount / free checkout).
+	PaidImmediately bool
 }
 
 // OrderView is an order with its current payment.
@@ -171,11 +175,13 @@ var (
 	ErrIdempotencyKey = errors.New("ordering: Idempotency-Key is required")
 	ErrMethod         = errors.New("ordering: payment method is not enabled")
 	ErrConsent        = errors.New("ordering: required consent missing")
-	ErrFree           = errors.New("ordering: free products are delivered without checkout (phase 2)")
-	ErrMultiSeller    = errors.New("ordering: one seller per order in phase 1")
-	ErrNotFound       = errors.New("ordering: not found")
-	ErrNotRefundable  = errors.New("ordering: order cannot be refunded in its current state")
-	ErrReason         = errors.New("ordering: unknown refund reason code")
+	// ErrFree is retained for callers that still switch on it; Checkout
+	// no longer returns it (a 0-amount cart is granted immediately).
+	ErrFree          = errors.New("ordering: free products are delivered without checkout (phase 2)")
+	ErrMultiSeller   = errors.New("ordering: one seller per order in phase 1")
+	ErrNotFound      = errors.New("ordering: not found")
+	ErrNotRefundable = errors.New("ordering: order cannot be refunded in its current state")
+	ErrReason        = errors.New("ordering: unknown refund reason code")
 )
 
 // Outbox topics handled by the service itself.
@@ -237,13 +243,6 @@ func (s *Service) Checkout(ctx context.Context, req CheckoutRequest) (OrderView,
 	if err != nil {
 		return OrderView{}, err
 	}
-	provider, ok := sf.Providers[req.Method]
-	if !ok {
-		return OrderView{}, ErrMethod
-	}
-	if _, err := s.gateway(provider); err != nil {
-		return OrderView{}, err
-	}
 	terms := ""
 	for _, doc := range s.RequiredConsents {
 		found := false
@@ -297,7 +296,14 @@ func (s *Service) Checkout(ctx context.Context, req CheckoutRequest) (OrderView,
 		return OrderView{}, err
 	}
 	if tot.Sum == 0 {
-		return OrderView{}, ErrFree
+		return s.checkoutFree(ctx, req, sf, offers, lines, tot, terms, now)
+	}
+	provider, ok := sf.Providers[req.Method]
+	if !ok {
+		return OrderView{}, ErrMethod
+	}
+	if _, err := s.gateway(provider); err != nil {
+		return OrderView{}, err
 	}
 	orderKey := req.BuyerID + ":" + req.IdempotencyKey
 	v, err := s.Store.PlaceOrder(ctx, NewOrder{
@@ -310,6 +316,40 @@ func (s *Service) Checkout(ctx context.Context, req CheckoutRequest) (OrderView,
 		return OrderView{}, err
 	}
 	return s.ensurePayment(ctx, v)
+}
+
+// checkoutFree places a paid 0-amount order and grants the entitlement
+// without a payment gateway. The idempotency key is derived from the
+// buyer and product so repeated clicks do not create more orders.
+func (s *Service) checkoutFree(ctx context.Context, req CheckoutRequest, sf Storefront, offers []Offer, lines []Line, tot Totals, terms string, now time.Time) (OrderView, error) {
+	if req.BuyerID == "" {
+		return OrderView{}, ErrFree
+	}
+	lt := offers[0].LicenseType
+	if lt == "" {
+		lt = "regular"
+	}
+	orderKey := req.BuyerID + ":free:" + offers[0].ProductID + ":" + lt
+	return s.Store.PlaceOrder(ctx, NewOrder{
+		Storefront: sf, BuyerID: req.BuyerID, BuyerEmail: req.BuyerEmail, OrderKey: orderKey,
+		PaymentKey: "pay:" + orderKey + ":free", Provider: "free", Method: "free",
+		SellerID: offers[0].SellerID, Lines: lines, Totals: tot, TermsVersion: terms,
+		Consents: req.Consents, IPHash: req.IPHash, Digest: Digest(lines, tot), Now: now,
+		PaidImmediately: true,
+	})
+}
+
+// MissingGateways reports storefront methods whose provider has no
+// configured gateway (start-up warning; checkout of paid items will fail).
+func MissingGateways(methods map[string]string, gateways map[string]payments.Gateway) []string {
+	var out []string
+	for method, provider := range methods {
+		if _, ok := gateways[provider]; !ok {
+			out = append(out, "method "+method+" maps to provider "+provider+", but no gateway is configured")
+		}
+	}
+	sort.Strings(out)
+	return out
 }
 
 // ensurePayment runs steps 2 and 3 for an order still waiting for its

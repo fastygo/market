@@ -13,7 +13,6 @@ import (
 	"github.com/ui8kit/codegen/generated/templ/blocks"
 	"github.com/ui8kit/codegen/generated/templ/compose"
 	"github.com/ui8kit/codegen/generated/templ/icons"
-	uiutils "github.com/ui8kit/codegen/generated/templ/orgutils"
 	"github.com/ui8kit/codegen/generated/templ/ui/box"
 	"github.com/ui8kit/codegen/generated/templ/ui/link"
 	"github.com/ui8kit/codegen/generated/templ/ui/text"
@@ -159,7 +158,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 								var templ_7745c5c3_Var9 string
 								templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 43, Col: 16}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 42, Col: 16}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 								if templ_7745c5c3_Err != nil {
@@ -194,7 +193,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 								var templ_7745c5c3_Var11 string
 								templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.by"))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 47, Col: 29}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 46, Col: 29}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 								if templ_7745c5c3_Err != nil {
@@ -220,7 +219,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 										var templ_7745c5c3_Var13 string
 										templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(p.SellerName)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 50, Col: 23}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 49, Col: 23}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 										if templ_7745c5c3_Err != nil {
@@ -248,7 +247,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 										var templ_7745c5c3_Var15 string
 										templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(p.SellerName)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 54, Col: 23}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 53, Col: 23}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 										if templ_7745c5c3_Err != nil {
@@ -281,9 +280,9 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 									}
 									ctx = templ.InitializeContext(ctx)
 									var templ_7745c5c3_Var17 string
-									templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(uiutils.Money(float64(p.Price.Minor), p.Price.Currency))
+									templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(PriceLabel(s, p))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 60, Col: 65}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 59, Col: 26}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 									if templ_7745c5c3_Err != nil {
@@ -316,7 +315,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 									var templ_7745c5c3_Var19 string
 									templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(p.Excerpt)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 65, Col: 19}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 64, Col: 19}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 									if templ_7745c5c3_Err != nil {
@@ -380,7 +379,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 								var templ_7745c5c3_Var22 string
 								templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.download"))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 75, Col: 35}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 74, Col: 35}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 								if templ_7745c5c3_Err != nil {
@@ -416,7 +415,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 									var templ_7745c5c3_Var24 string
 									templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.preview"))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 80, Col: 35}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 79, Col: 35}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 									if templ_7745c5c3_Err != nil {
@@ -470,7 +469,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 								var templ_7745c5c3_Var27 string
 								templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.instant_download"))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 87, Col: 43}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 86, Col: 43}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 								if templ_7745c5c3_Err != nil {
@@ -505,7 +504,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 								var templ_7745c5c3_Var29 string
 								templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.updates_included"))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 91, Col: 43}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 90, Col: 43}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 								if templ_7745c5c3_Err != nil {
@@ -551,7 +550,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 									var templ_7745c5c3_Var32 string
 									templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.description"))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 97, Col: 39}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 96, Col: 39}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 									if templ_7745c5c3_Err != nil {
@@ -579,7 +578,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 										var templ_7745c5c3_Var34 string
 										templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(para)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 101, Col: 15}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/product.templ`, Line: 100, Col: 15}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 										if templ_7745c5c3_Err != nil {

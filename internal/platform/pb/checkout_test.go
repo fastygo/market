@@ -413,3 +413,48 @@ func TestRuleZeroNoTxDuringProviderCalls(t *testing.T) {
 	}
 	r.effects(t)
 }
+
+func TestCheckoutFreeGrantsImmediately(t *testing.T) {
+	r := newRig(t)
+	r.svc.Gateways = map[string]payments.Gateway{} // no provider at all
+	prod, err := r.app.FindFirstRecordByData("products", "slug", "forms-lite")
+	if err != nil {
+		t.Fatal(err)
+	}
+	off, err := r.app.FindFirstRecordByFilter("offers", "product = {:p}", dbx.Params{"p": prod.Id})
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.offer = off.Id
+	ctx := context.Background()
+	req := r.req("client-key-a")
+	req.Method = "card" // ignored for a free cart
+	v, err := r.svc.Checkout(ctx, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v.Status != ordering.OrderPaid || v.PaymentStatus != ordering.PaymentSucceeded || v.Total.Minor != 0 || v.ConfirmationURL != "" || v.Provider != "free" {
+		t.Fatalf("free checkout: %+v", v)
+	}
+	if e, l, o := r.n(t, "SELECT COUNT(*) FROM entitlements"), r.n(t, "SELECT COUNT(*) FROM ledger_entries"), r.n(t, "SELECT COUNT(*) FROM outbox"); e != 1 || l != 0 || o != 1 {
+		t.Fatalf("free effects: entitlements %d ledger %d outbox %d", e, l, o)
+	}
+	var paidAt string
+	if err := r.app.DB().NewQuery("SELECT paid_at FROM orders WHERE id = {:id}").Bind(dbx.Params{"id": v.OrderID}).Row(&paidAt); err != nil || paidAt == "" {
+		t.Fatalf("paid_at: %q %v", paidAt, err)
+	}
+	// a different client key still returns the same order (stable free key)
+	v2, err := r.svc.Checkout(ctx, r.req("client-key-b"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v2.OrderID != v.OrderID {
+		t.Fatalf("expected one free order, got %s then %s", v.OrderID, v2.OrderID)
+	}
+	if r.n(t, "SELECT COUNT(*) FROM orders") != 1 || r.n(t, "SELECT COUNT(*) FROM entitlements") != 1 {
+		t.Fatal("repeated free checkout created more rows")
+	}
+	if did, err := r.svc.ProcessOutboxOnce(ctx); err != nil || !did || r.emails.Load() != 1 {
+		t.Fatalf("outbox %v %v emails %d", did, err, r.emails.Load())
+	}
+}

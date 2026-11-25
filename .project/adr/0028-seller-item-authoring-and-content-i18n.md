@@ -102,9 +102,9 @@ Phase A (now, operator in `/_/`, single seller GoDudY). Steps per item:
    `published` (immutable afterwards).
 4. `offers`: product, seller, license_type `regular`, price_minor (kopecks,
    for example 290000 = 2 900 RUB), currency `RUB`, tax_category
-   `standard`, support_months, active = true. Price 0 is rejected at
-   checkout today (`ordering.ErrFree`, "phase 2"), so free items cannot be
-   delivered yet.
+   `standard`, support_months, active = true. Price 0 is a signed-in
+   "Get for free" grant: a paid order of amount 0, no payment gateway,
+   then the normal entitlement and download.
 5. `products.status = published` and published_at.
 
 Phase B (seller cabinet, SSR, UI8Kit rules: Block roots, primitives only,
@@ -150,8 +150,7 @@ Envato comparison (author upload):
 - Release archives: private S3 under `MARKET_S3_PREFIX`, never public;
   buyers get signed `/dl` -> pre-signed GET (already built, ADR-0009).
 - Gaps to fix before sellers self-serve: no pre-signed PUT upload; no
-  `gallery` and `tags` fields; free items blocked by `ErrFree` (decide:
-  free download via a zero-price entitlement without payment); no
+  `gallery` and `tags` fields; no
   `seller_members`; no `submissions`; release `storage_key` is free text.
 
 ### 4. Content i18n (second localization)
@@ -206,7 +205,8 @@ locales; a submission covers changed translations too.
 2. Content i18n: translations collection (recommended) or JSON `i18n`
    field; which locale is the source (ru) and the second one (en).
 3. Locale routing: Russian at `/`, English at `/en/` (recommended)?
-4. Free items: allow 0 RUB downloads without payment (needs an
-   entitlement path) or keep paid only.
+4. Free items: decided and implemented. A signed-in buyer can get a
+   0 RUB offer without a payment gateway (paid order, amount 0, entitlement
+   and the normal download). Guests are sent to sign in.
 5. Moderation in `single_store` now: operator publishes directly
    (recommended) or the queue from day one.
