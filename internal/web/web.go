@@ -55,8 +55,40 @@ type Handler struct {
 	// JSON-LD): MARKET_PUBLIC_URL or its alias MARKET_BASE_URL, no trailing
 	// slash. Empty (development) omits the absolute links.
 	BaseURL string
+	// Observe records request, render and DB metrics; nil disables it.
+	Observe Observer
 	mux     *http.ServeMux
 }
+
+// Observer is the metrics port (implemented by platform/metrics): Start
+// wraps a request and returns done, called with the route pattern and the
+// status; Render gets the templ render time alone (data is loaded before).
+type Observer interface {
+	Start(r *http.Request) (*http.Request, func(route string, status int))
+	Render(route string, d time.Duration)
+}
+
+// statusWriter keeps the response status for the metrics.
+type statusWriter struct {
+	http.ResponseWriter
+	code int
+}
+
+func (w *statusWriter) WriteHeader(code int) {
+	if w.code == 0 {
+		w.code = code
+	}
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func (w *statusWriter) Write(b []byte) (int, error) {
+	if w.code == 0 {
+		w.code = http.StatusOK
+	}
+	return w.ResponseWriter.Write(b)
+}
+
+func (w *statusWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
 
 // New builds the handler and its routes.
 func New(h Handler) *Handler {
@@ -83,7 +115,18 @@ type pathKey struct{}
 
 // ServeHTTP keeps the request path in the context for the canonical link.
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.mux.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), pathKey{}, r.URL.Path)))
+	r = r.WithContext(context.WithValue(r.Context(), pathKey{}, r.URL.Path))
+	if h.Observe == nil {
+		h.mux.ServeHTTP(w, r)
+		return
+	}
+	r, done := h.Observe.Start(r)
+	sw := &statusWriter{ResponseWriter: w}
+	h.mux.ServeHTTP(sw, r) // sets r.Pattern
+	if sw.code == 0 {
+		sw.code = http.StatusOK
+	}
+	done(r.Pattern, sw.code)
 }
 
 func cacheStatic(next http.Handler) http.Handler {
@@ -126,7 +169,12 @@ func skinHref(skin string) string {
 
 func (h *Handler) render(w http.ResponseWriter, r *http.Request, status int, c templ.Component) {
 	var buf bytes.Buffer
-	if err := c.Render(r.Context(), &buf); err != nil {
+	start := time.Now()
+	err := c.Render(r.Context(), &buf)
+	if h.Observe != nil {
+		h.Observe.Render(r.Pattern, time.Since(start))
+	}
+	if err != nil {
 		h.fail(w, r, err)
 		return
 	}

@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
@@ -34,6 +35,7 @@ import (
 	"github.com/fastygo/market/internal/payments/fakegw"
 	"github.com/fastygo/market/internal/payments/yookassa"
 	"github.com/fastygo/market/internal/platform/clientip"
+	"github.com/fastygo/market/internal/platform/metrics"
 	"github.com/fastygo/market/internal/platform/pb"
 	"github.com/fastygo/market/internal/region/ru"
 	"github.com/fastygo/market/internal/taxdocs"
@@ -58,6 +60,25 @@ func main() {
 
 	app := pocketbase.NewWithConfig(pocketbase.Config{DBConnect: pb.DBConnect})
 	pb.RegisterGuards(app)
+
+	// metrics (slo.md): statement timers on both SQLite pools, write tx
+	// stats; the endpoint itself is opt-in on a loopback listener
+	met := metrics.New()
+	pb.TxStats, pb.TxLockWait = met.Tx, met.TxLockWait
+	app.OnBootstrap().BindFunc(func(e *core.BootstrapEvent) error {
+		if err := e.Next(); err != nil {
+			return err
+		}
+		pools := map[string]*dbx.DB{}
+		if db, ok := e.App.ConcurrentDB().(*dbx.DB); ok {
+			pools["concurrent"] = db
+		}
+		if db, ok := e.App.NonconcurrentDB().(*dbx.DB); ok {
+			pools["nonconcurrent"] = db
+		}
+		met.InstrumentDB(pools)
+		return nil
+	})
 	migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{Automigrate: false})
 
 	code := env("MARKET_STOREFRONT", "default")
@@ -118,7 +139,18 @@ func main() {
 			}
 		}
 		h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: code, Dict: en, Log: se.App.Logger(), Commerce: commerce,
-			BaseURL: cfg.PublicURL})
+			BaseURL: cfg.PublicURL, Observe: met})
+		if addr := os.Getenv("MARKET_METRICS_ADDR"); addr != "" {
+			srv, err := met.Listen(addr)
+			if err != nil {
+				return err
+			}
+			se.App.Logger().Info("metrics and pprof on loopback", "addr", addr)
+			se.App.OnTerminate().BindFunc(func(e *core.TerminateEvent) error {
+				_ = srv.Close()
+				return e.Next()
+			})
+		}
 		wrapped := apis.WrapStdHandler(h)
 		for _, p := range web.AllPatterns() {
 			method, path, _ := strings.Cut(p, " ")

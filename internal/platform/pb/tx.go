@@ -31,6 +31,11 @@ type txAppKey struct{}
 // spent waiting for the write lock plus running, and the error.
 var TxStats = func(name string, took time.Duration, attempts int, err error) {}
 
+// TxLockWait is called once per attempt with the time from the attempt
+// start to the transaction body: queueing for the single writer
+// connection plus BEGIN IMMEDIATE waiting on busy_timeout.
+var TxLockWait = func(name string, wait time.Duration) {}
+
 // MaxTxAttempts bounds retries of a transaction that failed with SQLITE_BUSY.
 const MaxTxAttempts = 3
 
@@ -47,7 +52,9 @@ func RunTx(ctx context.Context, app core.App, name string, fn func(ctx context.C
 	var err error
 	attempt := 0
 	for attempt = 1; attempt <= MaxTxAttempts; attempt++ {
+		attemptStart := time.Now()
 		err = app.RunInTransaction(func(txApp core.App) error {
+			TxLockWait(name, time.Since(attemptStart))
 			tx.Enter()
 			defer tx.Leave()
 			inner := context.WithValue(tx.Mark(ctx), txAppKey{}, txApp)

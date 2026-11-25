@@ -227,3 +227,31 @@ func TestAuthorRouteIsForwarded(t *testing.T) {
 		t.Error("GET /authors/{slug} missing in web.AllPatterns (PocketBase router)")
 	}
 }
+
+type obs struct {
+	routes  []string
+	codes   []int
+	renders []string
+}
+
+func (o *obs) Start(r *http.Request) (*http.Request, func(string, int)) {
+	return r, func(route string, code int) { o.routes, o.codes = append(o.routes, route), append(o.codes, code) }
+}
+func (o *obs) Render(route string, _ time.Duration) { o.renders = append(o.renders, route) }
+
+func TestObserverGetsRoutePatternAndStatus(t *testing.T) {
+	h := handler(t)
+	o := &obs{}
+	h.Observe = o
+	get(h, "/products/missing")
+	get(h, "/catalog/themes")
+	if want := []string{"GET /products/{slug}", "GET /catalog/{slug}"}; strings.Join(o.routes, ",") != strings.Join(want, ",") {
+		t.Fatalf("routes = %v, want %v", o.routes, want)
+	}
+	if o.codes[0] != http.StatusNotFound || o.codes[1] != http.StatusOK {
+		t.Fatalf("codes = %v", o.codes)
+	}
+	if len(o.renders) != 2 || o.renders[1] != "GET /catalog/{slug}" {
+		t.Fatalf("renders = %v", o.renders)
+	}
+}
