@@ -49,3 +49,55 @@ func TestPathStyleAndValidation(t *testing.T) {
 		t.Fatal("ttl over 7 days must fail")
 	}
 }
+
+func TestPrefix(t *testing.T) {
+	p := awsDoc
+	p.Endpoint, p.PathStyle, p.Prefix = "https://s3.example.com", true, "storeee/"
+	u, err := p.PresignGet(context.Background(), "releases/aurora-1.0.0.zip", 5*time.Minute)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pu, _ := url.Parse(u)
+	if pu.EscapedPath() != "/examplebucket/storeee/releases/aurora-1.0.0.zip" {
+		t.Fatal(u)
+	}
+	// the prefix is part of the signed path: same key without the prefix
+	// signs differently
+	p2 := p
+	p2.Prefix = ""
+	u2, _ := p2.PresignGet(context.Background(), "releases/aurora-1.0.0.zip", 5*time.Minute)
+	if u2 == u || strings.Contains(u2, "storeee") {
+		t.Fatal(u2)
+	}
+	for _, tc := range []struct{ prefix, key, want string }{
+		{"storeee/", "a.zip", "storeee/a.zip"},
+		{"/storeee", "/a/b.zip", "storeee/a/b.zip"},
+		{"", "a.zip", "a.zip"},
+		{"a/b/", "c", "a/b/c"},
+	} {
+		if got, err := ObjectKey(tc.prefix, tc.key); err != nil || got != tc.want {
+			t.Fatalf("ObjectKey(%q, %q) = %q, %v", tc.prefix, tc.key, got, err)
+		}
+	}
+	for _, key := range []string{"", "/", "../restic/config", "a/../../x", "a//b", "./a"} {
+		if _, err := ObjectKey("storeee/", key); err == nil {
+			t.Fatalf("key %q must be rejected", key)
+		}
+		if _, err := p.PresignGet(context.Background(), key, time.Minute); err == nil {
+			t.Fatalf("presign of %q must fail", key)
+		}
+	}
+	if err := p.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	bad := p
+	bad.Prefix = "../x"
+	if bad.Validate() == nil {
+		t.Fatal("bad prefix must fail")
+	}
+	bad = p
+	bad.Endpoint = "s3.example.com"
+	if bad.Validate() == nil {
+		t.Fatal("endpoint without scheme must fail")
+	}
+}

@@ -26,16 +26,69 @@ type Presigner struct {
 	// PathStyle puts the bucket in the path (endpoint/bucket/key); otherwise
 	// the bucket is a subdomain of the endpoint host.
 	PathStyle bool
-	Now       func() time.Time
+	// Prefix is a folder inside the bucket (e.g. "storeee/") prepended to
+	// every storage key, so one bucket can hold several stores or the
+	// backups of the host. Storage keys in the database stay relative.
+	Prefix string
+	Now    func() time.Time
 }
 
 // ErrConfig is returned for incomplete configuration.
 var ErrConfig = errors.New("s3: endpoint, region, bucket and keys are required")
 
-// PresignGet returns a URL valid for ttl (1 s to 7 days).
+// ErrKey is returned for an empty storage key or one that leaves the
+// prefix ("." or ".." segments).
+var ErrKey = errors.New("s3: invalid storage key")
+
+// Validate checks the configuration without a network call (start-up
+// fail-fast).
+func (p Presigner) Validate() error {
+	if p.Endpoint == "" || p.Region == "" || p.Bucket == "" || p.AccessKey == "" || p.SecretKey == "" {
+		return ErrConfig
+	}
+	if ep, err := url.Parse(p.Endpoint); err != nil || ep.Host == "" || (ep.Scheme != "https" && ep.Scheme != "http") {
+		return ErrConfig
+	}
+	if _, err := ObjectKey(p.Prefix, "x"); err != nil {
+		return fmt.Errorf("s3: invalid prefix %q", p.Prefix)
+	}
+	return nil
+}
+
+// ObjectKey joins the bucket prefix and a storage key. Leading and
+// trailing slashes are ignored; "." and ".." segments are rejected so a
+// key cannot leave the prefix.
+func ObjectKey(prefix, key string) (string, error) {
+	key = strings.Trim(key, "/")
+	if key == "" {
+		return "", ErrKey
+	}
+	prefix = strings.Trim(prefix, "/")
+	for _, s := range []string{prefix, key} {
+		if s == "" {
+			continue
+		}
+		for _, seg := range strings.Split(s, "/") {
+			if seg == "" || seg == "." || seg == ".." {
+				return "", ErrKey
+			}
+		}
+	}
+	if prefix == "" {
+		return key, nil
+	}
+	return prefix + "/" + key, nil
+}
+
+// PresignGet returns a URL valid for ttl (1 s to 7 days) for the object
+// Prefix + key.
 func (p Presigner) PresignGet(_ context.Context, key string, ttl time.Duration) (string, error) {
 	if p.Endpoint == "" || p.Region == "" || p.Bucket == "" || p.AccessKey == "" || p.SecretKey == "" {
 		return "", ErrConfig
+	}
+	key, err := ObjectKey(p.Prefix, key)
+	if err != nil {
+		return "", err
 	}
 	if ttl < time.Second || ttl > 7*24*time.Hour {
 		return "", fmt.Errorf("s3: ttl %s out of range", ttl)
