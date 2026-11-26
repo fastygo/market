@@ -2,6 +2,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* contrast note below: see ADR-0032 */
 :root {
   --background: hsl(204.0000 20.0000% 95.0980%);
   --foreground: hsl(0 0% 20%);
@@ -9,12 +10,12 @@
   --card-foreground: hsl(0 0% 20%);
   --popover: hsl(0 0% 100%);
   --popover-foreground: hsl(0 0% 20%);
-  --primary: hsl(15.1765 72.6496% 54.1176%);
+  --primary: hsl(15.1765 72.6496% 43%);
   --primary-foreground: hsl(0 0% 100%);
   --secondary: hsl(217.2973 44.0476% 32.9412%);
   --secondary-foreground: hsl(0 0% 100%);
   --muted: hsl(210 20.0000% 98.0392%);
-  --muted-foreground: hsl(220 8.9362% 46.0784%);
+  --muted-foreground: hsl(220 8.9362% 44%);
   --accent: hsl(207.6923 46.4286% 89.0196%);
   --accent-foreground: hsl(224.4444 64.2857% 32.9412%);
   --destructive: hsl(0 84.2365% 60.1961%);
@@ -35,7 +36,7 @@
   --sidebar-accent-foreground: hsl(224.4444 64.2857% 32.9412%);
   --sidebar-border: hsl(220 13.0435% 90.9804%);
   --sidebar-ring: hsl(13.2143 73.0435% 54.9020%);
-  --font-sans: Istok Web, ui-sans-serif, sans-serif, system-ui;
+  --font-sans: Istok Web, "Istok Web Fallback", ui-sans-serif, sans-serif, system-ui;
   --font-serif: Fenix, ui-serif, serif;
   --font-mono: Fira Code, monospace;
   --radius: 0.8rem;
@@ -65,11 +66,11 @@
   --popover: hsl(225.8824 27.8689% 11.9608%);
   --popover-foreground: hsl(0 0% 89.8039%);
   --primary: hsl(15.1765 72.6496% 54.1176%);
-  --primary-foreground: hsl(0 0% 100%);
+  --primary-foreground: hsl(15 50% 10%);
   --secondary: hsl(216.1905 44.0559% 28.0392%);
   --secondary-foreground: hsl(0 0% 89.8039%);
   --muted: hsl(228.0000 17.8571% 10.9804%);
-  --muted-foreground: hsl(0 0% 50.1961%);
+  --muted-foreground: hsl(0 0% 54%);
   --accent: hsl(223.6364 34.3750% 25.0980%);
   --accent-foreground: hsl(213.3333 96.9231% 87.2549%);
   --destructive: hsl(0 84.2365% 60.1961%);
@@ -90,7 +91,7 @@
   --sidebar-accent-foreground: hsl(213.3333 96.9231% 87.2549%);
   --sidebar-border: hsl(226.6667 25.2336% 20.9804%);
   --sidebar-ring: hsl(13.2143 73.0435% 54.9020%);
-  --font-sans: Istok Web, ui-sans-serif, sans-serif, system-ui;
+  --font-sans: Istok Web, "Istok Web Fallback", ui-sans-serif, sans-serif, system-ui;
   --font-serif: Fenix, ui-serif, serif;
   --font-mono: Fira Code, monospace;
   --radius: 0.8rem;

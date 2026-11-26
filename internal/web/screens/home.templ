@@ -13,7 +13,7 @@ templ HomePage(s Shell, items []catalog.Product) {
 		@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-12 py-8"}}) {
 			@HomeHero(s)
 			@HomeCategories(s)
-			@ItemGrid(s, s.T("ui.home.new_items"), items)
+			@ItemGrid(s, s.T("ui.home.new_items"), items, false)
 		}
 	}
 }

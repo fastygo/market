@@ -4,6 +4,7 @@
 package screens
 
 import (
+	"github.com/a-h/templ"
 	"net/url"
 	"strconv"
 	"strings"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/fastygo/market/internal/catalog"
 	"github.com/fastygo/market/internal/i18n"
+	"github.com/fastygo/market/internal/media"
 	"github.com/fastygo/market/internal/storefront"
 )
 
@@ -44,6 +46,14 @@ type Shell struct {
 	EditorCSS, EditorJS string
 	// EditorProps is the JSON blob for the island (#editory-props).
 	EditorProps any
+	// Image overrides og:image (product cover); empty uses the brand image.
+	Image string
+	// FontPreloads are fingerprinted Istok Web URLs for <link rel="preload">.
+	FontPreloads []string
+	// LCPImage, LCPSrcset and LCPSizes preload the first visible cover.
+	LCPImage  string
+	LCPSrcset string
+	LCPSizes  string
 }
 
 // T resolves a dictionary key.
@@ -80,7 +90,10 @@ func (s Shell) abs(path string) string {
 func (s Shell) canonical() string { return s.abs(s.Path) }
 
 func (s Shell) ogImage() string {
-	img := s.BrandInfo.OGImage
+	img := s.Image
+	if img == "" {
+		img = s.BrandInfo.OGImage
+	}
 	if img == "" || strings.HasPrefix(img, "https://") || strings.HasPrefix(img, "http://") {
 		return img
 	}
@@ -194,4 +207,27 @@ func filterHref(base, q string) string {
 		return base
 	}
 	return base + "?q=" + url.QueryEscape(q)
+}
+
+func coverSizes(kind string) string {
+	if kind == "hero" {
+		return media.HeroSizes
+	}
+	return media.CardSizes
+}
+
+const coverPlaceholder = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgMzAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCBzbGljZSI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNlMmU4ZjAiLz48Y2lyY2xlIGN4PSIyOTYiIGN5PSI5NiIgcj0iMzAiIGZpbGw9IiNjYmQ1ZTEiLz48cGF0aCBkPSJNMCAzMDBWMjE0bDk2LTc2IDg4IDcwIDY0LTQ4IDE1MiA5NnY0NHoiIGZpbGw9IiNjYmQ1ZTEiLz48cGF0aCBkPSJNMCAzMDB2LTUybDEyMC02MCAxMTAgNjIgNjAtMzAgMTEwIDgwdjB6IiBmaWxsPSIjOTRhM2I4IiBvcGFjaXR5PSIwLjU1Ii8+PC9zdmc+"
+
+func coverSrc(src string) string {
+	if src == "" {
+		return coverPlaceholder
+	}
+	return src
+}
+
+func coverAttrs(fetch string) templ.Attributes {
+	if fetch == "" {
+		return nil
+	}
+	return templ.Attributes{"fetchpriority": fetch}
 }

@@ -1,0 +1,22 @@
+# Reference only (ADR-0032). Copy to the host Caddy config and run
+# `caddy validate` before reload. Do not enable HTTP/3 unless UDP/443
+# already answers; never change nftables to make it work.
+#
+# Replace the site address, the reverse-proxy upstream, and any
+# host-specific paths. Keep /_/ and metrics/pprof off the public internet.
+
+# HTTP/3 lives in the global `servers` block (not inside the site).
+# Uncomment only after a successful `curl --http3-only https://market.storeee.ru/`.
+# {
+# 	servers {
+# 		protocols h1 h2 h3
+# 	}
+# }
+
+market.storeee.ru {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=15552000"
+	}
+	reverse_proxy 127.0.0.1:8090
+}

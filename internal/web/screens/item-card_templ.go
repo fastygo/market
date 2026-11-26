@@ -10,7 +10,6 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/fastygo/market/internal/catalog"
-	"github.com/ui8kit/codegen/generated/templ/blocks"
 	"github.com/ui8kit/codegen/generated/templ/compose"
 	"github.com/ui8kit/codegen/generated/templ/ui/box"
 	"github.com/ui8kit/codegen/generated/templ/ui/link"
@@ -20,7 +19,7 @@ import (
 // ItemCard is a marketplace item card (Envato style): cover, title, author
 // link, category and price. App-level card over UI8Kit primitives: the kit
 // product-card has no author line.
-func ItemCard(s Shell, p catalog.Product) templ.Component {
+func ItemCard(s Shell, p catalog.Product, heading string, priority bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -65,7 +64,7 @@ func ItemCard(s Shell, p catalog.Product) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = blocks.MediaFrame(blocks.MediaFrameProps{Alt: "", Src: p.CoverURL, Ratio: "4/3", Class: "w-full"}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = CoverFrame("", p.CoverURL, p.CoverSrcset, "card", "4/3", "w-full", priority).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -103,7 +102,7 @@ func ItemCard(s Shell, p catalog.Product) templ.Component {
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(p.Category.Title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 23, Col: 23}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 22, Col: 23}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -147,7 +146,7 @@ func ItemCard(s Shell, p catalog.Product) templ.Component {
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 28, Col: 14}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 27, Col: 14}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -161,7 +160,7 @@ func ItemCard(s Shell, p catalog.Product) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = compose.Title(compose.TitleProps{As: "3", Size: "base", Weight: "bold", TextProps: text.TextProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = compose.Title(compose.TitleProps{As: heading, Size: "base", Weight: "bold", TextProps: text.TextProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -181,7 +180,7 @@ func ItemCard(s Shell, p catalog.Product) templ.Component {
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.by") + " ")
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 33, Col: 33}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 32, Col: 33}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -202,7 +201,7 @@ func ItemCard(s Shell, p catalog.Product) templ.Component {
 							var templ_7745c5c3_Var13 string
 							templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(p.SellerName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 35, Col: 20}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 34, Col: 20}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 							if templ_7745c5c3_Err != nil {
@@ -241,7 +240,7 @@ func ItemCard(s Shell, p catalog.Product) templ.Component {
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(PriceLabel(s, p))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 41, Col: 23}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/item-card.templ`, Line: 40, Col: 23}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {

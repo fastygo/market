@@ -2,7 +2,6 @@ package screens
 
 import (
 	"github.com/fastygo/market/internal/catalog"
-	"github.com/ui8kit/codegen/generated/templ/blocks"
 	"github.com/ui8kit/codegen/generated/templ/compose"
 	"github.com/ui8kit/codegen/generated/templ/ui/box"
 	"github.com/ui8kit/codegen/generated/templ/ui/link"
@@ -12,10 +11,10 @@ import (
 // ItemCard is a marketplace item card (Envato style): cover, title, author
 // link, category and price. App-level card over UI8Kit primitives: the kit
 // product-card has no author line.
-templ ItemCard(s Shell, p catalog.Product) {
+templ ItemCard(s Shell, p catalog.Product, heading string, priority bool) {
 	@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "article", Class: "flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card text-card-foreground", Attrs: templ.Attributes{"data-slot": "item-card"}}}) {
 		@compose.Link(compose.LinkProps{Variant: "block", LinkProps: link.LinkProps{Href: ProductHref(p.Slug), Class: "bg-muted", Attrs: templ.Attributes{"tabindex": "-1", "aria-hidden": "true"}}}) {
-			@blocks.MediaFrame(blocks.MediaFrameProps{Alt: "", Src: p.CoverURL, Ratio: "4/3", Class: "w-full"})
+			@CoverFrame("", p.CoverURL, p.CoverSrcset, "card", "4/3", "w-full", priority)
 		}
 		@compose.Stack(compose.StackProps{Gap: "2", BoxProps: box.BoxProps{Class: "flex-1 p-4"}}) {
 			if p.Category.Title != "" {
@@ -23,7 +22,7 @@ templ ItemCard(s Shell, p catalog.Product) {
 					{ p.Category.Title }
 				}
 			}
-			@compose.Title(compose.TitleProps{As: "3", Size: "base", Weight: "bold", TextProps: text.TextProps{}}) {
+			@compose.Title(compose.TitleProps{As: heading, Size: "base", Weight: "bold", TextProps: text.TextProps{}}) {
 				@compose.Link(compose.LinkProps{Variant: "nav", LinkProps: link.LinkProps{Href: ProductHref(p.Slug), Attrs: templ.Attributes{"data-slot": "open"}}}) {
 					{ p.Title }
 				}

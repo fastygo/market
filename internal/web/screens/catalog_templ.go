@@ -142,7 +142,7 @@ func CatalogPage(s Shell, active catalog.Category, q string, products []catalog.
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = ItemGrid(s, "", products).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = ItemGrid(s, "", products, true).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

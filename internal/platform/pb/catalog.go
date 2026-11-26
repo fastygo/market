@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -16,13 +17,15 @@ import (
 	"github.com/pocketbase/pocketbase/tools/types"
 
 	"github.com/fastygo/market/internal/catalog"
+	"github.com/fastygo/market/internal/media"
 	"github.com/fastygo/market/internal/platform/money"
 	"github.com/fastygo/market/internal/storefront"
 )
 
 // Catalog implements catalog.Reader and storefront.Reader on PocketBase.
 type Catalog struct {
-	App core.App
+	App    core.App
+	Covers *media.Store
 }
 
 var (
@@ -68,11 +71,11 @@ CROSS JOIN sellers s ON s.id = p.seller
 LEFT JOIN categories c ON c.id = p.category
 WHERE p.status = 'published'`
 
-func (r productRow) toDomain(currency, coverURL string) catalog.Product {
+func (r productRow) toDomain(currency, coverURL, coverSrcset string) catalog.Product {
 	p := catalog.Product{
 		ID: r.ID, Slug: r.Slug, Title: r.Title, Excerpt: r.Excerpt, Description: r.Description,
 		DescriptionHTML: r.DescriptionHTML,
-		ProductType:     r.ProductType, DemoURL: r.DemoURL, CoverURL: coverURL,
+		ProductType:     r.ProductType, DemoURL: r.DemoURL, CoverURL: coverURL, CoverSrcset: coverSrcset,
 		SellerName: r.SellerName, SellerSlug: r.SellerSlug,
 		Category: catalog.Category{Slug: r.CatSlug.String, Title: r.CatTitle.String},
 	}
@@ -94,6 +97,58 @@ func (c *Catalog) coverURL(productID, file string) string {
 		return ""
 	}
 	return "/api/files/" + col.Id + "/" + productID + "/" + file
+}
+
+func (c *Catalog) cover(productID, file string) (url, srcset string) {
+	url = c.coverURL(productID, file)
+	if c.Covers != nil {
+		srcset = c.Covers.Srcset(productID, file)
+	}
+	return url, srcset
+}
+
+// CoverSources lists product cover files on disk so serve can derive WebP variants.
+func (c *Catalog) CoverSources() ([]media.Source, error) {
+	if c == nil || c.App == nil {
+		return nil, nil
+	}
+	col, err := c.App.FindCachedCollectionByNameOrId("products")
+	if err != nil {
+		return nil, err
+	}
+	recs, err := c.App.FindAllRecords("products")
+	if err != nil {
+		return nil, fmt.Errorf("catalog: cover sources: %w", err)
+	}
+	out := make([]media.Source, 0, len(recs))
+	for _, rec := range recs {
+		name := rec.GetString("cover")
+		if name == "" {
+			continue
+		}
+		p := filepath.Join(c.App.DataDir(), "storage", col.Id, rec.Id, name)
+		out = append(out, media.Source{ProductID: rec.Id, Name: name, Path: p})
+	}
+	return out, nil
+}
+
+// CoverSource is the on-disk original of one product record (empty Path if none).
+func (c *Catalog) CoverSource(rec *core.Record) media.Source {
+	if rec == nil {
+		return media.Source{}
+	}
+	name := rec.GetString("cover")
+	if name == "" {
+		return media.Source{}
+	}
+	col, err := c.App.FindCachedCollectionByNameOrId("products")
+	if err != nil {
+		return media.Source{ProductID: rec.Id, Name: name}
+	}
+	return media.Source{
+		ProductID: rec.Id, Name: name,
+		Path: filepath.Join(c.App.DataDir(), "storage", col.Id, rec.Id, name),
+	}
 }
 
 // listSelect is productSelect without the description (up to 20 KB a
@@ -149,7 +204,8 @@ func (c *Catalog) Products(ctx context.Context, currency string, f catalog.Filte
 	}
 	out := make([]catalog.Product, 0, len(rows))
 	for _, r := range rows {
-		out = append(out, r.toDomain(currency, c.coverURL(r.ID, r.Cover)))
+		url, srcset := c.cover(r.ID, r.Cover)
+		out = append(out, r.toDomain(currency, url, srcset))
 	}
 	return out, nil
 }
@@ -165,7 +221,8 @@ func (c *Catalog) Product(ctx context.Context, currency, slug string) (catalog.P
 	if err != nil {
 		return catalog.Product{}, fmt.Errorf("catalog: product: %w", err)
 	}
-	return r.toDomain(currency, c.coverURL(r.ID, r.Cover)), nil
+	url, srcset := c.cover(r.ID, r.Cover)
+	return r.toDomain(currency, url, srcset), nil
 }
 
 // Categories lists categories by sort order.

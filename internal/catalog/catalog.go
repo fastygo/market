@@ -37,6 +37,7 @@ type Product struct {
 	ProductType     string
 	DemoURL         string
 	CoverURL        string
+	CoverSrcset     string // WebP srcset from internal/media; empty if none
 	Category        Category
 	SellerName      string
 	SellerSlug      string

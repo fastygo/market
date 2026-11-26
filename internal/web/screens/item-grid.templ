@@ -10,7 +10,7 @@ import (
 
 // ItemGrid is a titled section of item cards with an empty state. An
 // empty title renders no heading (the page heading names the list).
-templ ItemGrid(s Shell, title string, items []catalog.Product) {
+templ ItemGrid(s Shell, title string, items []catalog.Product, lcpFirst bool) {
 	@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "section", Class: "flex flex-col gap-6", Attrs: templ.Attributes{"aria-label": gridLabel(s, title), "data-slot": "item-grid"}}}) {
 		if title != "" {
 			@compose.Title(compose.TitleProps{As: "2", Size: "2xl", Weight: "bold", TextProps: text.TextProps{Class: "tracking-tight"}}) {
@@ -20,10 +20,14 @@ templ ItemGrid(s Shell, title string, items []catalog.Product) {
 		if len(items) == 0 {
 			@blocks.EmptyState(blocks.EmptyStateProps{Icon: "package", Title: s.T("ui.catalog.empty")})
 		} else {
+			{{ heading := "2" }}
+			if title != "" {
+				{{ heading = "3" }}
+			}
 			@compose.List(compose.ListProps{BoxProps: box.BoxProps{Class: "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"}}) {
-				for _, p := range items {
+				for i, p := range items {
 					@compose.ListItem(compose.ListItemProps{}) {
-						@ItemCard(s, p)
+						@ItemCard(s, p, heading, lcpFirst && i == 0)
 					}
 				}
 			}

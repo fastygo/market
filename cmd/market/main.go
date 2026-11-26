@@ -29,6 +29,7 @@ import (
 	"github.com/fastygo/market/internal/mail/pbmail"
 	"github.com/fastygo/market/internal/mail/resend"
 	"github.com/fastygo/market/internal/mail/unisender"
+	"github.com/fastygo/market/internal/media"
 	"github.com/fastygo/market/internal/migrations"
 	"github.com/fastygo/market/internal/modules"
 	"github.com/fastygo/market/internal/notify"
@@ -142,7 +143,8 @@ func main() {
 			storageMode = "s3 " + cfg.S3.Bucket + "/" + cfg.S3.Prefix
 		}
 		se.App.Logger().Info("release storage", "mode", storageMode)
-		repo := &pb.Catalog{App: se.App}
+		covers := media.NewStore(filepath.Join(se.App.DataDir(), "media", "covers"))
+		repo := &pb.Catalog{App: se.App, Covers: covers}
 		commerce, svc := wire(se.App, cfg, fake, func(ctx context.Context) string {
 			sf, err := repo.Storefront(ctx, code)
 			if err != nil {
@@ -159,7 +161,41 @@ func main() {
 			}
 		}
 		h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: code, Dict: en, Log: se.App.Logger(), Commerce: commerce,
-			BaseURL: cfg.PublicURL, Observe: met})
+			BaseURL: cfg.PublicURL, Observe: met, Covers: covers})
+		deriveCover := func(src media.Source) {
+			if src.Path == "" {
+				return
+			}
+			if err := covers.Derive(src); err != nil {
+				se.App.Logger().Warn("cover webp", "product", src.ProductID, "err", err)
+			}
+		}
+		se.App.OnRecordAfterCreateSuccess("products").BindFunc(func(e *core.RecordEvent) error {
+			deriveCover(repo.CoverSource(e.Record))
+			return e.Next()
+		})
+		se.App.OnRecordAfterUpdateSuccess("products").BindFunc(func(e *core.RecordEvent) error {
+			deriveCover(repo.CoverSource(e.Record))
+			return e.Next()
+		})
+		go func() {
+			srcs, err := repo.CoverSources()
+			if err != nil {
+				se.App.Logger().Warn("cover webp list", "err", err)
+				return
+			}
+			var n int
+			for _, src := range srcs {
+				if err := covers.Derive(src); err != nil {
+					se.App.Logger().Warn("cover webp", "product", src.ProductID, "err", err)
+					continue
+				}
+				n++
+			}
+			if n > 0 {
+				se.App.Logger().Info("cover webp", "derived", n)
+			}
+		}()
 		if addr := os.Getenv("MARKET_METRICS_ADDR"); addr != "" {
 			srv, err := met.Listen(addr)
 			if err != nil {

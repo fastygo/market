@@ -109,7 +109,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = blocks.MediaFrame(blocks.MediaFrameProps{Alt: p.Title, Src: p.CoverURL, Ratio: "1/1"}).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = CoverFrame(p.Title, p.CoverURL, p.CoverSrcset, "hero", "1/1", "", true).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -628,7 +628,7 @@ func ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.Se
 					return templ_7745c5c3_Err
 				}
 				if len(more) > 0 {
-					templ_7745c5c3_Err = ItemGrid(s, tpl(s.T("ui.author.more_from"), author.DisplayName), more).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = ItemGrid(s, tpl(s.T("ui.author.more_from"), author.DisplayName), more, false).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

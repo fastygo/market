@@ -18,7 +18,7 @@ import (
 
 // ItemGrid is a titled section of item cards with an empty state. An
 // empty title renders no heading (the page heading names the list).
-func ItemGrid(s Shell, title string, items []catalog.Product) templ.Component {
+func ItemGrid(s Shell, title string, items []catalog.Product, lcpFirst bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -90,6 +90,14 @@ func ItemGrid(s Shell, title string, items []catalog.Product) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
+				heading := "2"
+				if title != "" {
+					heading = "3"
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 				templ_7745c5c3_Var5 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 					templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 					templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -102,7 +110,7 @@ func ItemGrid(s Shell, title string, items []catalog.Product) templ.Component {
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					for _, p := range items {
+					for i, p := range items {
 						templ_7745c5c3_Var6 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 							templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 							templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -115,7 +123,7 @@ func ItemGrid(s Shell, title string, items []catalog.Product) templ.Component {
 								}()
 							}
 							ctx = templ.InitializeContext(ctx)
-							templ_7745c5c3_Err = ItemCard(s, p).Render(ctx, templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = ItemCard(s, p, heading, lcpFirst && i == 0).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

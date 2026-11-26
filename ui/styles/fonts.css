@@ -1,5 +1,17 @@
 /* Self-hosted webfonts of the GoDudY skin (SIL OFL 1.1, see internal/web/static/fonts/OFL.txt).
    Subsets: latin, latin-ext, cyrillic, cyrillic-ext. Downloaded once from Google Fonts; no runtime CDN. */
+/* Metric-matched fallback (ADR-0032): reduces CLS when Istok Web swaps in.
+   Arial / Liberation Sans average width vs Istok 400 (1107/1187); typo metrics
+   from Istok (upem 2048, ascent 2061, descent 887). */
+@font-face {
+  font-family: 'Istok Web Fallback';
+  src: local('Arial'), local('Liberation Sans'), local('Helvetica Neue'), local('Helvetica');
+  size-adjust: 93.26%;
+  ascent-override: 100.63%;
+  descent-override: 43.31%;
+  line-gap-override: 0%;
+}
+
 @font-face {
   font-family: 'Fenix';
   font-style: normal;

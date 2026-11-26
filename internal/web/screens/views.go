@@ -22,7 +22,7 @@ type SignInView struct {
 // AccountView is the signed-in cabinet frame.
 type AccountView struct {
 	Email, CSRF string
-	Seller       bool
+	Seller      bool
 }
 
 // CheckoutView is the product page buy form.

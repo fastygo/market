@@ -35,6 +35,17 @@ templ Layout(s Shell) {
 				@templ.JSONScript("editory-props", s.EditorProps).WithType("application/json")
 			}
 			<meta name="color-scheme" content="light dark"/>
+			<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+			<link rel="icon" href="/favicon.ico" sizes="any"/>
+			<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+			for _, href := range s.FontPreloads {
+				<link rel="preload" href={ href } as="font" type="font/woff2" crossorigin="anonymous"/>
+			}
+			if s.LCPSrcset != "" {
+				<link rel="preload" as="image" type="image/webp" imagesrcset={ s.LCPSrcset } imagesizes={ s.LCPSizes }/>
+			} else if s.LCPImage != "" {
+				<link rel="preload" as="image" href={ s.LCPImage }/>
+			}
 			<link rel="stylesheet" href={ s.CSSHref }/>
 			if s.EditorCSS != "" {
 				<link rel="stylesheet" href={ s.EditorCSS }/>

@@ -26,7 +26,9 @@ emails=$(files | xargs -0 -r grep -noIE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za
 if [ -n "$emails" ]; then echo "verify: email outside reserved domains"; echo "$emails"; fail=1; fi
 envs=$(files | tr '\0' '\n' | grep -E '(^|/)\.env(\..+)?$' | grep -vE '\.example$' || true)
 if [ -n "$envs" ]; then echo "verify: committed env file"; echo "$envs"; fail=1; fi
-cyr=$(files | xargs -0 -r grep -nIP '[\x{0400}-\x{04FF}]' -- 2>/dev/null || true)
+# The hashed EditorY island (ADR-0031) may include third-party TLD tables
+# with Cyrillic; application sources still fail this scan.
+cyr=$(files | xargs -0 -r grep -nIP '[\x{0400}-\x{04FF}]' -- 2>/dev/null   | grep -vE '^internal/web/static/editor/' || true)
 if [ -n "$cyr" ]; then echo "verify: Cyrillic in repo"; echo "$cyr"; fail=1; fi
 
 # ADR-0011: goja hooks must not touch money collections
@@ -56,13 +58,14 @@ if [ -f go.mod ]; then
   # ADR-0029: the generated semantic kit CSS matches ui/kit/compose/compose.json and ui/styles/kit.css
   if [ -x node_modules/.bin/tailwindcss ]; then
     go run ./scripts/uisem -check || { echo "verify: semantic kit CSS out of date (run make css and commit)"; fail=1; }
+    go run ./scripts/fontver -check || { echo "verify: font hashes in compiled CSS out of date (run make css and commit)"; fail=1; }
   else
     echo "verify: semantic kit CSS not verified (npm ci for the Tailwind CLI)"
   fi
   if [ -x scripts/editor.sh ]; then
     scripts/editor.sh --check || { echo "verify: EditorY island assets stale or missing (run make editor and commit)"; fail=1; }
   fi
-  unformatted=$(gofmt -l cmd internal scripts/uisem ui/dict | grep -v '_templ.go' || true)
+  unformatted=$(gofmt -l cmd internal scripts/uisem scripts/fontver ui/dict | grep -v '_templ.go' || true)
   test -z "$unformatted" || { echo "verify: gofmt"; echo "$unformatted"; fail=1; }
   go vet ./... || fail=1
   go test -race -count=1 ./... || fail=1

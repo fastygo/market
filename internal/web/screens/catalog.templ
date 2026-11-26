@@ -26,7 +26,7 @@ templ CatalogPage(s Shell, active catalog.Category, q string, products []catalog
 					{ tpl(s.T("ui.catalog.results"), q) }
 				}
 			}
-			@ItemGrid(s, "", products)
+			@ItemGrid(s, "", products, true)
 		}
 	}
 }

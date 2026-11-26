@@ -9,10 +9,13 @@ import (
 	"crypto/sha256"
 	"embed"
 	"encoding/hex"
+	"encoding/xml"
 	"errors"
+	"fmt"
 	"io/fs"
 	"log/slog"
 	"net/http"
+	pathpkg "path"
 	"strconv"
 	"strings"
 	"sync"
@@ -22,6 +25,7 @@ import (
 
 	"github.com/fastygo/market/internal/catalog"
 	"github.com/fastygo/market/internal/i18n"
+	"github.com/fastygo/market/internal/media"
 	"github.com/fastygo/market/internal/storefront"
 	"github.com/fastygo/market/internal/web/screens"
 )
@@ -44,6 +48,12 @@ var Patterns = []string{
 	"GET /products/{slug}/download",
 	"GET /authors/{slug}",
 	"GET /static/{path...}",
+	"GET /robots.txt",
+	"GET /sitemap.xml",
+	"GET /favicon.ico",
+	"GET /favicon.svg",
+	"GET /apple-touch-icon.png",
+	"GET /media/covers/{id}/{hash}/{file}",
 }
 
 // Handler serves the storefront.
@@ -61,7 +71,9 @@ type Handler struct {
 	BaseURL string
 	// Observe records request, render and DB metrics; nil disables it.
 	Observe Observer
-	mux     *http.ServeMux
+	// Covers serves resized WebP product covers; nil hides /media/covers.
+	Covers *media.Store
+	mux    *http.ServeMux
 }
 
 // Observer is the metrics port (implemented by platform/metrics): Start
@@ -111,6 +123,14 @@ func New(h Handler) *Handler {
 	m.HandleFunc("GET /authors/{slug}", h.author)
 	h.mountCommerce(m)
 	m.Handle("GET /static/", http.StripPrefix("/static/", cacheStatic(http.FileServerFS(Static()))))
+	m.HandleFunc("GET /robots.txt", h.robots)
+	m.HandleFunc("GET /sitemap.xml", h.sitemap)
+	m.HandleFunc("GET /favicon.ico", h.faviconICO)
+	m.HandleFunc("GET /favicon.svg", h.faviconSVG)
+	m.HandleFunc("GET /apple-touch-icon.png", h.faviconPNG)
+	if h.Covers != nil {
+		m.Handle("GET /media/covers/{id}/{hash}/{file}", h.Covers.Handler())
+	}
 	h.mux = m
 	return &h
 }
@@ -139,7 +159,15 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func cacheStatic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "public, max-age=3600")
+		// A matching ?v=<12-hex> digest (skins and fingerprinted fonts) is
+		// content-addressed, so it can be cached for a year as immutable.
+		v := r.URL.Query().Get("v")
+		name := strings.TrimPrefix(pathpkg.Clean("/"+r.URL.Path), "/")
+		if len(v) == 12 && assetVersion(name) == v {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
+			w.Header().Set("Cache-Control", "public, max-age=3600")
+		}
 		next.ServeHTTP(w, r)
 	})
 }
@@ -161,27 +189,27 @@ func (h *Handler) shell(ctx context.Context, title, current string) (screens.She
 		Dict: h.Dict, Lang: h.Dict.Locale, Brand: sf.BrandName, Year: h.Now().Year(),
 		Title: title, Current: current, CSSHref: skinHref(sf.Skin), Categories: cats,
 		BrandInfo: sf.Brand, BaseURL: strings.TrimRight(h.BaseURL, "/"), Path: path,
-		CSPNonce: nonceFrom(ctx),
+		CSPNonce: nonceFrom(ctx), FontPreloads: fontPreloads(),
 	}, sf, nil
 }
 
 // skinHref is the compiled stylesheet of a storefront skin; unknown or
 // empty skins fall back to the neutral default. The query is a digest of
 // the embedded file, so a deploy never pairs new markup with a stylesheet
-// cached under the same URL (static files are cached for an hour).
+// cached under the same URL.
 func skinHref(skin string) string {
 	if skin != "" {
-		if v := skinVersion("skins/" + skin + ".css"); v != "" {
+		if v := assetVersion("skins/" + skin + ".css"); v != "" {
 			return "/static/skins/" + skin + ".css?v=" + v
 		}
 	}
-	return "/static/skins/default.css?v=" + skinVersion("skins/default.css")
+	return "/static/skins/default.css?v=" + assetVersion("skins/default.css")
 }
 
-var skinVersions sync.Map // embedded path -> first 12 hex chars of its SHA-256 ("" when missing)
+var assetVersions sync.Map // embedded path -> first 12 hex chars of its SHA-256 ("" when missing)
 
-func skinVersion(name string) string {
-	if v, ok := skinVersions.Load(name); ok {
+func assetVersion(name string) string {
+	if v, ok := assetVersions.Load(name); ok {
 		return v.(string)
 	}
 	v := ""
@@ -189,8 +217,26 @@ func skinVersion(name string) string {
 		sum := sha256.Sum256(b)
 		v = hex.EncodeToString(sum[:6])
 	}
-	skinVersions.Store(name, v)
+	assetVersions.Store(name, v)
 	return v
+}
+
+// fontPreloads are the Istok Web files used on first paint (latin and
+// cyrillic, 400 and 700). Other families load on demand via unicode-range.
+func fontPreloads() []string {
+	names := []string{
+		"fonts/istok-web-400-latin.woff2",
+		"fonts/istok-web-400-cyrillic.woff2",
+		"fonts/istok-web-700-latin.woff2",
+		"fonts/istok-web-700-cyrillic.woff2",
+	}
+	out := make([]string, 0, len(names))
+	for _, n := range names {
+		if v := assetVersion(n); v != "" {
+			out = append(out, "/static/"+n+"?v="+v)
+		}
+	}
+	return out
 }
 
 func (h *Handler) render(w http.ResponseWriter, r *http.Request, status int, c templ.Component) {
@@ -208,6 +254,8 @@ func (h *Handler) render(w http.ResponseWriter, r *http.Request, status int, c t
 		h.fail(w, r, err)
 		return
 	}
+	ms := float64(time.Since(start).Microseconds()) / 1000
+	w.Header().Set("Server-Timing", fmt.Sprintf("render;dur=%.2f", ms))
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)
 	_, _ = buf.WriteTo(w)
@@ -289,6 +337,11 @@ func (h *Handler) catalog(w http.ResponseWriter, r *http.Request) {
 		h.notice(w, r, http.StatusNotFound, "ui.error.not_found")
 		return
 	}
+	if len(ps) > 0 && ps[0].CoverURL != "" {
+		s.LCPImage = ps[0].CoverURL
+		s.LCPSrcset = ps[0].CoverSrcset
+		s.LCPSizes = media.CardSizes
+	}
 	h.render(w, r, http.StatusOK, screens.CatalogPage(s, active, q, ps))
 }
 
@@ -322,6 +375,12 @@ func (h *Handler) product(w http.ResponseWriter, r *http.Request) {
 	}
 	author, more := h.authorOf(r.Context(), p)
 	s.Description = p.Excerpt
+	if p.CoverURL != "" {
+		s.LCPImage = p.CoverURL
+		s.LCPSrcset = p.CoverSrcset
+		s.LCPSizes = media.HeroSizes
+		s.Image = p.CoverURL
+	}
 	h.render(w, r, http.StatusOK, screens.ProductPage(s, p, h.checkoutView(w, r), author, more))
 }
 
@@ -373,4 +432,93 @@ func (h *Handler) author(w http.ResponseWriter, r *http.Request) {
 	}
 	s.Description = a.Headline
 	h.render(w, r, http.StatusOK, screens.AuthorPage(s, a, ps))
+}
+
+func (h *Handler) robots(w http.ResponseWriter, r *http.Request) {
+	var b strings.Builder
+	b.WriteString("User-agent: *\nAllow: /\nDisallow: /account\nDisallow: /checkout\nDisallow: /_/\n")
+	if u := strings.TrimRight(h.BaseURL, "/"); u != "" {
+		b.WriteString("Sitemap: " + u + "/sitemap.xml\n")
+	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Cache-Control", "public, max-age=3600")
+	_, _ = w.Write([]byte(b.String()))
+}
+
+type sitemapURL struct {
+	XMLName xml.Name `xml:"url"`
+	Loc     string   `xml:"loc"`
+}
+
+func (h *Handler) sitemap(w http.ResponseWriter, r *http.Request) {
+	base := strings.TrimRight(h.BaseURL, "/")
+	if base == "" && r.Host != "" {
+		scheme := "https"
+		if r.TLS == nil && r.Header.Get("X-Forwarded-Proto") != "https" {
+			scheme = "http"
+		}
+		base = scheme + "://" + r.Host
+	}
+	s, sf, err := h.shell(r.Context(), "", "")
+	locs := []string{"/", "/catalog"}
+	if err == nil {
+		for _, c := range s.Categories {
+			if c.Slug != "" {
+				locs = append(locs, "/catalog/"+c.Slug)
+			}
+		}
+		ps, err := h.Catalog.Products(r.Context(), sf.Currency, catalog.Filter{Limit: 5000})
+		if err == nil {
+			for _, p := range ps {
+				locs = append(locs, "/products/"+p.Slug)
+				if p.SellerSlug != "" {
+					locs = append(locs, "/authors/"+p.SellerSlug)
+				}
+			}
+		}
+	}
+	seen := map[string]bool{}
+	var urls []sitemapURL
+	for _, loc := range locs {
+		if seen[loc] {
+			continue
+		}
+		seen[loc] = true
+		urls = append(urls, sitemapURL{Loc: base + loc})
+	}
+	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
+	w.Header().Set("Cache-Control", "public, max-age=3600")
+	_, _ = w.Write([]byte(xml.Header))
+	_, _ = w.Write([]byte(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`))
+	for _, u := range urls {
+		b, err := xml.Marshal(u)
+		if err != nil {
+			continue
+		}
+		_, _ = w.Write(b)
+	}
+	_, _ = w.Write([]byte(`</urlset>`))
+}
+
+func (h *Handler) faviconSVG(w http.ResponseWriter, r *http.Request) {
+	h.writeStatic(w, "favicon.svg", "image/svg+xml")
+}
+
+func (h *Handler) faviconICO(w http.ResponseWriter, r *http.Request) {
+	h.writeStatic(w, "favicon.png", "image/png")
+}
+
+func (h *Handler) faviconPNG(w http.ResponseWriter, r *http.Request) {
+	h.writeStatic(w, "favicon-180.png", "image/png")
+}
+
+func (h *Handler) writeStatic(w http.ResponseWriter, name, contentType string) {
+	b, err := fs.ReadFile(Static(), name)
+	if err != nil {
+		http.NotFound(w, &http.Request{})
+		return
+	}
+	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	_, _ = w.Write(b)
 }

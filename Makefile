@@ -16,6 +16,7 @@ uisem:               ## semantic kit CSS (ADR-0029): ui/styles/generated/*, .ui8
 
 css: uisem           ## Tailwind v4: one stylesheet per skin -> internal/web/static/skins/<skin>.css (needs npm ci once)
 	for s in $(SKINS); do npx --no-install tailwindcss -i ui/styles/entries/$$s.css -o internal/web/static/skins/$$s.css --minify || exit 1; done
+	go run ./scripts/fontver
 
 ui8kit:              ## reinstall the pinned UI8Kit templ kit from the registry
 	scripts/ui8kit.sh
