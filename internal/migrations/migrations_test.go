@@ -216,3 +216,28 @@ func TestUsersAPILockUpgrade(t *testing.T) {
 		t.Fatal("upgrade did not lock the users API")
 	}
 }
+
+func TestPaymentAttemptFields(t *testing.T) {
+	app := pbtest.New(t)
+	col, err := app.FindCollectionByNameOrId("payments")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if col.Fields.GetByName("attempt") == nil || col.Fields.GetByName("legal_entity") == nil {
+		t.Fatal("payments must have attempt and legal_entity (ADR-0033)")
+	}
+	col.Fields.RemoveByName("attempt")
+	col.Fields.RemoveByName("legal_entity")
+	col.RemoveIndex("idx_payments_order_attempt")
+	if err := app.Save(col); err != nil {
+		t.Fatal(err)
+	}
+	rerun(t, app, "1764000012_payment_attempts.go")
+	col, err = app.FindCollectionByNameOrId("payments")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if col.Fields.GetByName("attempt") == nil || col.Fields.GetByName("legal_entity") == nil {
+		t.Fatal("upgrade did not restore attempt fields")
+	}
+}

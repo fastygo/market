@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fastygo/market/internal/payments"
 	"github.com/fastygo/market/internal/platform/clientip"
 	"github.com/fastygo/market/internal/platform/s3"
 )
@@ -32,11 +33,14 @@ type config struct {
 	ClientIP    clientip.Resolver
 	// Storage: S3 when MARKET_S3_ENDPOINT is set, else local files in
 	// FilesDir (default <pb_data>/files) served by the app on /files.
-	S3             *s3.Presigner
-	FilesDir       string
-	URLTTL         time.Duration
-	PaymentTimeout time.Duration
-	Warnings       []string
+	S3               *s3.Presigner
+	FilesDir         string
+	URLTTL           time.Duration
+	PaymentTimeout   time.Duration
+	PaymentProviders []string // MARKET_PAYMENT_PROVIDERS allow-list; nil = auto
+	PaymentRules     []payments.Rule
+	PaymentEntity    string // MARKET_PAYMENT_ENTITY, e.g. it_garage
+	Warnings         []string
 }
 
 // loadConfig reads and checks env. All problems are reported at once.
@@ -147,6 +151,19 @@ func loadConfig(getenv func(string) string, dataDir string) (config, error) {
 	}
 	c.URLTTL = dur("MARKET_S3_URL_TTL", "5m")
 	c.PaymentTimeout = dur("MARKET_PAYMENT_TIMEOUT", "30m")
+
+	if v := getenv("MARKET_PAYMENT_PROVIDERS"); v != "" {
+		c.PaymentProviders = payments.ParseProviders(v)
+	}
+	c.PaymentEntity = strings.ToLower(strings.TrimSpace(getenv("MARKET_PAYMENT_ENTITY")))
+	if v := getenv("MARKET_PAYMENT_RULES"); v != "" {
+		rules, err := payments.ParseRules(v)
+		if err != nil {
+			hard("MARKET_PAYMENT_RULES: %v", err)
+		} else {
+			c.PaymentRules = rules
+		}
+	}
 
 	if err := errors.Join(errs...); err != nil {
 		return c, fmt.Errorf("refusing to start (set MARKET_DEV=1 for development defaults):\n%w", err)

@@ -107,6 +107,32 @@ func OrderOnPayment(from OrderStatus, p PaymentStatus) (to OrderStatus, changed 
 	return from, false, fmt.Errorf("%w: order %s on payment %s", ErrTransition, from, p)
 }
 
+// CanRetryAttempt reports whether a failed or canceled payment may be
+// followed by a new attempt on the same unpaid order (ADR-0033).
+func CanRetryAttempt(order OrderStatus, pay PaymentStatus) bool {
+	switch pay {
+	case PaymentFailed, PaymentCanceled:
+	default:
+		return false
+	}
+	switch order {
+	case OrderPending, OrderAwaitingPayment, OrderCancelled:
+		return true
+	}
+	return false
+}
+
+// ReopenAfterFailedAttempt is the order status after starting a new
+// payment attempt: a cancelled (or already pending) order goes to pending
+// so AttachProvider can move it to awaiting_payment.
+func ReopenAfterFailedAttempt(from OrderStatus) (OrderStatus, error) {
+	switch from {
+	case OrderPending, OrderAwaitingPayment, OrderCancelled:
+		return OrderPending, nil
+	}
+	return from, fmt.Errorf("%w: cannot reopen order %s for a new payment attempt", ErrTransition, from)
+}
+
 // Entitlement statuses.
 const (
 	EntitlementActive   = "active"

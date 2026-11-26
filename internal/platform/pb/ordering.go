@@ -270,7 +270,8 @@ func (s *Orders) PlaceOrder(ctx context.Context, o ordering.NewOrder) (ordering.
 		payFields := map[string]any{
 			"order": ord.Id, "seller": o.SellerID, "provider": o.Provider, "method": o.Method,
 			"status": string(ordering.PaymentCreated), "amount_minor": o.Totals.Sum, "currency": o.Totals.Currency,
-			"idempotency_key": o.PaymentKey, "status_version": 0, "next_reconcile_at": ms(o.Now.Add(10 * time.Minute)),
+			"idempotency_key": o.PaymentKey, "attempt": 1, "legal_entity": o.LegalEntity,
+			"status_version": 0, "next_reconcile_at": ms(o.Now.Add(10 * time.Minute)),
 		}
 		if o.PaidImmediately {
 			payFields["status"] = string(ordering.PaymentSucceeded)
@@ -296,6 +297,65 @@ func (s *Orders) PlaceOrder(ctx context.Context, o ordering.NewOrder) (ordering.
 			}
 		}
 		v, err = orderView(app, ord.Id)
+		return err
+	})
+	return v, err
+}
+
+// StartNextAttempt implements ordering.Store (ADR-0033).
+func (s *Orders) StartNextAttempt(ctx context.Context, orderID, provider, method, sellerID, legalEntity string, now time.Time) (ordering.OrderView, error) {
+	var v ordering.OrderView
+	err := RunTx(ctx, s.App, "checkout.retry", func(ctx context.Context, app core.App) error {
+		cur, err := orderView(app, orderID)
+		if err != nil {
+			return err
+		}
+		if !ordering.CanRetryAttempt(cur.Status, cur.PaymentStatus) {
+			v = cur
+			return nil
+		}
+		to, err := ordering.ReopenAfterFailedAttempt(cur.Status)
+		if err != nil {
+			return err
+		}
+		var n int
+		var base string
+		var amount int64
+		var currency, seller string
+		err = app.DB().NewQuery(`SELECT COUNT(*),
+			(SELECT idempotency_key FROM payments WHERE "order" = {:o} ORDER BY created ASC LIMIT 1),
+			(SELECT amount_minor FROM payments WHERE "order" = {:o} ORDER BY created DESC LIMIT 1),
+			(SELECT currency FROM payments WHERE "order" = {:o} ORDER BY created DESC LIMIT 1),
+			(SELECT seller FROM payments WHERE "order" = {:o} ORDER BY created DESC LIMIT 1)
+			FROM payments WHERE "order" = {:o}`).Bind(dbx.Params{"o": orderID}).Row(&n, &base, &amount, &currency, &seller)
+		if err != nil {
+			return err
+		}
+		attempt := n + 1
+		key := base
+		if attempt > 1 {
+			key = fmt.Sprintf("%s:%d", base, attempt)
+		}
+		if sellerID == "" {
+			sellerID = seller
+		}
+		if cur.Status != to {
+			if err := exec(app, `UPDATE orders SET status = {:to}, status_version = status_version + 1, updated = {:now},
+				cancelled_at = '', cancel_reason = ''
+				WHERE id = {:id} AND status = {:from}`,
+				dbx.Params{"to": string(to), "now": pbDate(now), "id": orderID, "from": string(cur.Status)}); err != nil {
+				return err
+			}
+		}
+		if _, err := newRecord(app, "payments", map[string]any{
+			"order": orderID, "seller": sellerID, "provider": provider, "method": method,
+			"status": string(ordering.PaymentCreated), "amount_minor": amount, "currency": currency,
+			"idempotency_key": key, "attempt": attempt, "legal_entity": legalEntity,
+			"status_version": 0, "next_reconcile_at": ms(now.Add(10 * time.Minute)),
+		}); err != nil {
+			return err
+		}
+		v, err = orderView(app, orderID)
 		return err
 	})
 	return v, err

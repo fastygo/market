@@ -489,3 +489,81 @@ func TestCheckoutFreeManyOrders(t *testing.T) {
 		t.Fatal("free payments must have distinct provider ids")
 	}
 }
+
+// ADR-0033: a failed attempt on the same checkout key starts a new
+// payment row on the same order, not a second order.
+func TestFailedPaymentRetrySameOrder(t *testing.T) {
+	r := newRig(t)
+	ctx := context.Background()
+	v := r.checkout(t, "k")
+	firstPay, firstPPID := v.PaymentID, v.ProviderPaymentID
+	r.gw.SetState(firstPPID, payments.StateFailed)
+	if _, err := r.svc.Apply(ctx, "fake", firstPPID); err != nil {
+		t.Fatal(err)
+	}
+	if o, p := r.status(t, v.OrderID); o != "cancelled" || p != "failed" {
+		t.Fatalf("after fail: %s %s", o, p)
+	}
+	if r.n(t, "SELECT COUNT(*) FROM payments") != 1 || r.n(t, "SELECT attempt FROM payments") != 1 {
+		t.Fatal("first attempt must be 1")
+	}
+	v2, err := r.svc.Checkout(ctx, r.req("k"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v2.OrderID != v.OrderID {
+		t.Fatalf("retry must keep the order, got %s then %s", v.OrderID, v2.OrderID)
+	}
+	if v2.PaymentID == firstPay || v2.ProviderPaymentID == firstPPID || v2.PaymentStatus != ordering.PaymentPending || v2.ConfirmationURL == "" {
+		t.Fatalf("expected a new pending attempt: %+v", v2)
+	}
+	if v2.Status != ordering.OrderAwaitingPayment {
+		t.Fatalf("reopened order: %s", v2.Status)
+	}
+	if r.n(t, "SELECT COUNT(*) FROM payments") != 2 || r.gw.Payments() != 2 {
+		t.Fatal("retry must add exactly one new attempt")
+	}
+	if r.n(t, "SELECT COUNT(*) FROM payments WHERE attempt = 2 AND status = 'pending'") != 1 {
+		t.Fatal("second attempt number")
+	}
+	if r.str(t, "SELECT status FROM payments WHERE id = '"+firstPay+"'") != "failed" {
+		t.Fatal("first attempt must stay failed")
+	}
+	// a third checkout while the new attempt is pending must not add another
+	v3, err := r.svc.Checkout(ctx, r.req("k"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v3.PaymentID != v2.PaymentID || r.n(t, "SELECT COUNT(*) FROM payments") != 2 || r.gw.Payments() != 2 {
+		t.Fatal("pending retry must be idempotent")
+	}
+}
+
+// Two distinct events for the same successful payment are both accepted,
+// but apply runs once (one entitlement, one ledger txn).
+func TestDuplicateEventsSamePayment(t *testing.T) {
+	r := newRig(t)
+	v := r.checkout(t, "k")
+	ppid := v.ProviderPaymentID
+	r.gw.SetState(ppid, payments.StateSucceeded)
+	if r.webhook(t, "evt-a", ppid) || r.webhook(t, "evt-b", ppid) {
+		t.Fatal("distinct event ids must not be reported as duplicates")
+	}
+	ctx := context.Background()
+	for {
+		did, err := r.svc.ProcessInboxOnce(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !did {
+			break
+		}
+	}
+	if r.n(t, "SELECT COUNT(*) FROM payment_events WHERE status = 'processed'") != 2 {
+		t.Fatal("both events must be processed")
+	}
+	if o, p := r.status(t, v.OrderID); o != "paid" || p != "succeeded" {
+		t.Fatalf("status %s %s", o, p)
+	}
+	r.effects(t)
+}

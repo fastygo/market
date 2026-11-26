@@ -199,3 +199,19 @@ func TestMissingGateways(t *testing.T) {
 		t.Fatalf("want 2 warnings, got %v", got)
 	}
 }
+
+func TestCanRetryAttempt(t *testing.T) {
+	if !CanRetryAttempt(OrderCancelled, PaymentFailed) || !CanRetryAttempt(OrderCancelled, PaymentCanceled) {
+		t.Fatal("cancelled + failed/canceled must be retryable")
+	}
+	if CanRetryAttempt(OrderPaid, PaymentFailed) || CanRetryAttempt(OrderCancelled, PaymentPending) {
+		t.Fatal("paid or still-pending must not be retryable")
+	}
+	to, err := ReopenAfterFailedAttempt(OrderCancelled)
+	if err != nil || to != OrderPending {
+		t.Fatalf("%s %v", to, err)
+	}
+	if _, err := ReopenAfterFailedAttempt(OrderPaid); err == nil {
+		t.Fatal("must not reopen a paid order")
+	}
+}

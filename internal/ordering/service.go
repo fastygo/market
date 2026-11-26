@@ -37,6 +37,7 @@ type CheckoutRequest struct {
 	ProductSlug    string // alternative to OfferIDs: one product
 	LicenseType    string // with ProductSlug; default "regular"
 	Method         string
+	BuyerCountry   string // ISO country, optional; used for provider rules
 	Consents       []Consent
 	IPHash         string
 }
@@ -56,6 +57,7 @@ type NewOrder struct {
 	TermsVersion string
 	Consents     []Consent
 	IPHash       string
+	LegalEntity  string
 	Digest       string
 	Now          time.Time
 	// PaidImmediately writes the order as paid with delivery effects and
@@ -124,6 +126,9 @@ type Store interface {
 	Offers(ctx context.Context, ids []string) ([]Offer, error)
 	OfferFor(ctx context.Context, productSlug, licenseType, currency string) (string, error)
 	PlaceOrder(ctx context.Context, o NewOrder) (OrderView, error)
+	// StartNextAttempt writes a new payments row on an existing order
+	// after a failed or canceled attempt and reopens a cancelled order.
+	StartNextAttempt(ctx context.Context, orderID, provider, method, sellerID, legalEntity string, now time.Time) (OrderView, error)
 	AttachProvider(ctx context.Context, paymentID, providerPaymentID, confirmationURL string) (OrderView, error)
 	ApplyPayment(ctx context.Context, provider string, st payments.Status, now time.Time) (Applied, error)
 	ReplayEffects(ctx context.Context, orderID string, now time.Time) (Applied, error)
@@ -201,6 +206,8 @@ type Service struct {
 	Store            Store
 	Tax              TaxPolicy
 	Gateways         map[string]payments.Gateway
+	Registry         *payments.Registry
+	Entity           string // legal entity code for provider selection, e.g. it_garage
 	Outbox           map[string]OutboxHandler
 	RequiredConsents []string // e.g. "terms"
 	Now              func() time.Time
@@ -227,11 +234,27 @@ func (s *Service) now() time.Time {
 }
 
 func (s *Service) gateway(provider string) (payments.Gateway, error) {
+	if g, ok := s.Registry.Gateway(payments.ProviderCode(provider)); ok {
+		return g, nil
+	}
 	g, ok := s.Gateways[provider]
 	if !ok {
 		return nil, fmt.Errorf("%w: provider %q", ErrMethod, provider)
 	}
 	return g, nil
+}
+
+func (s *Service) selectProvider(sf Storefront, method, country string) (string, error) {
+	if _, code, ok := s.Registry.Select(payments.Criteria{
+		Currency: sf.Currency, Country: country, Entity: s.Entity, Method: payments.Method(method),
+	}); ok {
+		return string(code), nil
+	}
+	provider, ok := sf.Providers[method]
+	if !ok {
+		return "", ErrMethod
+	}
+	return provider, nil
 }
 
 // Checkout runs steps 0 to 3 of the protocol. A retry with the same key
@@ -299,9 +322,9 @@ func (s *Service) Checkout(ctx context.Context, req CheckoutRequest) (OrderView,
 	if tot.Sum == 0 {
 		return s.checkoutFree(ctx, req, sf, offers, lines, tot, terms, now)
 	}
-	provider, ok := sf.Providers[req.Method]
-	if !ok {
-		return OrderView{}, ErrMethod
+	provider, err := s.selectProvider(sf, req.Method, req.BuyerCountry)
+	if err != nil {
+		return OrderView{}, err
 	}
 	if _, err := s.gateway(provider); err != nil {
 		return OrderView{}, err
@@ -311,10 +334,16 @@ func (s *Service) Checkout(ctx context.Context, req CheckoutRequest) (OrderView,
 		Storefront: sf, BuyerID: req.BuyerID, BuyerEmail: req.BuyerEmail, OrderKey: orderKey,
 		PaymentKey: "pay:" + orderKey + ":" + provider, Provider: provider, Method: req.Method,
 		SellerID: offers[0].SellerID, Lines: lines, Totals: tot, TermsVersion: terms,
-		Consents: req.Consents, IPHash: req.IPHash, Digest: Digest(lines, tot), Now: now,
+		Consents: req.Consents, IPHash: req.IPHash, LegalEntity: s.Entity, Digest: Digest(lines, tot), Now: now,
 	})
 	if err != nil {
 		return OrderView{}, err
+	}
+	if CanRetryAttempt(v.Status, v.PaymentStatus) {
+		v, err = s.Store.StartNextAttempt(ctx, v.OrderID, provider, req.Method, offers[0].SellerID, s.Entity, now)
+		if err != nil {
+			return OrderView{}, err
+		}
 	}
 	return s.ensurePayment(ctx, v)
 }

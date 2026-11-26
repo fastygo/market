@@ -1,7 +1,7 @@
 // Package payments declares the provider-neutral payment Gateway port
-// (ADR-0007). Adapters live in one package per provider; phase 1 ships only
-// the fake gateway used by tests and development. payments never imports
-// ordering.
+// (ADR-0007, ADR-0033). Adapters live in one package per provider and
+// run in-process in the monolith; there is no payment microservice.
+// payments never imports ordering.
 package payments
 
 import (
@@ -98,6 +98,12 @@ type Gateway interface {
 	RefundPayment(ctx context.Context, req RefundRequest) (RefundResult, error)
 	ParseWebhook(ctx context.Context, r *http.Request) (Event, error)
 }
+
+// Receipts is the tax-document issuer used with a provider (RU: 54-FZ).
+// The port lives in taxdocs so that package stays independent of
+// payments. YooKassa receipts (yookassa.Receipts) are the first
+// implementation.
+type Receipts = taxdocs.Issuer
 
 // Errors shared by adapters.
 var (

@@ -94,7 +94,7 @@ mail then share that SMTP account. Without SMTP the shop writes `.eml`
 files to `pb_data/mail` and logs a warning. Hosts without SMTP egress can
 use `unisender` or `resend` with `MARKET_MAIL_API_KEY`.
 
-## YooKassa (ADR-0025)
+## YooKassa (ADR-0025, ADR-0033)
 
 1. In the YooKassa personal account choose "Add store" and create a test
    store.
@@ -102,7 +102,8 @@ use `unisender` or `resend` with `MARKET_MAIL_API_KEY`.
    into `MARKET_YOOKASSA_SHOP_ID` and `MARKET_YOOKASSA_SECRET_KEY` (env or
    secrets file, never the command line).
 3. Integration, HTTP notifications: URL
-   `https://<public host>/hooks/pay/yookassa`, events `payment.succeeded`,
+   `https://<public host>/webhooks/yookassa` (the previous path
+   `/hooks/pay/yookassa` remains an alias), events `payment.succeeded`,
    `payment.canceled`, `refund.succeeded`.
 4. Settings, Online cash register: enable the receipt test mode, or run with
    `MARKET_YOOKASSA_RECEIPTS=0`.

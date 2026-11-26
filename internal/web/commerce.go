@@ -51,6 +51,7 @@ var CommercePatterns = []string{
 	"POST /checkout",
 	"GET /checkout/return/{order}",
 	"POST /hooks/pay/{provider}",
+	"POST /webhooks/{provider}",
 	"POST /fakepay/{id}/{event}",
 	"POST /admin/orders/{order}/refund",
 	"GET /dl/{token}",
@@ -64,6 +65,7 @@ func (h *Handler) mountCommerce(m *http.ServeMux) {
 	m.HandleFunc("POST /checkout", h.checkout)
 	m.HandleFunc("GET /checkout/return/{order}", h.checkoutReturn)
 	m.HandleFunc("POST /hooks/pay/{provider}", h.webhook)
+	m.HandleFunc("POST /webhooks/{provider}", h.webhook)
 	m.HandleFunc("GET /dl/{token}", h.dl)
 	h.mountAccount(m)
 	if h.Commerce.Files != nil {

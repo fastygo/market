@@ -289,11 +289,11 @@ func main() {
 // wire builds the ordering and licensing services from env (ADR-0016:
 // secrets only from env; nothing here has a real default).
 func wire(app core.App, cfg config, fake bool, brand func(context.Context) string) (*web.Commerce, *ordering.Service) {
-	gateways := map[string]payments.Gateway{}
+	reg := payments.NewRegistry()
 	var fakeGW *fakegw.Gateway
 	if fake {
 		fakeGW = fakegw.New(secret("MARKET_FAKE_WEBHOOK_SECRET", app))
-		gateways[string(fakegw.Code)] = fakeGW
+		reg.Add(fakeGW)
 		app.Logger().Warn("fake payment gateway enabled (development only)")
 	}
 	orders := &pb.Orders{App: app}
@@ -306,16 +306,26 @@ func wire(app core.App, cfg config, fake bool, brand func(context.Context) strin
 		app.Logger().Warn("fake tax document issuer enabled (development only)")
 	}
 	publicURL, ip := cfg.PublicURL, cfg.ClientIP
+	var yk *yookassa.Gateway
 	if gw := yooKassa(app, publicURL, ip); gw != nil {
-		gateways[string(yookassa.Code)] = gw
-		if os.Getenv("MARKET_YOOKASSA_RECEIPTS") != "0" {
+		yk = gw
+		reg.Add(gw)
+	}
+	if missing := reg.Filter(cfg.PaymentProviders); len(missing) > 0 {
+		app.Logger().Warn("payment allow-list names a provider that is not configured", "missing", missing)
+	}
+	reg.SetRules(cfg.PaymentRules)
+	gateways := reg.Map()
+	if yk != nil {
+		if _, ok := reg.Gateway(yookassa.Code); ok && os.Getenv("MARKET_YOOKASSA_RECEIPTS") != "0" {
 			// receipts are registered with the payment; the issuer only
 			// confirms them (replaces the fake register)
-			issuer, orders.TaxDocs, orders.IssuerCode = yookassa.Receipts{G: gw}, ru.Receipts{}, string(yookassa.Code)
+			issuer, orders.TaxDocs, orders.IssuerCode = yookassa.Receipts{G: yk}, ru.Receipts{}, string(yookassa.Code)
 		}
 	}
 	svc := &ordering.Service{
-		Store: orders, Tax: ru.TaxPolicy{}, Gateways: gateways, Issuer: issuer, PaymentTimeout: cfg.PaymentTimeout,
+		Store: orders, Tax: ru.TaxPolicy{}, Gateways: gateways, Registry: reg, Entity: cfg.PaymentEntity,
+		Issuer: issuer, PaymentTimeout: cfg.PaymentTimeout,
 		RequiredConsents: []string{"terms"},
 		ReturnURL:        func(orderID string) string { return publicURL + "/checkout/return/" + orderID },
 	}

@@ -113,6 +113,9 @@ func TestHTTPCheckoutToDownload(t *testing.T) {
 			t.Fatalf("webhook: %d", w.Code)
 		}
 	}
+	if w := do("POST", "/webhooks/fake", string(body), map[string]string{"X-Fake-Signature": sig}); w.Code != http.StatusOK {
+		t.Fatalf("webhook alias: %d", w.Code)
+	}
 	if r.n(t, "SELECT COUNT(*) FROM payment_events WHERE event_id = 'evt-x'") != 1 {
 		t.Fatal("duplicate webhook stored twice")
 	}

@@ -79,7 +79,9 @@ segments are rejected.
 - Payments: `MARKET_YOOKASSA_SHOP_ID`, `MARKET_YOOKASSA_SECRET_KEY`,
   `MARKET_YOOKASSA_API_URL`, `MARKET_YOOKASSA_RECEIPTS`,
   `MARKET_YOOKASSA_REFUND_RECEIPTS`, `MARKET_YOOKASSA_CHECK_IP`;
-  development only: `MARKET_FAKE_GATEWAY`, `MARKET_FAKE_WEBHOOK_SECRET`.
+  optional: `MARKET_PAYMENT_PROVIDERS`, `MARKET_PAYMENT_RULES`,
+  `MARKET_PAYMENT_ENTITY`; development only: `MARKET_FAKE_GATEWAY`,
+  `MARKET_FAKE_WEBHOOK_SECRET`.
 - Mail: `MARKET_MAIL_PROVIDER`, `MARKET_MAIL_FROM`, `MARKET_MAIL_FROM_NAME`,
   `MARKET_MAIL_SENDMAIL`, `MARKET_MAIL_DIR`, `MARKET_MAIL_API_KEY`,
   `MARKET_MAIL_API_URL`.
@@ -90,7 +92,7 @@ segments are rejected.
 | --- | --- |
 | Catalog, product pages, dark theme | Real (placeholder seed data) |
 | Checkout, orders, inbox/outbox workers, refunds, ledger | Real (ADR-0007) |
-| Payments: YooKassa | Adapter done and covered by `httptest` tests; never run against the live API, shop keys pending (ADR-0025). Agent (marketplace) receipt lines are rejected until the agent scheme is decided |
+| Payments: YooKassa | Adapter behind `payments.Gateway` (ADR-0025, ADR-0033). Covered by `httptest` tests; an optional smoke against the YooKassa test shop runs when `YOOKASSA_TEST_SHOP_ID` and `YOOKASSA_TEST_SECRET_KEY` are set (test keys only, never live). Agent (marketplace) receipt lines are rejected until the agent scheme is decided |
 | Payments: fake gateway | `MARKET_FAKE_GATEWAY=1` emulates redirect, return and webhook; must be 0 in production |
 | Mail | PocketBase mailer with the admin SMTP settings (default); `.eml` files while SMTP is off (ADR-0026) |
 | Buyer cabinet | Real: magic link or password sign-in, cookie session, CSRF, orders, downloads (ADR-0027). No password set/reset screen yet; PocketBase's built-in reset API exists |

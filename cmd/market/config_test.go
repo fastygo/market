@@ -152,3 +152,24 @@ func TestBaseURLAlias(t *testing.T) {
 		t.Fatal("different values must fail", err)
 	}
 }
+
+func TestPaymentRulesAndProviders(t *testing.T) {
+	e := prodEnv(t)
+	e["MARKET_PAYMENT_PROVIDERS"] = "yookassa, fake"
+	e["MARKET_PAYMENT_ENTITY"] = "IT_Garage"
+	e["MARKET_PAYMENT_RULES"] = "currency=RUB,country=RU,entity=it_garage:yookassa"
+	c, err := loadConfig(envOf(e), t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(c.PaymentProviders) != 2 || c.PaymentProviders[0] != "yookassa" || c.PaymentEntity != "it_garage" {
+		t.Fatalf("%+v", c)
+	}
+	if len(c.PaymentRules) != 1 || c.PaymentRules[0].Provider != "yookassa" || c.PaymentRules[0].Currency != "RUB" {
+		t.Fatalf("%+v", c.PaymentRules)
+	}
+	e["MARKET_PAYMENT_RULES"] = "not-a-rule"
+	if _, err := loadConfig(envOf(e), t.TempDir()); err == nil {
+		t.Fatal("bad rules must refuse to start")
+	}
+}

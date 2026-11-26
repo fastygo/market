@@ -1,7 +1,8 @@
 # ADR-0007: Payment gateway port, checkout protocol, inbox and outbox
 
 - Status: Proposed (revised 2026-11-24: review r1, provider-neutral core,
-  review r2)
+  review r2). The in-process adapter choice is Accepted in ADR-0033
+  (owner t391u, 2026-11-26); this ADR remains the checkout protocol.
 
 ## Context
 
