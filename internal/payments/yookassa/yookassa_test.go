@@ -217,7 +217,7 @@ func TestAmounts(t *testing.T) {
 // (YooKassa address prepended by the sender) does not pass.
 func TestWebhookBehindProxy(t *testing.T) {
 	f := yktest.New()
-	edge, _ := clientip.ParsePrefixes("10.10.40.10/32")
+	edge, _ := clientip.ParsePrefixes("10.0.0.2/32")
 	res := clientip.Resolver{Header: "X-Forwarded-For", Trusted: edge}
 	g := gateway(t, f, func(c *yookassa.Config) { c.CheckIP, c.ClientIP = true, res.IP })
 	p := create(t, g)
@@ -231,10 +231,10 @@ func TestWebhookBehindProxy(t *testing.T) {
 		_, err := g.ParseWebhook(context.Background(), r)
 		return err
 	}
-	if err := send("10.10.40.10:1234", "185.71.76.5"); err != nil {
+	if err := send("10.0.0.2:1234", "185.71.76.5"); err != nil {
 		t.Fatalf("yookassa through edge: %v", err)
 	}
-	if err := send("10.10.40.10:1234", "185.71.76.5, 203.0.113.9"); !errors.Is(err, payments.ErrInvalidSignature) {
+	if err := send("10.0.0.2:1234", "185.71.76.5, 203.0.113.9"); !errors.Is(err, payments.ErrInvalidSignature) {
 		t.Fatalf("spoofed leftmost hop accepted: %v", err)
 	}
 	if err := send("203.0.113.9:1234", "185.71.76.5"); !errors.Is(err, payments.ErrInvalidSignature) {

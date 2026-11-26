@@ -64,8 +64,9 @@ The client address comes from `MARKET_CLIENT_IP_HEADER` (default
 `X-Forwarded-For` when proxies are set) only when the direct peer is in
 `MARKET_TRUSTED_PROXIES`; the rightmost hop that is not a trusted proxy
 wins, otherwise the peer address. Used by the YooKassa IP allowlist and the
-download and consent IP hashes. Behind the Incus edge:
-`MARKET_TRUSTED_PROXIES=10.10.40.10/32`.
+download and consent IP hashes. Behind the Incus edge, set
+`MARKET_TRUSTED_PROXIES` to that address (documentation example:
+`10.0.0.2/32`).
 
 ### Release files
 

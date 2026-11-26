@@ -4,3 +4,14 @@ node_modules/
 pb_data/
 /bin/
 *.test
+# Local env, keys, databases and captures. Keep *.env.example tracked.
+.env
+.env.*
+!*.env.example
+*.pem
+*.key
+*.db
+*.sqlite
+*.db-*
+*.har
+*.backup

@@ -18,13 +18,13 @@ type Resolver struct {
 	// Header is the forwarded header (e.g. X-Forwarded-For); empty means
 	// the direct peer only.
 	Header string
-	// Trusted are the proxies allowed to set Header (e.g. the edge
-	// 10.10.40.10/32). With no trusted proxies Header is ignored.
+	// Trusted are the proxies allowed to set Header (e.g. a documentation
+	// example edge 10.0.0.2/32). With no trusted proxies Header is ignored.
 	Trusted []netip.Prefix
 }
 
 // ParsePrefixes parses a comma or space separated list of CIDRs or single
-// addresses ("10.10.40.10/32, 127.0.0.1").
+// addresses ("10.0.0.2/32, 127.0.0.1").
 func ParsePrefixes(s string) ([]netip.Prefix, error) {
 	var out []netip.Prefix
 	for _, f := range strings.FieldsFunc(s, func(r rune) bool { return r == ',' || r == ' ' || r == '\t' || r == '\n' }) {

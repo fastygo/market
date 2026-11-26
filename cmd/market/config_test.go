@@ -15,7 +15,7 @@ func prodEnv(t *testing.T) map[string]string {
 		"MARKET_SESSION_SECRET":  strings.Repeat("s", 44),
 		"MARKET_DOWNLOAD_SECRET": strings.Repeat("d", 44),
 		"MARKET_PUBLIC_URL":      "https://market.example.com/",
-		"MARKET_TRUSTED_PROXIES": "10.10.40.10/32",
+		"MARKET_TRUSTED_PROXIES": "10.0.0.2/32",
 		"MARKET_FILES_DIR":       filepath.Join(t.TempDir(), "files"),
 	}
 }
@@ -36,7 +36,7 @@ func TestProductionLocalFiles(t *testing.T) {
 		t.Fatalf("%+v", c.ClientIP)
 	}
 	r := httptest.NewRequest("GET", "/", nil)
-	r.RemoteAddr, r.Header["X-Forwarded-For"] = "10.10.40.10:1", []string{"185.71.76.1, 198.51.100.9"}
+	r.RemoteAddr, r.Header["X-Forwarded-For"] = "10.0.0.2:1", []string{"185.71.76.1, 198.51.100.9"}
 	if ip := c.ClientIP.IP(r); ip != "198.51.100.9" {
 		t.Fatal(ip)
 	}
@@ -78,7 +78,7 @@ func TestProductionRefusesToStart(t *testing.T) {
 		{"no public url", "MARKET_PUBLIC_URL", "", "MARKET_PUBLIC_URL is required"},
 		{"http public url", "MARKET_PUBLIC_URL", "http://market.example.com", "must be https"},
 		{"public url with path", "MARKET_PUBLIC_URL", "https://market.example.com/shop", "without a path"},
-		{"bad cidr", "MARKET_TRUSTED_PROXIES", "10.10.40.10/40", "MARKET_TRUSTED_PROXIES"},
+		{"bad cidr", "MARKET_TRUSTED_PROXIES", "10.0.0.2/40", "MARKET_TRUSTED_PROXIES"},
 		{"header without proxies", "MARKET_TRUSTED_PROXIES", "", "needs MARKET_TRUSTED_PROXIES"},
 		{"bad ttl", "MARKET_S3_URL_TTL", "five", "MARKET_S3_URL_TTL"},
 		{"partial s3", "MARKET_S3_ENDPOINT", "https://s3.example.com", "S3 storage"},
