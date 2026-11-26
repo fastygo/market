@@ -30,8 +30,14 @@ The storefront sits behind Caddy (`via: 1.1 Caddy`). A reference file is
 - never stop or restart nftables to turn on HTTP/3: only enable `servers { protocols h1 h2 h3 }`
   when UDP/443 already answers on the public address (test with `curl --http3-only`).
   If it does not, leave HTTP/3 off.
-- `header Strict-Transport-Security "max-age=15552000"` (180 days). Do not
-  add `preload` without a separate decision.
+- `header Strict-Transport-Security "max-age=15552000"` (180 days) on the
+  storefront and, when the apex/www already serve HTTPS correctly, on those
+  hosts too. Do not add `preload` without a separate decision.
+- Unknown `Host` values must return 404 (see the catch-all in the example).
+  Do not 308 them to `https://{host}/`.
+- Keep `/_/` and `/api/collections/_superusers*` off the public internet
+  (empty 404, no `via`). Directory listing for `/static` is disabled in
+  the app.
 - Caddy already encodes `zstd` and `gzip`; do not add Brotli or a CDN.
   Fonts and images are self-hosted (`/static/fonts`, `/media/covers`).
 

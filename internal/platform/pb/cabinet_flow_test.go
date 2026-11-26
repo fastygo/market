@@ -22,6 +22,7 @@ import (
 	"github.com/fastygo/market/internal/notify"
 	"github.com/fastygo/market/internal/ordering"
 	"github.com/fastygo/market/internal/platform/pb"
+	"github.com/fastygo/market/internal/platform/ratelimit"
 	"github.com/fastygo/market/internal/web"
 	"github.com/fastygo/market/ui/dict"
 )
@@ -196,5 +197,34 @@ func TestCabinetBrowserCycle(t *testing.T) {
 	// the magic link request answers the same for unknown emails
 	if code, page, _ := post("/account/link", url.Values{"csrf": {csrf}, "email": {"nobody@example.com"}}); code != 200 || !strings.Contains(page, en.T("ui.account.link_sent")) {
 		t.Fatalf("link %d", code)
+	}
+}
+
+func TestCabinetAuthRateLimit(t *testing.T) {
+	r := newRig(t)
+	en, _ := i18n.Parse(dict.EN)
+	users := &pb.Users{App: r.app}
+	commerce := &web.Commerce{
+		AuthLimit: ratelimit.NewAuth(),
+		Cabinet:   &web.Cabinet{Users: users, CSRFKey: []byte("csrf-key")},
+	}
+	h := web.New(web.Handler{Catalog: &pb.Catalog{App: r.app}, Storefronts: &pb.Catalog{App: r.app}, StorefrontCode: "default", Dict: en, Commerce: commerce})
+	mux := http.NewServeMux()
+	for _, p := range web.AllPatterns() {
+		mux.Handle(p, h)
+	}
+	var last *httptest.ResponseRecorder
+	for i := 0; i < ratelimit.DefaultAuthMax+1; i++ {
+		req := httptest.NewRequest(http.MethodPost, "/account/login", strings.NewReader("email=a@example.com&password=nope"))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req.RemoteAddr = "192.0.2.20:1"
+		last = httptest.NewRecorder()
+		mux.ServeHTTP(last, req)
+	}
+	if last.Code != http.StatusTooManyRequests {
+		t.Fatalf("want 429, got %d %s", last.Code, last.Body.String())
+	}
+	if last.Header().Get("Retry-After") == "" {
+		t.Fatal("missing Retry-After")
 	}
 }

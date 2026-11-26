@@ -122,7 +122,8 @@ func New(h Handler) *Handler {
 	m.HandleFunc("GET /products/{slug}/download", h.download)
 	m.HandleFunc("GET /authors/{slug}", h.author)
 	h.mountCommerce(m)
-	m.Handle("GET /static/", http.StripPrefix("/static/", cacheStatic(http.FileServerFS(Static()))))
+	root := Static()
+	m.Handle("GET /static/", http.StripPrefix("/static/", cacheStatic(noDirListing(root, http.FileServerFS(root)))))
 	m.HandleFunc("GET /robots.txt", h.robots)
 	m.HandleFunc("GET /sitemap.xml", h.sitemap)
 	m.HandleFunc("GET /favicon.ico", h.faviconICO)
@@ -141,6 +142,7 @@ type pathKey struct{}
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r = r.WithContext(context.WithValue(r.Context(), pathKey{}, r.URL.Path))
 	r, nonce := withNonce(r)
+	setSecurityHeaders(w)
 	if !strings.HasPrefix(r.URL.Path, "/static/") {
 		setCSP(w, nonce)
 	}
@@ -167,6 +169,22 @@ func cacheStatic(next http.Handler) http.Handler {
 			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 		} else {
 			w.Header().Set("Cache-Control", "public, max-age=3600")
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func noDirListing(fsys fs.FS, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(pathpkg.Clean("/"+r.URL.Path), "/")
+		if name == "" || name == "." {
+			http.NotFound(w, r)
+			return
+		}
+		info, err := fs.Stat(fsys, name)
+		if err != nil || info.IsDir() {
+			http.NotFound(w, r)
+			return
 		}
 		next.ServeHTTP(w, r)
 	})

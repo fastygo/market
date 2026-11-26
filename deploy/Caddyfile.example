@@ -2,21 +2,61 @@
 # `caddy validate` before reload. Do not enable HTTP/3 unless UDP/443
 # already answers; never change nftables to make it work.
 #
-# Replace the site address, the reverse-proxy upstream, and any
-# host-specific paths. Keep /_/ and metrics/pprof off the public internet.
+# Host addresses and upstreams below use documentation ranges (RFC 5737)
+# and example names. Replace them with the real site address, the
+# storefront upstream, and host-specific paths. Keep /_/ , superuser
+# API routes, and metrics/pprof off the public internet. Directory
+# listing is disabled in the app for /static; the edge does not serve
+# a file root for the storefront.
 
 # HTTP/3 lives in the global `servers` block (not inside the site).
-# Uncomment only after a successful `curl --http3-only https://market.storeee.ru/`.
+# Uncomment only after a successful `curl --http3-only https://market.example.test/`.
 # {
 # 	servers {
 # 		protocols h1 h2 h3
 # 	}
 # }
 
-market.storeee.ru {
+# Unknown Host -> 404. Do not 308 to https://{host}/ (that would
+# honor a forged Host). Known names get HTTP -> HTTPS below.
+:80 {
+	@known host market.example.test www.example.test example.test
+	handle @known {
+		redir https://{host}{uri} 308
+	}
+	handle {
+		respond 404
+	}
+}
+
+# HTTPS catch-all for unmatched SNI/Host (no on-demand TLS).
+https:// {
+	respond 404
+}
+
+market.example.test {
 	encode zstd gzip
 	header {
 		Strict-Transport-Security "max-age=15552000"
 	}
-	reverse_proxy 127.0.0.1:8090
+	# PocketBase admin UI and superuser API stay off the public internet.
+	@admin path /_/ /_/* /api/collections/_superusers /api/collections/_superusers/*
+	handle @admin {
+		respond 404
+	}
+	# Example upstream (TEST-NET-1). Replace with the storefront address.
+	reverse_proxy 192.0.2.20:8090
+}
+
+# Apex and www: static landing (not a redirect-only host). HSTS matches
+# the storefront; CSP allows the existing inline styles and forbids scripts.
+example.test, www.example.test {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=15552000"
+		Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'none'; img-src 'none'; font-src 'none'; connect-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+	}
+	root * /var/www/example
+	# No directory listing on the landing host either.
+	file_server
 }

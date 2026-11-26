@@ -62,3 +62,32 @@ func TestNormalizeEmail(t *testing.T) {
 		}
 	}
 }
+
+func TestSafeNext(t *testing.T) {
+	const fallback = "/account/orders"
+	ok := []struct{ in, want string }{
+		{"/account", "/account"},
+		{"/account/orders", "/account/orders"},
+		{"/account/orders/M-2026-000001", "/account/orders/M-2026-000001"},
+		{"/account/items/abc", "/account/items/abc"},
+		{"/account//orders", "/account/orders"},
+		{"/account/orders?next=1", "/account/orders?next=1"},
+	}
+	for _, c := range ok {
+		if got := account.SafeNext(c.in); got != c.want {
+			t.Errorf("SafeNext(%q) = %q, want %q", c.in, got, c.want)
+		}
+	}
+	bad := []string{
+		"", "https://evil.example.com", "http://evil.example.com", "//evil.example",
+		"/account/../catalog", "/account/../../etc/passwd", "/catalog",
+		"/accountfoo", "account/orders", "javascript:alert(1)",
+		"/account/orders" + "\r\n" + "Location: https://evil.example",
+		`/account/\evil.example`,
+	}
+	for _, in := range bad {
+		if got := account.SafeNext(in); got != fallback {
+			t.Errorf("SafeNext(%q) = %q, want fallback", in, got)
+		}
+	}
+}

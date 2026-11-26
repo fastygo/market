@@ -26,6 +26,7 @@ var (
 // RegisterGuards binds the Go write-protection hooks. They run for every
 // write path (REST API, admin UI, Go code) unless noted.
 func RegisterGuards(app core.App) {
+	RegisterUsersLock(app)
 	deny := func(e *core.RecordRequestEvent) error {
 		return e.ForbiddenError(ErrLockedCollection.Error(), nil)
 	}

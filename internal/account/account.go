@@ -10,6 +10,8 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
+	"net/url"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -95,12 +97,31 @@ func (m Magic) mac(payload, tokenKey string) string {
 	return base64.RawURLEncoding.EncodeToString(h.Sum(nil))
 }
 
-// SafeNext keeps redirects inside the cabinet.
+// SafeNext keeps redirects inside the cabinet. The path is cleaned first
+// so values like /account/../catalog cannot leave /account.
 func SafeNext(next string) string {
-	if strings.HasPrefix(next, "/account") && !strings.HasPrefix(next, "//") && !strings.ContainsAny(next, "\\\r\n|") {
-		return next
+	const fallback = "/account/orders"
+	if next == "" || strings.ContainsAny(next, "\\\r\n|\t") {
+		return fallback
 	}
-	return "/account/orders"
+	if strings.Contains(next, "://") || strings.HasPrefix(next, "//") {
+		return fallback
+	}
+	if !strings.HasPrefix(next, "/") {
+		return fallback
+	}
+	u, err := url.Parse(next)
+	if err != nil || u.Scheme != "" || u.Host != "" || u.User != nil || u.Opaque != "" {
+		return fallback
+	}
+	clean := path.Clean(u.Path)
+	if strings.Contains(clean, "..") || (clean != "/account" && !strings.HasPrefix(clean, "/account/")) {
+		return fallback
+	}
+	if u.RawQuery != "" {
+		return clean + "?" + u.RawQuery
+	}
+	return clean
 }
 
 // Sign returns the token for a user, valid for ttl, landing on next.

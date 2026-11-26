@@ -40,6 +40,7 @@ import (
 	"github.com/fastygo/market/internal/platform/clientip"
 	"github.com/fastygo/market/internal/platform/metrics"
 	"github.com/fastygo/market/internal/platform/pb"
+	"github.com/fastygo/market/internal/platform/ratelimit"
 	"github.com/fastygo/market/internal/region/ru"
 	"github.com/fastygo/market/internal/taxdocs"
 	"github.com/fastygo/market/internal/taxdocs/fakeissuer"
@@ -160,6 +161,15 @@ func main() {
 				se.App.Logger().Warn("storefront method has no gateway", "storefront", code, "detail", w)
 			}
 		}
+		authLimit := ratelimit.NewAuth()
+		if commerce != nil {
+			commerce.AuthLimit = authLimit
+			if commerce.ClientIP == nil {
+				commerce.ClientIP = cfg.ClientIP.IP
+			}
+		}
+		pb.RegisterAuthLimit(se.Router, authLimit, cfg.ClientIP)
+		pb.RegisterSecurityHeaders(se.Router)
 		h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: code, Dict: en, Log: se.App.Logger(), Commerce: commerce,
 			BaseURL: cfg.PublicURL, Observe: met, Covers: covers})
 		deriveCover := func(src media.Source) {

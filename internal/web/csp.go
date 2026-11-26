@@ -112,3 +112,10 @@ func mustJSON(v any) string {
 	}
 	return string(b)
 }
+
+func setSecurityHeaders(w http.ResponseWriter) {
+	h := w.Header()
+	h.Set("X-XSS-Protection", "0")
+	h.Set("Cross-Origin-Resource-Policy", "same-origin")
+	h.Set("Permissions-Policy", "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), usb=(), web-share=(), interest-cohort=(), browsing-topics=()")
+}

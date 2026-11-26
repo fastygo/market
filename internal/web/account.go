@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -15,6 +16,7 @@ import (
 	"github.com/fastygo/market/internal/account"
 	"github.com/fastygo/market/internal/authoring"
 	"github.com/fastygo/market/internal/ordering"
+	"github.com/fastygo/market/internal/platform/ratelimit"
 	"github.com/fastygo/market/internal/web/screens"
 )
 
@@ -219,7 +221,32 @@ func (h *Handler) startSession(w http.ResponseWriter, r *http.Request, userID, n
 	http.Redirect(w, r, account.SafeNext(next), http.StatusSeeOther)
 }
 
+func (h *Handler) checkAuthLimit(w http.ResponseWriter, r *http.Request) bool {
+	c := h.Commerce
+	if c == nil || c.AuthLimit == nil {
+		return true
+	}
+	ip := ""
+	if c.ClientIP != nil {
+		ip = c.ClientIP(r)
+	} else if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		ip = host
+	} else {
+		ip = r.RemoteAddr
+	}
+	ok, wait := c.AuthLimit.Allow(ratelimit.KeyPrefix + ip)
+	if ok {
+		return true
+	}
+	ratelimit.SetRetryAfter(w, wait)
+	http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
+	return false
+}
+
 func (h *Handler) accountLogin(w http.ResponseWriter, r *http.Request) {
+	if !h.checkAuthLimit(w, r) {
+		return
+	}
 	if !h.parseForm(w, r) {
 		return
 	}
@@ -236,6 +263,9 @@ func (h *Handler) accountLogin(w http.ResponseWriter, r *http.Request) {
 // accountLink always answers the same way, so it does not reveal which
 // emails have accounts.
 func (h *Handler) accountLink(w http.ResponseWriter, r *http.Request) {
+	if !h.checkAuthLimit(w, r) {
+		return
+	}
 	if !h.parseForm(w, r) {
 		return
 	}

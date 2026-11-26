@@ -177,3 +177,42 @@ func TestUpgradeKeepsSuspendedSeller(t *testing.T) {
 		t.Fatalf("status %q", s.GetString("status"))
 	}
 }
+
+func TestUsersAPILock(t *testing.T) {
+	app := pbtest.New(t)
+	users, err := app.FindCollectionByNameOrId("users")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if users.CreateRule != nil {
+		t.Fatalf("CreateRule = %v, want nil (server-only create)", *users.CreateRule)
+	}
+	if users.PasswordAuth.Enabled {
+		t.Fatal("PasswordAuth should be disabled for the public API")
+	}
+	if users.OTP.Enabled || users.OAuth2.Enabled {
+		t.Fatal("OTP and OAuth2 should stay disabled")
+	}
+}
+
+func TestUsersAPILockUpgrade(t *testing.T) {
+	app := pbtest.New(t)
+	users, err := app.FindCollectionByNameOrId("users")
+	if err != nil {
+		t.Fatal(err)
+	}
+	empty := ""
+	users.CreateRule = &empty
+	users.PasswordAuth.Enabled = true
+	if err := app.Save(users); err != nil {
+		t.Fatal(err)
+	}
+	rerun(t, app, "1764000011_users_api_lock.go")
+	users, err = app.FindCollectionByNameOrId("users")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if users.CreateRule != nil || users.PasswordAuth.Enabled {
+		t.Fatal("upgrade did not lock the users API")
+	}
+}

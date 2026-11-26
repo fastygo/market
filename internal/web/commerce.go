@@ -13,6 +13,7 @@ import (
 	"github.com/fastygo/market/internal/ordering"
 	"github.com/fastygo/market/internal/payments"
 	"github.com/fastygo/market/internal/payments/fakegw"
+	"github.com/fastygo/market/internal/platform/ratelimit"
 )
 
 // Buyer is the signed-in user of a request.
@@ -41,6 +42,8 @@ type Commerce struct {
 	// ClientIP resolves the client address behind trusted proxies
 	// (clientip.Resolver); nil means the direct peer (RemoteAddr).
 	ClientIP func(r *http.Request) string
+	// AuthLimit rate-limits sign-in posts per client IP; nil disables it.
+	AuthLimit *ratelimit.Limiter
 }
 
 // CommercePatterns are the phase 1 routes (Go 1.22 ServeMux syntax).
