@@ -2,6 +2,7 @@ package screens
 
 import (
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,7 +20,10 @@ type SignInView struct {
 }
 
 // AccountView is the signed-in cabinet frame.
-type AccountView struct{ Email, CSRF string }
+type AccountView struct {
+	Email, CSRF string
+	Seller       bool
+}
 
 // CheckoutView is the product page buy form.
 type CheckoutView struct {
@@ -89,4 +93,10 @@ func IsFree(p catalog.Product) bool {
 // FreeSignInHref is the sign-in page with a return to the product.
 func FreeSignInHref(slug string) string {
 	return "/account?next=" + url.QueryEscape("/products/"+slug)
+}
+
+func ItemEditHref(id string) string { return "/account/items/" + id }
+
+func versionString(n int) string {
+	return strconv.Itoa(n)
 }

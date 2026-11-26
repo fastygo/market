@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/fastygo/market/internal/account"
+	"github.com/fastygo/market/internal/authoring"
 	"github.com/fastygo/market/internal/ordering"
 	"github.com/fastygo/market/internal/web/screens"
 )
@@ -35,6 +36,8 @@ type Cabinet struct {
 	TermsVersion string
 	// Method is the payment method code used by the product page form.
 	Method string
+	// Items is the seller authoring store (ADR-0031); nil hides those routes.
+	Items authoring.Store
 }
 
 // AccountReader reads the cabinet data (platform/pb.Account).
@@ -57,6 +60,11 @@ var AccountPatterns = []string{
 	"POST /account/logout",
 	"GET /account/orders",
 	"GET /account/orders/{number}",
+	"GET /account/items",
+	"GET /account/items/{id}",
+	"POST /account/items/{id}",
+	"PATCH /account/items/{id}",
+	"POST /account/items/{id}/images",
 	"POST /checkout/form",
 	"GET /fakepay/{id}",
 }
@@ -77,6 +85,13 @@ func (h *Handler) mountAccount(m *http.ServeMux) {
 	m.HandleFunc("POST /account/logout", h.accountLogout)
 	m.HandleFunc("GET /account/orders", h.accountOrders)
 	m.HandleFunc("GET /account/orders/{number}", h.accountOrder)
+	if h.Commerce.Cabinet.Items != nil {
+		m.HandleFunc("GET /account/items", h.accountItems)
+		m.HandleFunc("GET /account/items/{id}", h.accountItemEdit)
+		m.HandleFunc("POST /account/items/{id}", h.accountItemSave)
+		m.HandleFunc("PATCH /account/items/{id}", h.accountItemAutosave)
+		m.HandleFunc("POST /account/items/{id}/images", h.accountItemImage)
+	}
 	m.HandleFunc("POST /checkout/form", h.checkoutForm)
 	if h.Commerce.FakePay != nil {
 		m.HandleFunc("GET /fakepay/{id}", h.fakePayPage)
@@ -143,7 +158,11 @@ func (c *Cabinet) checkCSRF(r *http.Request) bool {
 	if err != nil || len(ck.Value) < 32 {
 		return false
 	}
-	return hmac.Equal([]byte(r.PostFormValue("csrf")), []byte(c.sign(ck.Value)))
+	tok := r.PostFormValue("csrf")
+	if tok == "" {
+		tok = r.Header.Get("X-CSRF-Token")
+	}
+	return hmac.Equal([]byte(tok), []byte(c.sign(ck.Value)))
 }
 
 func newKey() string {
@@ -279,7 +298,7 @@ func (h *Handler) accountOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Cache-Control", "no-store")
-	h.render(w, r, http.StatusOK, screens.OrdersPage(s, screens.AccountView{Email: b.Email, CSRF: h.Commerce.Cabinet.csrf(w, r)}, os))
+	h.render(w, r, http.StatusOK, screens.OrdersPage(s, h.accountView(w, r, b), os))
 }
 
 func (h *Handler) accountOrder(w http.ResponseWriter, r *http.Request) {
@@ -301,7 +320,7 @@ func (h *Handler) accountOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Cache-Control", "no-store")
-	h.render(w, r, http.StatusOK, screens.OrderPage(s, screens.AccountView{Email: b.Email, CSRF: h.Commerce.Cabinet.csrf(w, r)}, o))
+	h.render(w, r, http.StatusOK, screens.OrderPage(s, h.accountView(w, r, b), o))
 }
 
 // checkoutView is the product page buy form state.

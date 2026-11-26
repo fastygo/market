@@ -1,0 +1,11 @@
+package screens
+
+// Textarea is the no-JavaScript fallback for the longread body. The
+// installed kit has no textarea primitive yet; this file is the only
+// app-level exception besides the document shell in layout.templ
+// (scripts/verify.sh allowlist).
+templ Textarea(id, name, value, label string) {
+	<textarea id={ id } name={ name } aria-label={ label } class="w-full min-h-80 rounded-md border border-border bg-background p-3 font-mono text-sm text-foreground">
+		{ value }
+	</textarea>
+}

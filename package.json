@@ -5,9 +5,22 @@
   "license": "Apache-2.0",
   "ui8kit": {
     "runtime": "templ",
-    "kit": ["ui/kit"],
-    "composition": ["internal/web/screens"],
-    "blockRoot": ["internal/web/screens/home.templ", "internal/web/screens/catalog.templ", "internal/web/screens/product.templ", "internal/web/screens/notice.templ", "internal/web/screens/author.templ"]
+    "kit": [
+      "ui/kit"
+    ],
+    "composition": [
+      "internal/web/screens"
+    ],
+    "blockRoot": [
+      "internal/web/screens/home.templ",
+      "internal/web/screens/catalog.templ",
+      "internal/web/screens/product.templ",
+      "internal/web/screens/notice.templ",
+      "internal/web/screens/author.templ",
+      "internal/web/screens/items.templ",
+      "internal/web/screens/item-edit.templ",
+      "internal/web/screens/account.templ"
+    ]
   },
   "scripts": {
     "css": "make css"

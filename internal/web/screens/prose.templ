@@ -1,0 +1,15 @@
+package screens
+
+import (
+	"github.com/fastygo/market/internal/content"
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+)
+
+// Prose injects sanitized description HTML (ADR-0031). The HTML is
+// allowlisted again here so a manual database edit cannot run a script.
+templ Prose(html string) {
+	@compose.Box(compose.BoxProps{BoxProps: box.BoxProps{Tag: "div", Class: "ui-longread text-muted-foreground", Attrs: templ.Attributes{"data-slot": "description"}}}) {
+		@templ.Raw(content.Sanitize(html))
+	}
+}

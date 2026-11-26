@@ -1,0 +1,19 @@
+{
+  "name": "market-editor-island",
+  "private": true,
+  "type": "module",
+  "description": "Build-time Solid EditorY island for the seller cabinet (ADR-0031).",
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "solid-js": "^1.9.15",
+    "typescript": "5.7.3",
+    "vite": "6.3.1",
+    "vite-plugin-solid": "^2.11.14"
+  },
+  "dependencies": {
+    "@ui8kit/editory-solid": "0.2.1",
+    "editory": "0.2.0"
+  }
+}

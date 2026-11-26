@@ -86,11 +86,21 @@ templ AccountBar(s Shell, a AccountView) {
 				{ a.Email }
 			}
 		}
-		@compose.Form(compose.FormProps{FormProps: form.FormProps{Action: "/account/logout", Method: "post", Class: "flex"}}) {
-			@Hidden("csrf", a.CSRF)
-			@compose.Button(compose.ButtonProps{Variant: "ghost", Size: "sm", ButtonProps: button.ButtonProps{Type: "submit", Class: "gap-2"}}) {
-				@icons.LucideIcon(icons.LucideIconProps{Name: "log-out", Size: 16})
-				{ s.T("ui.account.signout") }
+		@compose.Group(compose.GroupProps{Gap: "4", BoxProps: box.BoxProps{Class: "flex-wrap"}}) {
+			if a.Seller {
+				@compose.Link(compose.LinkProps{Size: "sm", LinkProps: link.LinkProps{Href: "/account/items", Class: "flex items-center gap-2"}}) {
+					{ s.T("ui.seller.items") }
+				}
+			}
+			@compose.Link(compose.LinkProps{Size: "sm", LinkProps: link.LinkProps{Href: "/account/orders", Class: "flex items-center gap-2"}}) {
+				{ s.T("ui.account.orders") }
+			}
+			@compose.Form(compose.FormProps{FormProps: form.FormProps{Action: "/account/logout", Method: "post", Class: "flex"}}) {
+				@Hidden("csrf", a.CSRF)
+				@compose.Button(compose.ButtonProps{Variant: "ghost", Size: "sm", ButtonProps: button.ButtonProps{Type: "submit", Class: "gap-2"}}) {
+					@icons.LucideIcon(icons.LucideIconProps{Name: "log-out", Size: 16})
+					{ s.T("ui.account.signout") }
+				}
 			}
 		}
 	}

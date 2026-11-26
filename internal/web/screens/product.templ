@@ -90,14 +90,18 @@ templ ProductPage(s Shell, p catalog.Product, buy CheckoutView, author catalog.S
 							{ s.T("ui.product.updates_included") }
 						}
 					}
-					if p.Description != "" {
+					if p.DescriptionHTML != "" || p.Description != "" {
 						@compose.Stack(compose.StackProps{Gap: "4", BoxProps: box.BoxProps{Class: "border-t border-border pt-6"}}) {
 							@compose.Title(compose.TitleProps{As: "2", Size: "lg", TextProps: text.TextProps{}}) {
 								{ s.T("ui.product.description") }
 							}
-							for _, para := range paragraphs(p.Description) {
-								@compose.Text(compose.TextProps{TextProps: text.TextProps{Class: "text-muted-foreground"}}) {
-									{ para }
+							if p.DescriptionHTML != "" {
+								@Prose(p.DescriptionHTML)
+							} else {
+								for _, para := range paragraphs(p.Description) {
+									@compose.Text(compose.TextProps{TextProps: text.TextProps{Class: "text-muted-foreground"}}) {
+										{ para }
+									}
 								}
 							}
 						}

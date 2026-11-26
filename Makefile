@@ -2,9 +2,9 @@
 TEMPL ?= templ
 BIN   ?= bin/market
 
-.PHONY: all generate uisem css ui8kit build test run verify clean
+.PHONY: all generate uisem css editor editor-check ui8kit build test run verify clean
 
-all: generate css build test
+all: generate css editor build test
 
 generate:            ## templ -> *_templ.go (app screens and the installed kit, from the repo root)
 	$(TEMPL) generate
@@ -31,6 +31,12 @@ run: build           ## local run on 127.0.0.1:8090 with data in ./pb_data
 
 verify:
 	scripts/verify.sh
+
+editor:              ## Solid EditorY island -> internal/web/static/editor/ (ADR-0031; needs bun)
+	scripts/editor.sh
+
+editor-check:        ## fail if committed editor assets are stale
+	scripts/editor.sh --check
 
 clean:
 	rm -rf bin

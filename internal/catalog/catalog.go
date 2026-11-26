@@ -31,14 +31,17 @@ type Product struct {
 	Title       string
 	Excerpt     string
 	Description string
-	ProductType string
-	DemoURL     string
-	CoverURL    string
-	Category    Category
-	SellerName  string
-	SellerSlug  string
-	Price       money.Money
-	HasOffer    bool
+	// DescriptionHTML is sanitized HTML derived from Description (ADR-0031).
+	// Empty: the storefront falls back to splitting Description on blank lines.
+	DescriptionHTML string
+	ProductType     string
+	DemoURL         string
+	CoverURL        string
+	Category        Category
+	SellerName      string
+	SellerSlug      string
+	Price           money.Money
+	HasOffer        bool
 }
 
 // Seller is the public author profile (ADR-0020): only `display_name`

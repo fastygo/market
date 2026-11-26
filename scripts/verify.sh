@@ -38,7 +38,8 @@ fi
 # shell (html, head, meta, title, link, script, body) in layout.templ has no primitive.
 if [ -d internal/web/screens ]; then
   raw=$(grep -nE '<[a-z][a-z0-9]*[ />]' internal/web/screens/*.templ \
-    | grep -vE '^internal/web/screens/layout\.templ:[0-9]+:\s*</?(html|head|meta|title|link|script|body)[ >/]' || true)
+    | grep -vE '^internal/web/screens/layout\.templ:[0-9]+:\s*</?(html|head|meta|title|link|script|body)[ >/]' \
+    | grep -vE '^internal/web/screens/textarea\.templ:[0-9]+:\s*</?textarea[ >/]' || true)
   if [ -n "$raw" ]; then echo "verify: raw HTML tag in screens (use UI8Kit primitives)"; echo "$raw"; fail=1; fi
   lit=$(grep -nE '^\s+[A-Za-z][A-Za-z ,.!?]*$' internal/web/screens/*.templ \
     | grep -vE ':\s+(else|default|case|return|break|continue)$' || true)
@@ -57,6 +58,9 @@ if [ -f go.mod ]; then
     go run ./scripts/uisem -check || { echo "verify: semantic kit CSS out of date (run make css and commit)"; fail=1; }
   else
     echo "verify: semantic kit CSS not verified (npm ci for the Tailwind CLI)"
+  fi
+  if [ -x scripts/editor.sh ]; then
+    scripts/editor.sh --check || { echo "verify: EditorY island assets stale or missing (run make editor and commit)"; fail=1; }
   fi
   unformatted=$(gofmt -l cmd internal scripts/uisem ui/dict | grep -v '_templ.go' || true)
   test -z "$unformatted" || { echo "verify: gofmt"; echo "$unformatted"; fail=1; }

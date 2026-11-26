@@ -1,0 +1,48 @@
+package screens
+
+import (
+	"github.com/fastygo/market/internal/authoring"
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/link"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+)
+
+// ItemsPage lists the signed-in seller's products (ADR-0028 / ADR-0031).
+templ ItemsPage(s Shell, a AccountView, items []authoring.Item) {
+	@Layout(s) {
+		@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "section", Class: "flex flex-col gap-6 py-12", Attrs: templ.Attributes{"data-page": "seller-items"}}}) {
+			@AccountBar(s, a)
+			@compose.Title(compose.TitleProps{As: "1", Size: "2xl", Weight: "bold", TextProps: text.TextProps{}}) {
+				{ s.T("ui.seller.items") }
+			}
+			if !a.Seller {
+				@compose.Text(compose.TextProps{TextProps: text.TextProps{Class: "text-muted-foreground"}}) {
+					{ s.T("ui.seller.not_seller") }
+				}
+			} else if len(items) == 0 {
+				@compose.Text(compose.TextProps{TextProps: text.TextProps{Class: "text-muted-foreground"}}) {
+					{ s.T("ui.seller.items_empty") }
+				}
+			} else {
+				@compose.List(compose.ListProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-4"}}) {
+					for _, it := range items {
+						@compose.ListItem(compose.ListItemProps{BoxProps: box.BoxProps{Class: "flex flex-wrap items-center justify-between gap-4 rounded border border-border bg-card p-4", Attrs: templ.Attributes{"data-item": it.ID}}}) {
+							@compose.Stack(compose.StackProps{Gap: "1"}) {
+								@compose.Text(compose.TextProps{Weight: "semibold", TextProps: text.TextProps{}}) {
+									{ it.Title }
+								}
+								@compose.Text(compose.TextProps{Size: "sm", TextProps: text.TextProps{Class: "text-muted-foreground"}}) {
+									{ it.Slug + " · " + it.Status }
+								}
+							}
+							@compose.LinkButton(compose.LinkButtonProps{Variant: "outline", Size: "sm", LinkProps: link.LinkProps{Href: ItemEditHref(it.ID)}}) {
+								{ s.T("ui.seller.edit") }
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

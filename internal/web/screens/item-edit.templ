@@ -1,0 +1,48 @@
+package screens
+
+import (
+	"github.com/fastygo/market/internal/authoring"
+	"github.com/ui8kit/codegen/generated/templ/compose"
+	"github.com/ui8kit/codegen/generated/templ/icons"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/button"
+	"github.com/ui8kit/codegen/generated/templ/ui/form"
+	"github.com/ui8kit/codegen/generated/templ/ui/label"
+	"github.com/ui8kit/codegen/generated/templ/ui/link"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+)
+
+// ItemEditPage is the longread editor for one product (ADR-0031).
+templ ItemEditPage(s Shell, a AccountView, it authoring.Item, notice string) {
+	@Layout(s) {
+		@compose.Block(compose.BlockProps{BoxProps: box.BoxProps{Tag: "section", Class: "flex flex-col gap-6 py-12", Attrs: templ.Attributes{"data-page": "seller-item-edit", "data-item": it.ID}}}) {
+			@AccountBar(s, a)
+			@compose.Link(compose.LinkProps{Size: "sm", LinkProps: link.LinkProps{Href: "/account/items", Class: "flex items-center gap-2"}}) {
+				@icons.LucideIcon(icons.LucideIconProps{Name: "arrow-left", Size: 16})
+				{ s.T("ui.seller.back") }
+			}
+			@compose.Title(compose.TitleProps{As: "1", Size: "2xl", Weight: "bold", TextProps: text.TextProps{}}) {
+				{ it.Title }
+			}
+			if notice != "" {
+				@compose.Text(compose.TextProps{TextProps: text.TextProps{Class: "text-muted-foreground", Attrs: templ.Attributes{"role": "status"}}}) {
+					{ notice }
+				}
+			}
+			@compose.Form(compose.FormProps{FormProps: form.FormProps{Action: ItemEditHref(it.ID), Method: "post", AriaLabel: s.T("ui.seller.save_description")}}) {
+				@Hidden("csrf", a.CSRF)
+				@Hidden("version", versionString(it.Version))
+				@compose.Stack(compose.StackProps{Gap: "4"}) {
+					@compose.Label(compose.LabelProps{LabelProps: label.LabelProps{For: "description"}}) {
+						{ s.T("ui.seller.description") }
+					}
+					@Textarea("description", "description", it.Description, s.T("ui.seller.description"))
+					@compose.Box(compose.BoxProps{BoxProps: box.BoxProps{Tag: "div", Attrs: templ.Attributes{"id": "editory-root"}}})
+					@compose.Button(compose.ButtonProps{ButtonProps: button.ButtonProps{Type: "submit"}}) {
+						{ s.T("ui.seller.save") }
+					}
+				}
+			}
+		}
+	}
+}

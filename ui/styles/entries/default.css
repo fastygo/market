@@ -6,6 +6,7 @@
 @import "../skins/default.css";
 @import "../generated/kit-layered.css";
 @import "../generated/kit.default.css";
+@import "../longread.css";
 /* the kit's compositions render ui-* names (no utilities to scan); its organisms and icons still use utilities */
 @source "../../kit/blocks";
 @source "../../kit/icons";

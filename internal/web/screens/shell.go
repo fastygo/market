@@ -36,6 +36,14 @@ type Shell struct {
 	Description string
 	// JSONLD is the schema.org graph of the page (nil: none).
 	JSONLD any
+	// CSPNonce is the per-request script nonce (empty in tests that
+	// skip ServeHTTP).
+	CSPNonce string
+	// EditorCSS and EditorJS are hashed island assets; empty on pages
+	// that do not mount the editor (ADR-0031).
+	EditorCSS, EditorJS string
+	// EditorProps is the JSON blob for the island (#editory-props).
+	EditorProps any
 }
 
 // T resolves a dictionary key.

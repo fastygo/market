@@ -274,3 +274,53 @@ func TestCatalogPages(t *testing.T) {
 		t.Fatalf("page over the cap: %d", rec.Code)
 	}
 }
+
+func TestProductRendersSanitizedHTML(t *testing.T) {
+	en, err := i18n.Parse(dict.EN)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f := fake{products: []catalog.Product{{
+		Slug: "p1", Title: "Product one", Excerpt: "Short.", ProductType: "plain",
+		Description:     "<script>alert(1)</script>",
+		DescriptionHTML: `<p>Safe <strong>html</strong></p><script>alert(1)</script>`,
+		SellerName:      "Seller", SellerSlug: "seller", Price: money.Money{Minor: 150000, Currency: "RUB"}, HasOffer: true,
+	}}}
+	h := web.New(web.Handler{Catalog: f, Storefronts: f, StorefrontCode: "default", Dict: en,
+		Now: func() time.Time { return time.Date(2026, 11, 24, 0, 0, 0, 0, time.UTC) }})
+	rec := get(h, "/products/p1")
+	if rec.Code != 200 {
+		t.Fatalf("code %d", rec.Code)
+	}
+	body := rec.Body.String()
+	if !strings.Contains(body, "Safe") || !strings.Contains(body, "<strong>html</strong>") {
+		t.Fatalf("safe html missing: %s", body)
+	}
+	if strings.Contains(body, "<script>") || strings.Contains(body, "alert(1)") {
+		t.Fatalf("unsanitized html leaked: %s", body)
+	}
+	if !strings.Contains(body, `data-slot="description"`) {
+		t.Fatal("description slot missing")
+	}
+}
+
+func TestStorefrontHasCSPAndNoEditorAssets(t *testing.T) {
+	h := handler(t)
+	for _, path := range []string{"/", "/catalog", "/products/p1"} {
+		rec := get(h, path)
+		csp := rec.Header().Get("Content-Security-Policy")
+		if csp == "" || !strings.Contains(csp, "script-src 'self'") || !strings.Contains(csp, "nonce-") {
+			t.Errorf("%s: CSP %q", path, csp)
+		}
+		if strings.Contains(csp, "unsafe-inline") || strings.Contains(csp, "unsafe-eval") {
+			t.Errorf("%s: loosened CSP %q", path, csp)
+		}
+		body := rec.Body.String()
+		if strings.Contains(body, "/static/editor/") {
+			t.Errorf("%s: storefront loaded the editor island", path)
+		}
+		if rec.Header().Get("Content-Security-Policy") != "" && !strings.Contains(body, "nonce=") {
+			t.Errorf("%s: theme script missing nonce", path)
+		}
+	}
+}

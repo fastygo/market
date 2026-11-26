@@ -300,7 +300,8 @@ func wire(app core.App, cfg config, fake bool, brand func(context.Context) strin
 	lic := &licensing.Service{Store: &pb.Downloads{App: app}, Signer: licensing.Signer{Key: dlKey}, Presigner: presigner, URLTTL: cfg.URLTTL}
 	cab := &web.Cabinet{Users: users, Magic: magic, Orders: &pb.Account{App: app}, Mailer: note, CSRFKey: sessionKey,
 		Secure: strings.HasPrefix(publicURL, "https://"), AllowedOrigin: origin(publicURL),
-		TermsVersion: env("MARKET_TERMS_VERSION", "1"), Method: env("MARKET_CHECKOUT_METHOD", "card")}
+		TermsVersion: env("MARKET_TERMS_VERSION", "1"), Method: env("MARKET_CHECKOUT_METHOD", "card"),
+		Items: &pb.Authoring{App: app}}
 	return &web.Commerce{Auth: auth(app), Operator: operator(app), Orders: svc, Licenses: lic, FakePay: fakeGW,
 		HashSalt: string(dlKey), Cabinet: cab, Files: files, ClientIP: ip.IP}, svc
 }

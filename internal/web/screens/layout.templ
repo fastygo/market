@@ -31,9 +31,15 @@ templ Layout(s Shell) {
 			if s.JSONLD != nil {
 				@templ.JSONScript("ld-json", s.JSONLD).WithType("application/ld+json")
 			}
+			if s.EditorProps != nil {
+				@templ.JSONScript("editory-props", s.EditorProps).WithType("application/json")
+			}
 			<meta name="color-scheme" content="light dark"/>
 			<link rel="stylesheet" href={ s.CSSHref }/>
-			<script>
+			if s.EditorCSS != "" {
+				<link rel="stylesheet" href={ s.EditorCSS }/>
+			}
+			<script nonce={ s.CSPNonce }>
 				/* Theme before first paint (no flash): stored choice, else the system preference.
 				   Choosing the system value again clears the stored choice. */
 				(function () {
@@ -70,6 +76,9 @@ templ Layout(s Shell) {
 				{ children... }
 			}
 			@SiteFooter(s)
+			if s.EditorJS != "" {
+				<script type="module" src={ s.EditorJS } nonce={ s.CSPNonce }></script>
+			}
 		</body>
 	</html>
 }

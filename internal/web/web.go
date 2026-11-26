@@ -120,6 +120,10 @@ type pathKey struct{}
 // ServeHTTP keeps the request path in the context for the canonical link.
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r = r.WithContext(context.WithValue(r.Context(), pathKey{}, r.URL.Path))
+	r, nonce := withNonce(r)
+	if !strings.HasPrefix(r.URL.Path, "/static/") {
+		setCSP(w, nonce)
+	}
 	if h.Observe == nil {
 		h.mux.ServeHTTP(w, r)
 		return
@@ -157,6 +161,7 @@ func (h *Handler) shell(ctx context.Context, title, current string) (screens.She
 		Dict: h.Dict, Lang: h.Dict.Locale, Brand: sf.BrandName, Year: h.Now().Year(),
 		Title: title, Current: current, CSSHref: skinHref(sf.Skin), Categories: cats,
 		BrandInfo: sf.Brand, BaseURL: strings.TrimRight(h.BaseURL, "/"), Path: path,
+		CSPNonce: nonceFrom(ctx),
 	}, sf, nil
 }
 
@@ -191,7 +196,11 @@ func skinVersion(name string) string {
 func (h *Handler) render(w http.ResponseWriter, r *http.Request, status int, c templ.Component) {
 	var buf bytes.Buffer
 	start := time.Now()
-	err := c.Render(r.Context(), &buf)
+	ctx := r.Context()
+	if n := nonceFrom(ctx); n != "" {
+		ctx = templ.WithNonce(ctx, n)
+	}
+	err := c.Render(ctx, &buf)
 	if h.Observe != nil {
 		h.Observe.Render(r.Pattern, time.Since(start))
 	}

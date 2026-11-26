@@ -31,19 +31,20 @@ var (
 )
 
 type productRow struct {
-	ID          string         `db:"id"`
-	Slug        string         `db:"slug"`
-	Title       string         `db:"title"`
-	Excerpt     string         `db:"excerpt"`
-	Description string         `db:"description"`
-	ProductType string         `db:"product_type"`
-	DemoURL     string         `db:"demo_url"`
-	Cover       string         `db:"cover"`
-	CatSlug     sql.NullString `db:"cat_slug"`
-	CatTitle    sql.NullString `db:"cat_title"`
-	SellerName  string         `db:"seller_name"`
-	SellerSlug  string         `db:"seller_slug"`
-	PriceMinor  sql.NullInt64  `db:"price_minor"`
+	ID              string         `db:"id"`
+	Slug            string         `db:"slug"`
+	Title           string         `db:"title"`
+	Excerpt         string         `db:"excerpt"`
+	Description     string         `db:"description"`
+	DescriptionHTML string         `db:"description_html"`
+	ProductType     string         `db:"product_type"`
+	DemoURL         string         `db:"demo_url"`
+	Cover           string         `db:"cover"`
+	CatSlug         sql.NullString `db:"cat_slug"`
+	CatTitle        sql.NullString `db:"cat_title"`
+	SellerName      string         `db:"seller_name"`
+	SellerSlug      string         `db:"seller_slug"`
+	PriceMinor      sql.NullInt64  `db:"price_minor"`
 }
 
 // One query, no N+1: the lowest active offer in the storefront currency
@@ -57,7 +58,7 @@ type productRow struct {
 // on category and seller compare ids (slug resolved by an uncorrelated
 // subquery) so the composite indexes of migration 1764000008 apply.
 const productSelect = `
-SELECT p.id, p.slug, p.title, p.excerpt, p.description, p.product_type, p.demo_url, p.cover,
+SELECT p.id, p.slug, p.title, p.excerpt, p.description, COALESCE(p.description_html, '') AS description_html, p.product_type, p.demo_url, p.cover,
        c.slug AS cat_slug, c.title AS cat_title,
        s.display_name AS seller_name, s.slug AS seller_slug,
        (SELECT MIN(o.price_minor) FROM offers o
@@ -70,7 +71,8 @@ WHERE p.status = 'published'`
 func (r productRow) toDomain(currency, coverURL string) catalog.Product {
 	p := catalog.Product{
 		ID: r.ID, Slug: r.Slug, Title: r.Title, Excerpt: r.Excerpt, Description: r.Description,
-		ProductType: r.ProductType, DemoURL: r.DemoURL, CoverURL: coverURL,
+		DescriptionHTML: r.DescriptionHTML,
+		ProductType:     r.ProductType, DemoURL: r.DemoURL, CoverURL: coverURL,
 		SellerName: r.SellerName, SellerSlug: r.SellerSlug,
 		Category: catalog.Category{Slug: r.CatSlug.String, Title: r.CatTitle.String},
 	}
@@ -97,7 +99,9 @@ func (c *Catalog) coverURL(productID, file string) string {
 // listSelect is productSelect without the description (up to 20 KB a
 // row; only the product page shows it), so list pages do not read or
 // sort it.
-var listSelect = strings.Replace(productSelect, "p.description,", "'' AS description,", 1)
+var listSelect = strings.Replace(productSelect,
+	"p.description, COALESCE(p.description_html, '') AS description_html,",
+	"'' AS description, '' AS description_html,", 1)
 
 // Products lists published products, newest first.
 func (c *Catalog) Products(ctx context.Context, currency string, f catalog.Filter) ([]catalog.Product, error) {

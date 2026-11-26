@@ -1,6 +1,7 @@
 # ADR-0031: Embed EditorY as a cabinet island; store Markdown, render HTML on the server
 
-- Status: Proposed (design only, 2026-11-26). Depends on ADR-0030
+- Status: Accepted (owner t373s1450, 2026-11-26). First slice implemented.
+  Depends on ADR-0030
   (cabinet in the monolith) and ADR-0028 (item authoring). Research:
   github.com/ui8kit/editory at the date of this ADR, packages
   `editory@0.2.0`, `@ui8kit/editory-svelte@0.2.0`,
@@ -152,7 +153,7 @@ release needs eval, we stop and fix the build rather than loosen CSP.
 - Size cap: 200 KiB of UTF-8 Markdown per locale (above the current
   20 000 character plain-text field, well below the desktop 2 MiB
   cap). Existing shorter plain-text descriptions remain valid
-  Markdown. The cap is an open question for the owner (see below).
+  Markdown. The cap is enforced server-side on save.
 - Content revisions (`product_revisions`) are a follow-up; the first
   slice keeps `If-Match` plus `updated` and the draft/in_review/
   published status already on the product.
@@ -227,11 +228,10 @@ makes no network call to a provider. This is not in the first slice.
 - A small CSP project (nonce or hash for the theme script) lands
   with this slice and benefits every page.
 
-## Open questions for the owner
+## Owner decisions (t373s1450, 2026-11-26)
 
-1. Markdown size cap: 200 KiB per locale (recommended) versus keeping
-   20 000 characters or allowing the desktop 2 MiB cap.
-2. First slice: include in-app image upload (recommended) versus
-   URL-only figures, with upload later.
-3. Content revisions table in the first slice, versus `If-Match` and
-   draft autosave only, with revisions later (recommended).
+1. Markdown size cap: 200 KiB of UTF-8 per locale.
+2. Image upload is in the first slice (5 MiB, sniffed JPEG/PNG/WebP/GIF,
+   first-party URLs only).
+3. Content revisions are deferred; the first slice uses `If-Match` and
+   draft autosave only.
