@@ -15,3 +15,4 @@ pb_data/
 *.db-*
 *.har
 *.backup
+/designgen

@@ -62,10 +62,17 @@ if [ -f go.mod ]; then
   else
     echo "verify: semantic kit CSS not verified (npm ci for the Tailwind CLI)"
   fi
+  # ADR-0034: ui/design and design.css match the market-design specs (needs a local checkout)
+  design_src=${MARKET_DESIGN:-../market-design}
+  if [ -d "$design_src/packages/specs/json" ] && [ -d "$design_src/node_modules/lucide-static" ]; then
+    go run ./scripts/designgen -src "$design_src" -check || { echo "verify: ui/design out of date (run make design and commit)"; fail=1; }
+  else
+    echo "verify: design kit not verified (no market-design checkout at $design_src)"
+  fi
   if [ -x scripts/editor.sh ]; then
     scripts/editor.sh --check || { echo "verify: EditorY island assets stale or missing (run make editor and commit)"; fail=1; }
   fi
-  unformatted=$(gofmt -l cmd internal scripts/uisem scripts/fontver ui/dict | grep -v '_templ.go' || true)
+  unformatted=$(gofmt -l cmd internal scripts/uisem scripts/fontver scripts/designgen ui/dict ui/design | grep -v '_templ.go' || true)
   test -z "$unformatted" || { echo "verify: gofmt"; echo "$unformatted"; fail=1; }
   go vet ./... || fail=1
   go test -race -count=1 ./... || fail=1

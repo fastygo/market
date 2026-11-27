@@ -45,7 +45,9 @@ func contentSecurityPolicy(nonce string) string {
 		"object-src 'none'",
 		"base-uri 'self'",
 		"frame-ancestors 'none'",
-		"form-action 'self'",
+		// YooKassa checkout is a 303 to yoomoney.ru after POST /checkout/form.
+		// Browsers apply form-action to that redirect; 'self' alone blocks it.
+		"form-action 'self' https://yoomoney.ru https://*.yoomoney.ru https://yookassa.ru https://*.yookassa.ru",
 	}, "; ")
 }
 

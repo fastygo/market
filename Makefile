@@ -2,7 +2,7 @@
 TEMPL ?= templ
 BIN   ?= bin/market
 
-.PHONY: all generate uisem css editor editor-check ui8kit build test run verify clean
+.PHONY: all generate design uisem css editor editor-check ui8kit build test run verify clean
 
 all: generate css editor build test
 
@@ -10,6 +10,12 @@ generate:            ## templ -> *_templ.go (app screens and the installed kit, 
 	$(TEMPL) generate
 
 SKINS ?= default godudy storeee
+
+DESIGN ?= ../market-design
+
+design:              ## ui/design templ set + ui/styles/generated/design.css from a local ui8kit/market-design checkout (ADR-0034; bun install there once)
+	go run ./scripts/designgen -src $(DESIGN)
+	$(TEMPL) generate -path ui/design
 
 uisem:               ## semantic kit CSS (ADR-0029): ui/styles/generated/*, .ui8px/patterns.json from ui/kit/compose/compose.json
 	go run ./scripts/uisem

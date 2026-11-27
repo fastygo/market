@@ -2,13 +2,18 @@
    Layer order: theme < base < components.kit (generated ui-* rules) < components.brand (app) < utilities. The first
    declaration fixes the order; the skin imports Tailwind, whose own declaration repeats it. */
 @layer theme, base, components, utilities;
-@layer components { @layer kit, brand; }
+@layer components { @layer kit, design, brand; }
 @import "../skins/default.css";
 @import "../generated/kit-layered.css";
 @import "../generated/kit.default.css";
+@import "../design.css";
+@import "../generated/design.css";
+@import "../screens.css";
 @import "../longread.css";
 /* the kit's compositions render ui-* names (no utilities to scan); its organisms and icons still use utilities */
 @source "../../kit/blocks";
 @source "../../kit/icons";
 @source "../../kit/compose/*.templ";
+@source "../../kit/ui/icon/icon.variants.json";
+@source not "../../design";
 @source "../../../internal/web/screens";

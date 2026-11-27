@@ -62,6 +62,16 @@
         "compose/card-content.templ": "3ebd84becad5406659209f7f1dff5469680cff0a18f6df6a96f324ed0cc0f6c1"
       }
     },
+    "registry.buildy.tw|templ|checkbox": {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "compose/checkbox.templ": "dfaca256f23386d783c910b71ffcb573424a1fcacb2fab9344ca1dcec5e55920"
+      }
+    },
     "registry.buildy.tw|templ|container": {
       "name": "container",
       "type": "registry:ui",
@@ -70,6 +80,26 @@
       "runtime": "templ",
       "files": {
         "compose/container.templ": "64f82b1249d319216055a59c4b880c5be8f5dbc2c0f3a2fcde21bfe0d7362dee"
+      }
+    },
+    "registry.buildy.tw|templ|dialog": {
+      "name": "dialog",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "compose/dialog.templ": "33bf004a86f12280e6a0394041c5cc2790fe697f335a4943ca65ed240ab78392"
+      }
+    },
+    "registry.buildy.tw|templ|disclosure": {
+      "name": "disclosure",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "compose/disclosure.templ": "fbaefc93494b057af118490c03d546871c5c8ab24bdd95769034bbbd56964ba1"
       }
     },
     "registry.buildy.tw|templ|empty-state": {
@@ -182,6 +212,36 @@
         "ui/button/button.templ": "0614d7725f0ab181dd96b33b22ec351b6d3d395335b19dc5de08ffd99c1ca074"
       }
     },
+    "registry.buildy.tw|templ|kit-checkbox": {
+      "name": "kit-checkbox",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "ui/checkbox/checkbox.templ": "d1ab62366a0a446a6699e095b626beb9bb84ded65bcd0974f2cda7afbaf99cd6"
+      }
+    },
+    "registry.buildy.tw|templ|kit-dialog": {
+      "name": "kit-dialog",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "ui/dialog/dialog.templ": "b172a2c01c942580a0bb20522b18bcdda0a3b6f0271d5e777d3db3a64e5e9484"
+      }
+    },
+    "registry.buildy.tw|templ|kit-disclosure": {
+      "name": "kit-disclosure",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "ui/disclosure/disclosure.templ": "5d4162f4ac45d93bbd0fb24740f838a801725fa49477242f9b35412c0ce5a533"
+      }
+    },
     "registry.buildy.tw|templ|kit-form": {
       "name": "kit-form",
       "type": "registry:ui",
@@ -244,6 +304,26 @@
         "ui/link/link.templ": "295978938321a4ac54f6abbd15c9661abfc0ed9bfee53379fb63bcb25a8dff53"
       }
     },
+    "registry.buildy.tw|templ|kit-radio": {
+      "name": "kit-radio",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "ui/radio/radio.templ": "f52748e95625c8305ce0e4bbbb3a29d88da5e470ce247b9469517343aecb0f11"
+      }
+    },
+    "registry.buildy.tw|templ|kit-select": {
+      "name": "kit-select",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "ui/select/select.templ": "4034518f66b32f5ccdb8cf2f553413bb87e0d84a42c266e91491344b08ec8740"
+      }
+    },
     "registry.buildy.tw|templ|kit-separator": {
       "name": "kit-separator",
       "type": "registry:ui",
@@ -262,6 +342,16 @@
       "runtime": "templ",
       "files": {
         "ui/text/text.templ": "1f58c23d1384f15dfb6ef11001b46efad79b6a074229b4da17526564090584e6"
+      }
+    },
+    "registry.buildy.tw|templ|kit-textarea": {
+      "name": "kit-textarea",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "ui/textarea/textarea.templ": "e621667d999da0823198612389289ad1520605e69ddf127e7f1dece796969432"
       }
     },
     "registry.buildy.tw|templ|label": {
@@ -391,6 +481,16 @@
         "blocks/product-grid.templ": "83ca07ea704521409d04657fa6645028f48e9f48a7c3d7c665fdd8ff987428bc"
       }
     },
+    "registry.buildy.tw|templ|radio": {
+      "name": "radio",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "compose/radio.templ": "7b7917705780e955da3d5f7f9700d0de68079100270a104b02109cfee6d0d03b"
+      }
+    },
     "registry.buildy.tw|templ|rating": {
       "name": "rating",
       "type": "registry:component",
@@ -453,6 +553,16 @@
         "blocks/section-header.templ": "be736de45ca7e3e25f73ece71412d196d18ebb5a587793fa3cf3ffdd8ba15f7d"
       }
     },
+    "registry.buildy.tw|templ|select": {
+      "name": "select",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "compose/select.templ": "933d57b505de6b092de9143b0fd7434b4f1aaaaf050606e8f9ba8bf514bc6a82"
+      }
+    },
     "registry.buildy.tw|templ|separator": {
       "name": "separator",
       "type": "registry:ui",
@@ -481,6 +591,16 @@
       "runtime": "templ",
       "files": {
         "compose/text.templ": "8749000d35dc17b6e8316b05d6e79fe6a2ee811d4ceebdda4ef9a0734d0a48f3"
+      }
+    },
+    "registry.buildy.tw|templ|textarea": {
+      "name": "textarea",
+      "type": "registry:ui",
+      "source": "https://registry.buildy.tw/templ",
+      "version": "0.1.0",
+      "runtime": "templ",
+      "files": {
+        "compose/textarea.templ": "684c9b9aa862f9e2811d8365ccd9646fa7b9c7de45287e23f6b2cdedc9bfe324"
       }
     },
     "registry.buildy.tw|templ|title": {
