@@ -21,6 +21,29 @@ with signed, expiring links, or, with `MARKET_S3_ENDPOINT`, in S3 under
 `MARKET_S3_PREFIX` with pre-signed URLs (ADR-0009). `serve` refuses to start
 in production without its required env (HANDOFF.md, start-up checks).
 
+## UI language (ADR-0018, ADR-0035)
+
+The repository ships only the English source dictionary (`ui/dict/en.json`,
+no Cyrillic in the repo). The Russian UI is a DictionaryV04 bundle kept
+outside the repository (operator copy: `ru.json`, 701 keys for the current
+source) and imported into the `ui_messages` collection:
+
+```sh
+# on the host, as the market user, with the service env loaded
+/opt/market/market i18n check ru.json            # lists missing/unknown keys, exit 1 on gaps
+/opt/market/market i18n import ru ru.json --dir /var/lib/market/pb_data
+# then set MARKET_LOCALE=ru in /etc/market/market.env and restart the service
+```
+
+The dictionary is read at start, so restart after every import. `import`
+refuses a bundle with gaps unless `--force` is given; at start a missing key
+falls back to English and the log shows `ui messages: keys fall back to
+English` with the count. Re-run `i18n check` after each release that adds
+keys. With `MARKET_LOCALE=ru` the page language is `ru` and prices use the
+Russian format (`1 490` followed by the rouble sign). Category names, the storefront tagline,
+legal page texts and products are content: edit them in the editor cabinet
+or the admin, not in the dictionary.
+
 ## Edge (Caddy)
 
 The storefront sits behind Caddy (`via: 1.1 Caddy`). A reference file is
