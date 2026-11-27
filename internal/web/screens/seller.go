@@ -32,6 +32,36 @@ type ItemForm struct {
 	// is configured.
 	Releases   []authoring.Release
 	ReleasesOn bool
+	// Deletion says whether the seller may delete the item for good.
+	Deletion authoring.Deletion
+}
+
+// ItemDelete is the confirm step before an item is deleted.
+type ItemDelete struct {
+	Item     authoring.Item
+	Deletion authoring.Deletion
+	Releases int
+	CSRF     string
+}
+
+// SellerItemDeleteHref is the confirm page (GET) and the delete action (POST).
+func SellerItemDeleteHref(id string) string { return SellerItemHref(id) + "/delete" }
+
+// deleteBlocked explains why an item cannot be deleted.
+func deleteBlocked(s Shell, d authoring.Deletion) string {
+	if d.Reason == authoring.DeleteInUse {
+		return s.T("ui.seller.delete_in_use")
+	}
+	return s.T("ui.seller.delete_status")
+}
+
+// deleteWhat lists what the delete removes.
+func deleteWhat(s Shell, v ItemDelete) string {
+	images := len(v.Item.Images)
+	if v.Item.CoverURL != "" {
+		images++
+	}
+	return tplN(s.T("ui.seller.delete_what"), strconv.Itoa(images), strconv.Itoa(v.Releases))
 }
 
 // FinanceView is the sales and payouts screen of a seller or a partner.

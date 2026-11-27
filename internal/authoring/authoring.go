@@ -23,7 +23,25 @@ var (
 	// ErrLastRelease: the only published release of an item with buyers
 	// cannot be yanked; they would lose their download.
 	ErrLastRelease = errors.New("authoring: last published release of an item with buyers")
+	// ErrInUse: an item with orders, licenses or reviews cannot be deleted;
+	// archiving is the way to take it down.
+	ErrInUse = errors.New("authoring: item has orders, licenses or reviews")
 )
+
+// Why an item cannot be deleted (Deletion.Reason).
+const (
+	DeleteStatus = "status" // only draft and archived items can be deleted
+	DeleteInUse  = "in_use" // orders, licenses or reviews reference it
+)
+
+// Deletion says whether the seller may delete an item, and if not, why.
+type Deletion struct {
+	Allowed bool
+	Reason  string
+}
+
+// Deletable reports whether an item in status may be deleted by its seller.
+func Deletable(status string) bool { return status == "draft" || status == "archived" }
 
 // Item is one product the seller can edit.
 type Item struct {
@@ -83,6 +101,13 @@ type Store interface {
 	SaveMeta(ctx context.Context, userID, productID string, m Meta) (Item, error)
 	SetCover(ctx context.Context, userID, productID, filename string, r io.Reader) (Image, error)
 	Act(ctx context.Context, userID, productID, action string) (Item, error)
+	// ItemDeletion reports whether DeleteItem would succeed.
+	ItemDeletion(ctx context.Context, userID, productID string) (Deletion, error)
+	// DeleteItem removes a draft or archived item that no order, license or
+	// review references, with its offers, releases and images. It returns
+	// the storage keys of the deleted releases; the caller removes those
+	// files after the commit.
+	DeleteItem(ctx context.Context, userID, productID string) ([]string, error)
 	Categories(ctx context.Context) ([]Category, error)
 }
 

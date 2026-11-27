@@ -781,6 +781,18 @@
     "ui.roles.closed": "Applications are closed for now. Write to the marketplace team and we will add the role by hand.",
     "ui.account.pay_continue": "Continue payment",
     "ui.product.download_missing": "The file for this item is not uploaded yet. Your purchase is safe: download it from your orders once the author publishes the release.",
-    "ui.account.no_account": "There is no account with this email. Check the address or buy as a guest: the account is created with the first purchase."
+    "ui.account.no_account": "There is no account with this email. Check the address or buy as a guest: the account is created with the first purchase.",
+    "ui.seller.delete_item": "Delete item",
+    "ui.seller.delete_title": "Delete item",
+    "ui.seller.delete_lead": "Deleting cannot be undone.",
+    "ui.seller.delete_what": "This deletes the card, prices, {0} images and {1} releases with their files.",
+    "ui.seller.delete_check": "I understand that the item and its files are deleted for good",
+    "ui.seller.delete_forever": "Delete for good",
+    "ui.seller.delete_cancel": "Back to the item",
+    "ui.seller.delete_status": "Only a draft or an archived item can be deleted. Archive it first.",
+    "ui.seller.delete_in_use": "This item has orders, licenses or reviews, so it cannot be deleted. Archive it to take it down.",
+    "ui.seller.delete_confirm": "Tick the box to confirm the delete.",
+    "ui.seller.item_deleted": "Item deleted.",
+    "ui.seller.item_deleted_files_left": "Item deleted. Some release files could not be removed from storage; they are listed in the server log."
   }
 }

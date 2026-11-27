@@ -285,3 +285,19 @@ func safeHash(s string) bool {
 	}
 	return true
 }
+
+// Remove deletes every variant of a product (the product was deleted).
+// A nil store or a product without variants is not an error.
+func (s *Store) Remove(productID string) error {
+	if s == nil || productID == "" {
+		return nil
+	}
+	for _, c := range productID {
+		if !(c >= 'a' && c <= 'z' || c >= '0' && c <= '9') {
+			return fmt.Errorf("media: bad product id %q", productID)
+		}
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return os.RemoveAll(filepath.Join(s.Dir, productID))
+}

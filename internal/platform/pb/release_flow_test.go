@@ -17,6 +17,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
 
 	"github.com/fastygo/market/internal/account"
@@ -32,9 +33,10 @@ import (
 // the Authorization header and that the signed payload hash matches the
 // body, the way a real storage rejects a corrupted upload.
 type fakeS3 struct {
-	mu      sync.Mutex
-	objects map[string][]byte
-	puts    int
+	mu         sync.Mutex
+	objects    map[string][]byte
+	puts       int
+	failDelete bool
 }
 
 func (f *fakeS3) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +71,10 @@ func (f *fakeS3) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write(b)
 		}
 	case http.MethodDelete:
+		if f.failDelete {
+			http.Error(w, "InternalError", http.StatusInternalServerError)
+			return
+		}
 		delete(f.objects, r.URL.Path)
 		w.WriteHeader(http.StatusNoContent)
 	}
@@ -417,6 +423,86 @@ func releaseFlow(t *testing.T, mode string) {
 	key3 := sel.GetString("slug") + "/aurora-theme/aurora-theme-9.2.0.zip"
 	if _, loc := upload(vendor, prod.Id, "9.2.0", kit, true); !strings.Contains(loc, "err=ui.release.quota") || has(key3) || tempLeft() != 0 {
 		t.Fatalf("quota: %s stored=%v temp=%d", loc, has(key3), tempLeft())
+	}
+
+	if err := app.Delete(big); err != nil {
+		t.Fatal(err)
+	}
+
+	// item delete: a published item is refused; a new draft with a release
+	// in review is deleted with its object after an explicit confirm
+	_, body, _ = get(vendor, item)
+	if !strings.Contains(body, `data-delete-blocked="status"`) || strings.Contains(body, item+"/delete") {
+		t.Fatal("published item offers delete")
+	}
+	if _, loc := post(vendor, item+"/delete", url.Values{"confirm": {"1"}}); !strings.Contains(loc, "err=ui.seller.delete_status") {
+		t.Fatalf("delete published item: %s", loc)
+	}
+	get(vendor, "/seller/items/new")
+	code, loc = post(vendor, "/seller/items/new", url.Values{"title": {"Throwaway Kit"}})
+	if code != http.StatusSeeOther || !strings.Contains(loc, "ok=ui.seller.created") {
+		t.Fatalf("create: %d %s", code, loc)
+	}
+	tmp, err := app.FindFirstRecordByData("products", "slug", "throwaway-kit")
+	if err != nil {
+		t.Fatal(err)
+	}
+	titem := "/seller/items/" + tmp.Id
+	tkey := sel.GetString("slug") + "/throwaway-kit/throwaway-kit-0.1.0.zip"
+	get(vendor, titem)
+	if _, loc := upload(vendor, tmp.Id, "0.1.0", kit, true); !strings.Contains(loc, "ok=") || !has(tkey) {
+		t.Fatalf("upload to throwaway: %s", loc)
+	}
+	if _, body, _ := get(vendor, titem); !strings.Contains(body, titem+"/delete") {
+		t.Fatal("draft item has no delete link")
+	}
+	code, body, _ = get(vendor, titem+"/delete")
+	if code != 200 || !strings.Contains(body, `name="confirm"`) || !strings.Contains(body, "1 releases") {
+		t.Fatalf("confirm page %d", code)
+	}
+	if code, _, _ := get(oc, titem+"/delete"); code != http.StatusNotFound {
+		t.Fatalf("foreign confirm page: %d", code)
+	}
+	if _, loc := post(oc, titem+"/delete", url.Values{"confirm": {"1"}}); !strings.Contains(loc, "err=ui.error.not_found") {
+		t.Fatalf("foreign delete: %s", loc)
+	}
+	get(vendor, titem+"/delete")
+	if _, loc := post(vendor, titem+"/delete", url.Values{}); !strings.Contains(loc, "err=ui.seller.delete_confirm") || !has(tkey) {
+		t.Fatalf("delete without confirm: %s", loc)
+	}
+	if _, loc := post(vendor, titem+"/delete", url.Values{"confirm": {"1"}}); !strings.Contains(loc, "ok=ui.seller.item_deleted") || has(tkey) {
+		t.Fatalf("delete: %s stored=%v", loc, has(tkey))
+	}
+	if _, err := app.FindRecordById("products", tmp.Id); err == nil {
+		t.Fatal("deleted item still there")
+	}
+	if n, _ := app.CountRecords("product_releases", dbx.HashExp{"product": tmp.Id}); n != 0 {
+		t.Fatalf("release rows left: %d", n)
+	}
+	// storage refuses the delete: the rows are gone anyway (nothing points
+	// at a missing file), the object is an orphan in the log
+	if bucket != nil {
+		get(vendor, "/seller/items/new")
+		post(vendor, "/seller/items/new", url.Values{"title": {"Orphan Kit"}})
+		ok2, err := app.FindFirstRecordByData("products", "slug", "orphan-kit")
+		if err != nil {
+			t.Fatal(err)
+		}
+		okey := sel.GetString("slug") + "/orphan-kit/orphan-kit-0.1.0.zip"
+		get(vendor, "/seller/items/"+ok2.Id)
+		if _, loc := upload(vendor, ok2.Id, "0.1.0", kit, true); !strings.Contains(loc, "ok=") || !has(okey) {
+			t.Fatalf("upload orphan kit: %s", loc)
+		}
+		bucket.mu.Lock()
+		bucket.failDelete = true
+		bucket.mu.Unlock()
+		get(vendor, "/seller/items/"+ok2.Id+"/delete")
+		if _, loc := post(vendor, "/seller/items/"+ok2.Id+"/delete", url.Values{"confirm": {"1"}}); !strings.Contains(loc, "ok=ui.seller.item_deleted_files_left") {
+			t.Fatalf("delete with storage down: %s", loc)
+		}
+		if n, _ := app.CountRecords("product_releases", dbx.HashExp{"product": ok2.Id}); n != 0 || !has(okey) {
+			t.Fatalf("rows %d, orphan stored=%v", n, has(okey))
+		}
 	}
 	_ = admin
 }

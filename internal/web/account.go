@@ -104,6 +104,8 @@ var AccountPatterns = []string{
 	"GET /seller/items/{id}",
 	"POST /seller/items/{id}",
 	"POST /seller/items/{id}/status",
+	"GET /seller/items/{id}/delete",
+	"POST /seller/items/{id}/delete",
 	"POST /seller/items/{id}/cover",
 	"POST /seller/items/{id}/gallery",
 	"POST /seller/items/{id}/releases",

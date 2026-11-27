@@ -85,6 +85,21 @@ default is empty.
   `status` there works, the immutability guard on published and yanked
   rows still applies.
 
+### Deleting an item (2026-11-27)
+
+- A vendor deletes an item for good from the cabinet only when it is
+  `draft` or `archived` and no order line, entitlement or review
+  references it; otherwise the item page explains why and archiving stays
+  the way to take it down. The confirm page (`GET /seller/items/{id}/delete`)
+  needs a ticked checkbox (no JavaScript), the POST is CSRF-checked and the
+  user must be a member of the item's store.
+- One transaction deletes the releases, the offers and the product
+  (PocketBase removes the cover and gallery files after the commit and
+  clears the item from editorial collections). The release files are
+  removed after the commit; a file the storage refuses to delete is logged
+  as `release file orphaned` with its key and the vendor is told some files
+  were left. No row ever points at a missing file.
+
 ### Storage permissions
 
 S3 mode needs `s3:PutObject`, `s3:DeleteObject` and `s3:GetObject` (HEAD

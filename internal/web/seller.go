@@ -28,6 +28,8 @@ func (h *Handler) mountRoles(m *http.ServeMux) {
 		m.HandleFunc("GET /seller/items/{id}", h.sellerItem)
 		m.HandleFunc("POST /seller/items/{id}", h.sellerItemSave)
 		m.HandleFunc("POST /seller/items/{id}/status", h.sellerItemStatus)
+		m.HandleFunc("GET /seller/items/{id}/delete", h.sellerItemDeleteConfirm)
+		m.HandleFunc("POST /seller/items/{id}/delete", h.sellerItemDelete)
 		m.HandleFunc("POST /seller/items/{id}/cover", h.sellerItemUpload)
 		m.HandleFunc("POST /seller/items/{id}/gallery", h.sellerItemUpload)
 		m.HandleFunc("POST /seller/items/{id}/releases", h.sellerReleaseUpload)
@@ -123,6 +125,13 @@ func (h *Handler) itemForm(w http.ResponseWriter, r *http.Request, it authoring.
 		s.EditorProps = h.editorProps(w, r, it)
 	}
 	form := screens.ItemForm{Item: it, Categories: cats, New: isNew, CSRF: s.Viewer.CSRF, ReleasesOn: h.releasesOn()}
+	if !isNew {
+		p, _ := h.principal(r)
+		if form.Deletion, err = h.Commerce.Cabinet.Items.ItemDeletion(r.Context(), p.UserID, it.ID); err != nil {
+			h.fail(w, r, err)
+			return
+		}
+	}
 	if !isNew && form.ReleasesOn {
 		p, _ := h.principal(r)
 		if form.Releases, err = h.Commerce.Cabinet.Releases.ItemReleases(r.Context(), p.UserID, it.ID); err != nil {
@@ -227,6 +236,87 @@ func (h *Handler) sellerItemStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	done(w, r, back, "ui.seller.status_changed")
+}
+
+// sellerItemDeleteConfirm asks before an item is deleted for good.
+func (h *Handler) sellerItemDeleteConfirm(w http.ResponseWriter, r *http.Request) {
+	p, _, ok := h.vendor(w, r)
+	if !ok {
+		return
+	}
+	it, ok := h.loadItem(w, r, Buyer{ID: p.UserID})
+	if !ok {
+		return
+	}
+	d, err := h.Commerce.Cabinet.Items.ItemDeletion(r.Context(), p.UserID, it.ID)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	v := screens.ItemDelete{Item: it, Deletion: d}
+	if h.releasesOn() {
+		rs, err := h.Commerce.Cabinet.Releases.ItemReleases(r.Context(), p.UserID, it.ID)
+		if err != nil {
+			h.fail(w, r, err)
+			return
+		}
+		v.Releases = len(rs)
+	}
+	s, ok := h.cabinetShell(w, r, h.Dict.T("ui.seller.delete_title"), true)
+	if !ok {
+		return
+	}
+	v.CSRF = s.Viewer.CSRF
+	h.render(w, r, http.StatusOK, screens.SellerItemDeletePage(s, v))
+}
+
+// sellerItemDelete deletes a draft or archived item nobody bought or
+// reviewed. The database goes first (one transaction), then the release
+// files: a file that cannot be removed is logged as an orphan; no row is
+// left pointing at a missing file.
+func (h *Handler) sellerItemDelete(w http.ResponseWriter, r *http.Request) {
+	p, _, ok := h.vendor(w, r)
+	if !ok || !h.parseForm(w, r) {
+		return
+	}
+	id := r.PathValue("id")
+	if r.PostFormValue("confirm") == "" {
+		failed(w, r, screens.SellerItemDeleteHref(id), "ui.seller.delete_confirm")
+		return
+	}
+	keys, err := h.Commerce.Cabinet.Items.DeleteItem(r.Context(), p.UserID, id)
+	switch {
+	case errors.Is(err, authoring.ErrInUse):
+		failed(w, r, screens.SellerItemHref(id), "ui.seller.delete_in_use")
+		return
+	case errors.Is(err, authoring.ErrConflict):
+		failed(w, r, screens.SellerItemHref(id), "ui.seller.delete_status")
+		return
+	case err != nil:
+		failed(w, r, screens.SellerItemHref(id), itemErrKey(err))
+		return
+	}
+	left := 0
+	for _, k := range keys {
+		if !h.releasesOn() {
+			h.Log.Error("release file orphaned: no release storage configured", "item", id, "key", k)
+			left++
+			continue
+		}
+		if err := h.Commerce.Cabinet.ReleaseFiles.Delete(r.Context(), k); err != nil {
+			h.Log.Error("release file orphaned: delete failed", "item", id, "key", k, "err", err)
+			left++
+		}
+	}
+	if err := h.Covers.Remove(id); err != nil {
+		h.Log.Warn("cover webp remove", "item", id, "err", err)
+	}
+	h.Log.Info("item deleted", "item", id, "user", p.UserID, "releases", len(keys), "orphans", left)
+	if left > 0 {
+		done(w, r, "/seller/items", "ui.seller.item_deleted_files_left")
+		return
+	}
+	done(w, r, "/seller/items", "ui.seller.item_deleted")
 }
 
 // upload reads one multipart image (CSRF checked after parsing).

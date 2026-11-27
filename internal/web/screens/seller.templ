@@ -99,6 +99,13 @@ templ SellerItemPage(s Shell, v ItemForm) {
 							if v.Item.Status == "published" {
 								@LinkButton(ProductHref(v.Item.Slug), s.T("ui.seller.view_public"), "ghost", "external-link")
 							}
+							if v.Deletion.Allowed {
+								@LinkButton(SellerItemDeleteHref(v.Item.ID), s.T("ui.seller.delete_item"), "ghost", "trash")
+							} else {
+								@design.Text(design.TextProps{Size: "xs", Tone: "muted", TextProps: text.TextProps{Attrs: templ.Attributes{"data-delete-blocked": v.Deletion.Reason}}}) {
+									{ deleteBlocked(s, v.Deletion) }
+								}
+							}
 						}
 						@Panel(s.T("ui.seller.cover"), s.T("ui.seller.cover_lead")) {
 							@design.Image(design.ImageProps{Class: "aspect-[4/3] w-full rounded-md border border-border object-cover", ImageProps: image.ImageProps{Src: coverSrc(v.Item.CoverURL), Alt: "", Width: "400", Height: "300"}})
@@ -149,6 +156,34 @@ templ SellerItemPage(s Shell, v ItemForm) {
 }
 
 // ReleaseAction is a one-button form on a release row (yank, delete).
+// SellerItemDeletePage is the confirm step before an item is deleted; the
+// required checkbox works without JavaScript.
+templ SellerItemDeletePage(s Shell, v ItemDelete) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "seller", Current: "items"}) {
+			@Head(s.T("ui.seller.delete_title"), []string{v.Item.Title, itemStatus(s, v.Item.Status)}, LinkButton(SellerItemHref(v.Item.ID), s.T("ui.seller.delete_cancel"), "outline", "arrow-left"))
+			@Panel(v.Item.Title, s.T("ui.seller.delete_lead")) {
+				if v.Deletion.Allowed {
+					@design.Text(design.TextProps{Size: "sm", TextProps: text.TextProps{}}) {
+						{ deleteWhat(s, v) }
+					}
+					@PostForm(SellerItemDeleteHref(v.Item.ID), v.CSRF, s.T("ui.seller.delete_title")) {
+						@Check(F{ID: "delete-confirm", Name: "confirm", Label: s.T("ui.seller.delete_check"), Required: true}, false)
+						@Submit(s.T("ui.seller.delete_forever")) {
+							@LinkButton(SellerItemHref(v.Item.ID), s.T("ui.seller.delete_cancel"), "ghost", "")
+						}
+					}
+				} else {
+					@design.Text(design.TextProps{Size: "sm", Tone: "muted", TextProps: text.TextProps{}}) {
+						{ deleteBlocked(s, v.Deletion) }
+					}
+					@LinkButton(SellerItemHref(v.Item.ID), s.T("ui.seller.delete_cancel"), "outline", "arrow-left")
+				}
+			}
+		}
+	}
+}
+
 templ ReleaseAction(action, csrf, label string) {
 	@InlineForm(action, csrf) {
 		@Act("action", "go", label, "outline")
