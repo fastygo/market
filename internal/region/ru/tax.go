@@ -41,7 +41,7 @@ const (
 // Errors.
 var (
 	ErrUnknownCategory   = errors.New("ru: unknown tax category")
-	ErrIncompleteProfile = errors.New("ru: seller tax profile does not say whether it pays VAT")
+	ErrIncompleteProfile = fmt.Errorf("ru: seller tax profile does not say whether it pays VAT: %w", ordering.ErrTaxProfile)
 	ErrNoRate            = errors.New("ru: no VAT rate for the date")
 	ErrExclusive         = errors.New("ru: B2C prices are tax inclusive")
 )

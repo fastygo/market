@@ -488,6 +488,15 @@ func (e *Editorial) ModerateProduct(ctx context.Context, id, status, note string
 	if err != nil {
 		return editorial.ErrNotFound
 	}
+	if status == "published" {
+		s, err := e.App.FindRecordById("sellers", r.GetString("seller"))
+		if err != nil {
+			return editorial.ErrNotFound
+		}
+		if !HasVATStatus(s) {
+			return editorial.ErrTaxProfile
+		}
+	}
 	r.Set("status", status)
 	r.Set("review_note", strings.TrimSpace(note))
 	if status == "published" && r.GetDateTime("published_at").IsZero() {

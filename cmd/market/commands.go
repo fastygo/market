@@ -38,6 +38,29 @@ func registerCommands(app *pocketbase.PocketBase) {
 	})
 	app.RootCmd.AddCommand(role)
 
+	seller := &cobra.Command{Use: "seller", Short: "Stores"}
+	seller.AddCommand(&cobra.Command{
+		Use:   "vat <store-slug> <yes|no>",
+		Short: "Record whether a store pays VAT (required before its items go on sale)",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			var payer bool
+			switch args[1] {
+			case "yes":
+				payer = true
+			case "no":
+			default:
+				return errors.New("seller vat: answer yes or no")
+			}
+			if err := (&pb.Cabinet{App: app}).SetSellerVAT(context.Background(), args[0], payer); err != nil {
+				return fmt.Errorf("seller vat: %w", err)
+			}
+			fmt.Println("vat_payer", args[1], "for", args[0])
+			return nil
+		},
+	})
+	app.RootCmd.AddCommand(seller)
+
 	tr := &cobra.Command{Use: "i18n", Short: "UI dictionaries"}
 	tr.AddCommand(&cobra.Command{
 		Use:   "check <file.json>",
@@ -182,6 +205,9 @@ func seedDemo(ctx context.Context, app *pocketbase.PocketBase, password string) 
 		return fmt.Errorf("vendor seller: %v", err)
 	}
 	sellerID := vp.Sellers[0].ID
+	if err := cab.SetSellerVAT(ctx, "demo-studio", false); err != nil {
+		return fmt.Errorf("demo vat: %w", err)
+	}
 	cats, _ := items.Categories(ctx)
 	cat := ""
 	if len(cats) > 0 {

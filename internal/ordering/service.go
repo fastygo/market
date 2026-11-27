@@ -190,6 +190,7 @@ var (
 	ErrFree          = errors.New("ordering: free products are delivered without checkout (phase 2)")
 	ErrMultiSeller   = errors.New("ordering: one seller per order in phase 1")
 	ErrNotFound      = errors.New("ordering: not found")
+	ErrTaxProfile    = errors.New("ordering: seller tax profile is incomplete")
 	ErrNotRefundable = errors.New("ordering: order cannot be refunded in its current state")
 	ErrReason        = errors.New("ordering: unknown refund reason code")
 )

@@ -633,3 +633,32 @@ func (c *Cabinet) MarkPayout(ctx context.Context, id, status, note string) error
 	}
 	return c.App.Save(p)
 }
+
+// HasVATStatus reports whether a seller's tax_profile says if it pays VAT
+// (the RU tax policy refuses offers of stores that do not say).
+func HasVATStatus(s *core.Record) bool {
+	var prof struct {
+		VATPayer *bool `json:"vat_payer"`
+	}
+	if err := s.UnmarshalJSONField("tax_profile", &prof); err != nil {
+		return false
+	}
+	return prof.VATPayer != nil
+}
+
+// SetSellerVAT records whether the store with the given slug pays VAT;
+// other tax_profile fields are kept. Operator only (market seller vat).
+func (c *Cabinet) SetSellerVAT(ctx context.Context, slug string, payer bool) error {
+	s, err := c.App.FindFirstRecordByData("sellers", "slug", slug)
+	if err != nil {
+		return cabinet.ErrNotFound
+	}
+	prof := map[string]any{}
+	_ = s.UnmarshalJSONField("tax_profile", &prof)
+	if prof == nil {
+		prof = map[string]any{}
+	}
+	prof["vat_payer"] = payer
+	s.Set("tax_profile", prof)
+	return c.App.Save(s)
+}

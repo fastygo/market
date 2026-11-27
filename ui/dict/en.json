@@ -702,6 +702,7 @@
     "ui.license.regular": "Regular",
     "ui.license.extended": "Extended",
     "ui.license.regular_text": "One end product, free or paid by your client.",
-    "ui.license.extended_text": "One end product that you sell to many users."
+    "ui.license.extended_text": "One end product that you sell to many users.",
+    "ui.editor.vat_missing": "Set the store VAT status first: market seller vat <store> yes|no."
   }
 }

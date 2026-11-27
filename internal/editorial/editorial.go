@@ -16,6 +16,9 @@ var (
 	ErrDenied   = errors.New("editorial: denied")
 	ErrInvalid  = errors.New("editorial: invalid input")
 	ErrConflict = errors.New("editorial: version conflict")
+	// ErrTaxProfile: a store cannot go on sale before its VAT status is set
+	// (market seller vat <slug> yes|no); RU checkout refuses such offers.
+	ErrTaxProfile = errors.New("editorial: store VAT status is not set")
 )
 
 // Article statuses.

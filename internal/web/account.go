@@ -475,6 +475,10 @@ func (h *Handler) checkoutForm(w http.ResponseWriter, r *http.Request) {
 		h.Log.Error("checkout form", "err", err, "method", c.Cabinet.Method, "product", slug)
 		again("ui.checkout.unavailable")
 		return
+	case errors.Is(err, ordering.ErrTaxProfile):
+		h.Log.Warn("checkout form: store VAT status is not set", "product", slug)
+		again("ui.checkout.unavailable")
+		return
 	case errors.Is(err, ordering.ErrNotFound), errors.Is(err, ordering.ErrFree), errors.Is(err, ordering.ErrOfferInactive):
 		again("ui.checkout.unavailable")
 		return

@@ -89,6 +89,12 @@ func TestRoleApplicationsGrantRoles(t *testing.T) {
 	if err != nil || len(q) == 0 || q[0].ID != it.ID {
 		t.Fatalf("queue %+v %v", q, err)
 	}
+	if err := ed.ModerateProduct(ctx, it.ID, "published", ""); !errors.Is(err, editorial.ErrTaxProfile) {
+		t.Fatalf("publish without a VAT status: %v", err)
+	}
+	if err := c.SetSellerVAT(ctx, "maker-studio", false); err != nil {
+		t.Fatal(err)
+	}
 	if err := ed.ModerateProduct(ctx, it.ID, "published", ""); err != nil {
 		t.Fatal(err)
 	}
