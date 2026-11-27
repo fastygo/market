@@ -65,6 +65,10 @@ func (a *Authoring) List(ctx context.Context, userID string) ([]authoring.Item, 
 	}
 	out := make([]authoring.Item, 0, len(rows))
 	for _, r := range rows {
+		if rec, err := a.App.FindRecordById("products", r.ID); err == nil {
+			out = append(out, fullItem(a.App, rec))
+			continue
+		}
 		out = append(out, r.toDomain())
 	}
 	return out, nil
@@ -79,6 +83,9 @@ func (a *Authoring) Get(ctx context.Context, userID, productID string) (authorin
 			return authoring.Item{}, authoring.ErrNotFound
 		}
 		return authoring.Item{}, fmt.Errorf("authoring: get: %w", err)
+	}
+	if rec, err := a.App.FindRecordById("products", row.ID); err == nil {
+		return fullItem(a.App, rec), nil
 	}
 	return row.toDomain(), nil
 }

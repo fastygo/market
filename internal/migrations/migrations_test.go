@@ -241,3 +241,29 @@ func TestPaymentAttemptFields(t *testing.T) {
 		t.Fatal("upgrade did not restore attempt fields")
 	}
 }
+
+// ADR-0035: the roles and content migration is expand-only, server-only
+// (nil API rules) and safe to run again on a database that has it.
+func TestRolesContentMigration(t *testing.T) {
+	app := pbtest.New(t)
+	rerun(t, app, "1764000013_roles_content.go")
+	for _, name := range []string{"user_roles", "role_applications", "partners", "referral_clicks", "payouts",
+		"articles", "pages", "collections", "reviews", "ui_messages"} {
+		c, err := app.FindCollectionByNameOrId(name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if c.ListRule != nil || c.ViewRule != nil || c.CreateRule != nil || c.UpdateRule != nil || c.DeleteRule != nil {
+			t.Fatalf("%s has API rules", name)
+		}
+	}
+	n := 0
+	if err := app.DB().NewQuery("SELECT COUNT(*) FROM pages WHERE slug IN ('terms','privacy','offer','refund')").Row(&n); err != nil || n != 4 {
+		t.Fatalf("legal pages %d %v", n, err)
+	}
+	orders, _ := app.FindCollectionByNameOrId("orders")
+	products, _ := app.FindCollectionByNameOrId("products")
+	if orders.Fields.GetByName("referral") == nil || products.Fields.GetByName("review_note") == nil {
+		t.Fatal("expand fields missing")
+	}
+}

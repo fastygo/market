@@ -406,11 +406,11 @@
       .value-list-box-5 { @apply flex items-center justify-between gap-4 border-t border-border pt-4 text-sm; }
     }
     @layer state {
-      .account-menu-icon-is1, .catalog-filters-icon-2-is1, .main-nav-icon-is1, .product-about-icon-is1 { @apply rotate-180; }
       .action-card-button-is1 { @apply w-full text-sm; }
       .action-card-button-is2, .check-list-button-is2 { @apply self-start text-xs; }
       .author-hero-back-is1 { @apply left-8 top-8 -rotate-6; }
       .author-hero-back-is2 { @apply bottom-4 right-4 rotate-2; }
+      .catalog-filters-icon-2-is1, .product-about-icon-is1 { @apply rotate-180; }
       .catalog-filters-stack-is1 { @apply hidden; }
       .catalog-filters-link-is1 { @apply bg-muted font-bold; }
       .catalog-filters-link-is2 { @apply hover:bg-muted; }

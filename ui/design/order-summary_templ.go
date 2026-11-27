@@ -273,7 +273,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = checkbox.Checkbox(checkbox.CheckboxProps{Class: "order-summary-checkbox", Checked: props.Accept, Attrs: attrs("data-onchange", "order-summary.accept")}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = checkbox.Checkbox(checkbox.CheckboxProps{Class: "order-summary-checkbox", Checked: props.Accept, Name: "terms", Required: true, Value: strPtr("1"), Attrs: attrs("data-onchange", "order-summary.accept")}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -444,7 +444,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "order-summary-button", Disabled: props.PayDisabled, Attrs: attrs("data-onclick", "order-summary.pay")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var28), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "order-summary-button", Disabled: props.PayDisabled, Type: "submit", Attrs: attrs("data-onclick", "order-summary.pay")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var28), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

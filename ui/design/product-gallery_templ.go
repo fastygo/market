@@ -76,7 +76,7 @@ func ProductGallery(props ProductGalleryProps) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = image.Image(image.ImageProps{Class: "product-gallery-main", Alt: or(at(props.Images, props.Current).Alt, ""), Height: "458", Src: at(props.Images, props.Current).Src, Width: "806"}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = image.Image(image.ImageProps{Class: "product-gallery-main", Alt: or(at(props.Images, props.Current).Alt, ""), Height: "458", Src: at(props.Images, props.Current).Src, Width: "806", Attrs: attrs("id", "gallery-main")}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -129,7 +129,7 @@ func ProductGallery(props ProductGalleryProps) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: cx("product-gallery-button", (i == props.Current), "product-gallery-button-is1", (i != props.Current), "product-gallery-button-is2"), AriaLabel: strings.Replace(props.ThumbLabel, "{n}", strconv.Itoa((i + 1)), 1), Pressed: boolPtr((i == props.Current)), Attrs: attrs("data-onclick", "product-gallery.select", "data-value", strconv.Itoa(i))}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: cx("product-gallery-button", (i == props.Current), "product-gallery-button-is1", (i != props.Current), "product-gallery-button-is2"), AriaLabel: strings.Replace(props.ThumbLabel, "{n}", strconv.Itoa((i + 1)), 1), Pressed: boolPtr((i == props.Current)), Attrs: attrs("data-src", img.Src, "data-onclick", "product-gallery.select", "data-value", strconv.Itoa(i))}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

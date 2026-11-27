@@ -518,7 +518,7 @@ type DisclosureProps struct {
 
 func disclosureInner(p DisclosureProps) disclosure.DisclosureProps {
 	in := p.DisclosureProps
-	in.Class = join("mk-disclosure", p.Class)
+	in.Class = join("mk-disclosure group", p.Class)
 	in.Open = p.Open
 	return in
 }

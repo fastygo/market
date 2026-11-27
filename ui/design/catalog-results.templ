@@ -42,7 +42,7 @@ templ CatalogResults(props CatalogResultsProps) {
 					{ props.Count }
 				}
 			}
-			@selectfield.Select(selectfield.SelectProps{Class: "catalog-results-select", Value: props.Sort, Attrs: attrs("aria-label", props.Labels.Sort, "data-onchange", "catalog-results.sort", "options", props.Sorts)})
+			@selectfield.Select(selectfield.SelectProps{Class: "catalog-results-select", Name: "sort", Options: mapSlice(props.Sorts, func(x SelectItem) selectfield.SelectOptionItem { return selectfield.SelectOptionItem{Value: x.Value, Label: x.Label} }), Value: props.Sort, Attrs: attrs("aria-label", props.Labels.Sort, "data-onchange", "catalog-results.sort")})
 		}
 		if len(props.Items) != 0 {
 			@box.Box(box.BoxProps{Class: "catalog-results-grid"}) {

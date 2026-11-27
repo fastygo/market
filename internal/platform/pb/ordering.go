@@ -246,6 +246,9 @@ func (s *Orders) PlaceOrder(ctx context.Context, o ordering.NewOrder) (ordering.
 			"tax_minor": o.Totals.Tax, "total_minor": o.Totals.Sum, "tax_display": string(o.Storefront.Display),
 			"idempotency_key": o.OrderKey, "terms_version": o.TermsVersion, "snapshot_digest": o.Digest, "status_version": 0,
 		}
+		if len(o.Referral) > 0 {
+			orderFields["referral"] = o.Referral
+		}
 		if o.PaidImmediately {
 			orderFields["status"] = string(ordering.OrderPaid)
 			orderFields["paid_at"] = pbDate(o.Now)

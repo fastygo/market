@@ -16,6 +16,7 @@ type CheckListProps struct {
 	Cta string
 	CtaIcon string
 	HeadingId string
+	Href string
 	Text string
 	Title string
 	Tone string
@@ -53,7 +54,7 @@ templ CheckList(props CheckListProps) {
 			}
 		}
 		if props.Cta != "" {
-			@button.Button(button.ButtonProps{Class: cx("check-list-button" + "-" + or(pick((props.Tone == "outline"), "sm", "md"), "md") + "-" + or(pick((props.Tone == "outline"), "outline", "primary"), "outline"), (props.Tone != "outline"), "check-list-button-is1", (props.Tone == "outline"), "check-list-button-is2"), Attrs: attrs("data-onclick", "check-list.action")}) {
+			@button.Button(button.ButtonProps{Class: cx("check-list-button" + "-" + or(pick((props.Tone == "outline"), "sm", "md"), "md") + "-" + or(pick((props.Tone == "outline"), "outline", "primary"), "outline"), (props.Tone != "outline"), "check-list-button-is1", (props.Tone == "outline"), "check-list-button-is2"), Href: props.Href, Attrs: attrs("data-onclick", "check-list.action")}) {
 				if props.CtaIcon != "" {
 					@icon.Icon(icon.IconProps{Size: "sm"}) {
 						@Glyph(or(props.CtaIcon, "plus"))

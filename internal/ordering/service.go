@@ -40,6 +40,9 @@ type CheckoutRequest struct {
 	BuyerCountry   string // ISO country, optional; used for provider rules
 	Consents       []Consent
 	IPHash         string
+	// Referral is the partner attribution snapshot (ADR-0023): partner id,
+	// code and click time; nil without a valid ?ref= cookie.
+	Referral map[string]any
 }
 
 // NewOrder is what tx 1 writes: order, items, payment `created`, consents.
@@ -63,6 +66,7 @@ type NewOrder struct {
 	// PaidImmediately writes the order as paid with delivery effects and
 	// no payment provider (0-amount / free checkout).
 	PaidImmediately bool
+	Referral        map[string]any
 }
 
 // OrderView is an order with its current payment.
@@ -335,6 +339,7 @@ func (s *Service) Checkout(ctx context.Context, req CheckoutRequest) (OrderView,
 		PaymentKey: "pay:" + orderKey + ":" + provider, Provider: provider, Method: req.Method,
 		SellerID: offers[0].SellerID, Lines: lines, Totals: tot, TermsVersion: terms,
 		Consents: req.Consents, IPHash: req.IPHash, LegalEntity: s.Entity, Digest: Digest(lines, tot), Now: now,
+		Referral: req.Referral,
 	})
 	if err != nil {
 		return OrderView{}, err
@@ -365,7 +370,7 @@ func (s *Service) checkoutFree(ctx context.Context, req CheckoutRequest, sf Stor
 		PaymentKey: "pay:" + orderKey + ":free", Provider: "free", Method: "free",
 		SellerID: offers[0].SellerID, Lines: lines, Totals: tot, TermsVersion: terms,
 		Consents: req.Consents, IPHash: req.IPHash, Digest: Digest(lines, tot), Now: now,
-		PaidImmediately: true,
+		PaidImmediately: true, Referral: req.Referral,
 	})
 }
 

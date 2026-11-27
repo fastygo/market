@@ -74,7 +74,7 @@ var prims = map[string]prim{
 	"Input":      {pkg: "input", fn: "Input", props: "InputProps", void: true, fields: map[string][2]string{"type": {"Type", "s"}, "id": {"ID", "s"}, "name": {"Name", "s"}, "value": {"Value", "ps"}, "placeholder": {"Placeholder", "s"}, "min": {"Min", "s"}, "max": {"Max", "s"}, "step": {"Step", "s"}, "required": {"Required", "b"}, "disabled": {"Disabled", "b"}, "readonly": {"ReadOnly", "b"}, "aria-invalid": {"AriaInvalid", "s"}, "aria-describedby": {"AriaDescribedBy", "s"}}},
 	"Checkbox":   {pkg: "checkbox", fn: "Checkbox", props: "CheckboxProps", void: true, fields: map[string][2]string{"id": {"ID", "s"}, "name": {"Name", "s"}, "value": {"Value", "ps"}, "checked": {"Checked", "b"}, "required": {"Required", "b"}, "disabled": {"Disabled", "b"}}},
 	"Radio":      {pkg: "radio", fn: "Radio", props: "RadioProps", void: true, fields: map[string][2]string{"id": {"ID", "s"}, "name": {"Name", "s"}, "value": {"Value", "ps"}, "checked": {"Checked", "b"}, "required": {"Required", "b"}, "disabled": {"Disabled", "b"}}},
-	"Select":     {pkg: "selectfield", fn: "Select", props: "SelectProps", fields: map[string][2]string{"id": {"ID", "s"}, "name": {"Name", "s"}, "value": {"Value", "s"}, "required": {"Required", "b"}, "disabled": {"Disabled", "b"}}},
+	"Select":     {pkg: "selectfield", fn: "Select", props: "SelectProps", fields: map[string][2]string{"options": {"Options", "opts"}, "id": {"ID", "s"}, "name": {"Name", "s"}, "value": {"Value", "s"}, "required": {"Required", "b"}, "disabled": {"Disabled", "b"}}},
 	"Textarea":   {pkg: "textarea", fn: "Textarea", props: "TextareaProps", void: true, fields: map[string][2]string{"id": {"ID", "s"}, "name": {"Name", "s"}, "value": {"Value", "s"}, "placeholder": {"Placeholder", "s"}, "rows": {"Rows", "s"}, "required": {"Required", "b"}}},
 	"Label":      {pkg: "label", fn: "Label", props: "LabelProps", fields: map[string][2]string{"for": {"For", "s"}}},
 	"Form":       {pkg: "form", fn: "Form", props: "FormProps", fields: map[string][2]string{"id": {"ID", "s"}, "action": {"Action", "s"}, "method": {"Method", "s"}, "enctype": {"Enctype", "s"}, "novalidate": {"NoValidate", "b"}, "aria-label": {"AriaLabel", "s"}, "aria-labelledby": {"AriaLabelledBy", "s"}}},
@@ -226,6 +226,8 @@ func (k *blk) exprGo(v any, kind string, sc *Scope) string {
 		return "strPtr(" + conv(g, tString) + ")"
 	case "s":
 		return conv(g, tString)
+	case "opts":
+		return "mapSlice(" + g.S + ", func(x SelectItem) selectfield.SelectOptionItem { return selectfield.SelectOptionItem{Value: x.Value, Label: x.Label} })"
 	}
 	return g.S
 }

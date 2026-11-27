@@ -360,7 +360,7 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 										}()
 									}
 									ctx = templ.InitializeContext(ctx)
-									templ_7745c5c3_Err = checkbox.Checkbox(checkbox.CheckboxProps{Class: "catalog-filters-checkbox", Checked: !(!(o.Checked)), Value: strPtr(o.ID), Attrs: attrs("data-onchange", "catalog-filters.editor", "data-value", o.ID)}).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = checkbox.Checkbox(checkbox.CheckboxProps{Class: "catalog-filters-checkbox", Checked: !(!(o.Checked)), Name: "editor", Value: strPtr(o.ID), Attrs: attrs("data-onchange", "catalog-filters.editor", "data-value", o.ID)}).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
@@ -471,11 +471,11 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = input.Input(input.InputProps{Class: "catalog-filters-input", Min: "0", Placeholder: props.Labels.Min, Type: "number", Value: strPtr(props.Min), Attrs: attrs("aria-label", props.Labels.Min, "inputmode", "numeric", "data-oninput", "catalog-filters.min")}).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = input.Input(input.InputProps{Class: "catalog-filters-input", Min: "0", Name: "min", Placeholder: props.Labels.Min, Type: "number", Value: strPtr(props.Min), Attrs: attrs("aria-label", props.Labels.Min, "inputmode", "numeric", "data-oninput", "catalog-filters.min")}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = input.Input(input.InputProps{Class: "catalog-filters-input-2", Min: "0", Placeholder: props.Labels.Max, Type: "number", Value: strPtr(props.Max), Attrs: attrs("aria-label", props.Labels.Max, "inputmode", "numeric", "data-oninput", "catalog-filters.max")}).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = input.Input(input.InputProps{Class: "catalog-filters-input-2", Min: "0", Name: "max", Placeholder: props.Labels.Max, Type: "number", Value: strPtr(props.Max), Attrs: attrs("aria-label", props.Labels.Max, "inputmode", "numeric", "data-oninput", "catalog-filters.max")}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -497,7 +497,7 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						templ_7745c5c3_Err = checkbox.Checkbox(checkbox.CheckboxProps{Class: "catalog-filters-checkbox-2", Checked: props.OnlyFree, Attrs: attrs("data-onchange", "catalog-filters.free")}).Render(ctx, templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = checkbox.Checkbox(checkbox.CheckboxProps{Class: "catalog-filters-checkbox-2", Checked: props.OnlyFree, Name: "free", Value: strPtr("1"), Attrs: attrs("data-onchange", "catalog-filters.free")}).Render(ctx, templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -620,7 +620,7 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 										}()
 									}
 									ctx = templ.InitializeContext(ctx)
-									templ_7745c5c3_Err = checkbox.Checkbox(checkbox.CheckboxProps{Class: "catalog-filters-checkbox-3", Checked: !(!(o.Checked)), Value: strPtr(o.ID), Attrs: attrs("data-onchange", "catalog-filters.type", "data-value", o.ID)}).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = checkbox.Checkbox(checkbox.CheckboxProps{Class: "catalog-filters-checkbox-3", Checked: !(!(o.Checked)), Name: "type", Value: strPtr(o.ID), Attrs: attrs("data-onchange", "catalog-filters.type", "data-value", o.ID)}).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}

@@ -119,13 +119,13 @@ func AccountMenu(props AccountMenuProps) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = icon.Icon(icon.IconProps{Class: cx("account-menu-icon", props.Open, "account-menu-icon-is1"), Size: "sm"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = icon.Icon(icon.IconProps{Class: "account-menu-icon", Size: "sm"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "account-menu-button", AriaLabel: props.Label, Expanded: boolPtr(props.Open), Attrs: attrs("data-onclick", "account-menu.toggle")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "account-menu-button", AriaLabel: props.Label, Expanded: boolPtr(false), Attrs: attrs("data-onclick", "account-menu.toggle")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -403,7 +403,7 @@ func AccountMenu(props AccountMenuProps) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = box.Box(box.BoxProps{Class: "account-menu-stack"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = box.Box(box.BoxProps{Class: "account-menu-stack", Attrs: attrs("hidden", true)}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

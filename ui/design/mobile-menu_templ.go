@@ -834,7 +834,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = dialog.Dialog(dialog.DialogProps{Class: "mobile-menu-sheet", AriaLabel: props.Labels.Menu, Open: props.Open}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = dialog.Dialog(dialog.DialogProps{Class: "mobile-menu-sheet", AriaLabel: props.Labels.Menu, ID: "mobile-menu", Open: props.Open}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

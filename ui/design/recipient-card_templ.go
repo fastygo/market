@@ -178,7 +178,7 @@ func RecipientCard(props RecipientCardProps) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = input.Input(input.InputProps{Class: "recipient-card-input", AriaDescribedBy: pick(props.Invalid, "checkout-email-error", ""), AriaInvalid: strconv.FormatBool(props.Invalid), ID: "checkout-email", Type: "email", Value: strPtr(props.Email), Attrs: attrs("autocomplete", "email", "data-oninput", "recipient-card.email")}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = input.Input(input.InputProps{Class: "recipient-card-input", AriaDescribedBy: pick(props.Invalid, "checkout-email-error", ""), AriaInvalid: strconv.FormatBool(props.Invalid), ID: "checkout-email", Name: "email", Required: true, Type: "email", Value: strPtr(props.Email), Attrs: attrs("autocomplete", "email", "data-oninput", "recipient-card.email")}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -23,14 +23,14 @@ templ MainNav(props MainNavProps) {
 		for _, item := range props.Items {
 			if item.Menu {
 				@box.Box(box.BoxProps{Class: "main-nav-box", Attrs: attrs("data-popover-root", "")}) {
-					@button.Button(button.ButtonProps{Class: "main-nav-button", Expanded: boolPtr(props.Open), Attrs: attrs("data-onclick", "main-nav.toggle")}) {
+					@button.Button(button.ButtonProps{Class: "main-nav-button", Expanded: boolPtr(false), Attrs: attrs("data-onclick", "main-nav.toggle")}) {
 						{ item.Label }
-						@icon.Icon(icon.IconProps{Class: cx("main-nav-icon", props.Open, "main-nav-icon-is1"), Size: "sm"}) {
+						@icon.Icon(icon.IconProps{Class: "main-nav-icon", Size: "sm"}) {
 							@Glyph("chevron-down")
 						}
 					}
 					if props.Open {
-						@box.Box(box.BoxProps{Class: "main-nav-box-2", Tag: "ul"}) {
+						@box.Box(box.BoxProps{Class: "main-nav-box-2", Tag: "ul", Attrs: attrs("hidden", true)}) {
 							for _, c := range props.Categories {
 								@box.Box(box.BoxProps{Tag: "li"}) {
 									@link.Link(link.LinkProps{Class: "main-nav-link", Href: c.Href}) {

@@ -20,6 +20,6 @@ templ SearchField(props SearchFieldProps) {
 		@icon.Icon(icon.IconProps{Class: "search-field-icon", Size: "sm"}) {
 			@Glyph("search")
 		}
-		@input.Input(input.InputProps{Class: "search-field-input", Placeholder: props.Placeholder, Type: "search", Value: strPtr(props.Value), Attrs: attrs("aria-label", props.Placeholder, "data-oninput", "search-field.input")})
+		@input.Input(input.InputProps{Class: "search-field-input", Name: "q", Placeholder: props.Placeholder, Type: "search", Value: strPtr(props.Value), Attrs: attrs("aria-label", props.Placeholder, "data-oninput", "search-field.input")})
 	}
 }

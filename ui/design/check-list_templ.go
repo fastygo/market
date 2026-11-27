@@ -24,6 +24,7 @@ type CheckListProps struct {
 	Cta       string
 	CtaIcon   string
 	HeadingId string
+	Href      string
 	Text      string
 	Title     string
 	Tone      string
@@ -90,7 +91,7 @@ func CheckList(props CheckListProps) templ.Component {
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `check-list.templ`, Line: 29, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `check-list.templ`, Line: 30, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -126,7 +127,7 @@ func CheckList(props CheckListProps) templ.Component {
 						var templ_7745c5c3_Var7 string
 						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(props.Badge)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `check-list.templ`, Line: 34, Col: 18}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `check-list.templ`, Line: 35, Col: 18}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -207,7 +208,7 @@ func CheckList(props CheckListProps) templ.Component {
 							var templ_7745c5c3_Var12 string
 							templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(c.Text)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `check-list.templ`, Line: 45, Col: 14}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `check-list.templ`, Line: 46, Col: 14}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 							if templ_7745c5c3_Err != nil {
@@ -248,7 +249,7 @@ func CheckList(props CheckListProps) templ.Component {
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(props.Text)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `check-list.templ`, Line: 52, Col: 16}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `check-list.templ`, Line: 53, Col: 16}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -309,7 +310,7 @@ func CheckList(props CheckListProps) templ.Component {
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(props.Cta)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `check-list.templ`, Line: 62, Col: 15}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `check-list.templ`, Line: 63, Col: 15}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -317,7 +318,7 @@ func CheckList(props CheckListProps) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: cx("check-list-button"+"-"+or(pick((props.Tone == "outline"), "sm", "md"), "md")+"-"+or(pick((props.Tone == "outline"), "outline", "primary"), "outline"), (props.Tone != "outline"), "check-list-button-is1", (props.Tone == "outline"), "check-list-button-is2"), Attrs: attrs("data-onclick", "check-list.action")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var15), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: cx("check-list-button"+"-"+or(pick((props.Tone == "outline"), "sm", "md"), "md")+"-"+or(pick((props.Tone == "outline"), "outline", "primary"), "outline"), (props.Tone != "outline"), "check-list-button-is1", (props.Tone == "outline"), "check-list-button-is2"), Href: props.Href, Attrs: attrs("data-onclick", "check-list.action")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var15), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

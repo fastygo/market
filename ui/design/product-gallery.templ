@@ -26,12 +26,12 @@ type ProductGalleryProps struct {
 templ ProductGallery(props ProductGalleryProps) {
 	@box.Box(box.BoxProps{Class: "product-gallery", Tag: "section", Attrs: attrs("aria-label", props.Label)}) {
 		@box.Box(box.BoxProps{Class: "product-gallery-box"}) {
-			@image.Image(image.ImageProps{Class: "product-gallery-main", Alt: or(at(props.Images, props.Current).Alt, ""), Height: "458", Src: at(props.Images, props.Current).Src, Width: "806"})
+			@image.Image(image.ImageProps{Class: "product-gallery-main", Alt: or(at(props.Images, props.Current).Alt, ""), Height: "458", Src: at(props.Images, props.Current).Src, Width: "806", Attrs: attrs("id", "gallery-main")})
 		}
 		@box.Box(box.BoxProps{Class: "product-gallery-group"}) {
 			@box.Box(box.BoxProps{Class: "product-gallery-group-2"}) {
 				for i, img := range props.Images {
-					@button.Button(button.ButtonProps{Class: cx("product-gallery-button", (i == props.Current), "product-gallery-button-is1", (i != props.Current), "product-gallery-button-is2"), AriaLabel: strings.Replace(props.ThumbLabel, "{n}", strconv.Itoa((i + 1)), 1), Pressed: boolPtr((i == props.Current)), Attrs: attrs("data-onclick", "product-gallery.select", "data-value", strconv.Itoa(i))}) {
+					@button.Button(button.ButtonProps{Class: cx("product-gallery-button", (i == props.Current), "product-gallery-button-is1", (i != props.Current), "product-gallery-button-is2"), AriaLabel: strings.Replace(props.ThumbLabel, "{n}", strconv.Itoa((i + 1)), 1), Pressed: boolPtr((i == props.Current)), Attrs: attrs("data-src", img.Src, "data-onclick", "product-gallery.select", "data-value", strconv.Itoa(i))}) {
 						@image.Image(image.ImageProps{Class: "product-gallery-thumb", Alt: "", Height: "56", Src: img.Src, Width: "96"})
 					}
 				}

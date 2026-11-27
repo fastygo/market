@@ -182,7 +182,9 @@ func CatalogResults(props CatalogResultsProps) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = selectfield.Select(selectfield.SelectProps{Class: "catalog-results-select", Value: props.Sort, Attrs: attrs("aria-label", props.Labels.Sort, "data-onchange", "catalog-results.sort", "options", props.Sorts)}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = selectfield.Select(selectfield.SelectProps{Class: "catalog-results-select", Name: "sort", Options: mapSlice(props.Sorts, func(x SelectItem) selectfield.SelectOptionItem {
+					return selectfield.SelectOptionItem{Value: x.Value, Label: x.Label}
+				}), Value: props.Sort, Attrs: attrs("aria-label", props.Labels.Sort, "data-onchange", "catalog-results.sort")}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

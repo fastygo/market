@@ -23,16 +23,16 @@ type AccountMenuProps struct {
 // AccountMenu: Account button of the header with its popover list (signed-in buyer or seller).
 templ AccountMenu(props AccountMenuProps) {
 	@box.Box(box.BoxProps{Class: "account-menu", Attrs: attrs("data-popover-root", "")}) {
-		@button.Button(button.ButtonProps{Class: "account-menu-button", AriaLabel: props.Label, Expanded: boolPtr(props.Open), Attrs: attrs("data-onclick", "account-menu.toggle")}) {
+		@button.Button(button.ButtonProps{Class: "account-menu-button", AriaLabel: props.Label, Expanded: boolPtr(false), Attrs: attrs("data-onclick", "account-menu.toggle")}) {
 			@text.Text(text.TextProps{Class: "account-menu-avatar", Tag: "span"}) {
 				{ props.User.Initials }
 			}
-			@icon.Icon(icon.IconProps{Class: cx("account-menu-icon", props.Open, "account-menu-icon-is1"), Size: "sm"}) {
+			@icon.Icon(icon.IconProps{Class: "account-menu-icon", Size: "sm"}) {
 				@Glyph("chevron-down")
 			}
 		}
 		if props.Open {
-			@box.Box(box.BoxProps{Class: "account-menu-stack"}) {
+			@box.Box(box.BoxProps{Class: "account-menu-stack", Attrs: attrs("hidden", true)}) {
 				@box.Box(box.BoxProps{Class: "account-menu-group"}) {
 					@text.Text(text.TextProps{Class: "account-menu-avatar-2", Tag: "span"}) {
 						{ props.User.Initials }

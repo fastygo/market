@@ -55,7 +55,7 @@ templ CheckoutItem(props CheckoutItemProps) {
 		@text.Text(text.TextProps{Class: "checkout-item-title-3", Tag: "h3", Attrs: attrs("id", "checkout-license")}) {
 			{ props.License }
 		}
-		@LicenseOptions(LicenseOptionsProps{Label: props.License, Licenses: props.Licenses, Name: "checkout-license", Value: props.Value})
+		@LicenseOptions(LicenseOptionsProps{Label: props.License, Licenses: props.Licenses, Name: "license", Value: props.Value})
 		@link.Link(link.LinkProps{Class: "checkout-item-link", Href: props.CompareHref}) {
 			{ props.Compare }
 		}

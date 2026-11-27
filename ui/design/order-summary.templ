@@ -51,7 +51,7 @@ templ OrderSummary(props OrderSummaryProps) {
 			}
 		}
 		@label.Label(label.LabelProps{Class: "order-summary-label"}) {
-			@checkbox.Checkbox(checkbox.CheckboxProps{Class: "order-summary-checkbox", Checked: props.Accept, Attrs: attrs("data-onchange", "order-summary.accept")})
+			@checkbox.Checkbox(checkbox.CheckboxProps{Class: "order-summary-checkbox", Checked: props.Accept, Name: "terms", Required: true, Value: strPtr("1"), Attrs: attrs("data-onchange", "order-summary.accept")})
 			@text.Text(text.TextProps{Tag: "span"}) {
 				{ props.Agree.Start }
 				{ " " }
@@ -67,7 +67,7 @@ templ OrderSummary(props OrderSummaryProps) {
 				{ "." }
 			}
 		}
-		@button.Button(button.ButtonProps{Class: "order-summary-button", Disabled: props.PayDisabled, Attrs: attrs("data-onclick", "order-summary.pay")}) {
+		@button.Button(button.ButtonProps{Class: "order-summary-button", Disabled: props.PayDisabled, Type: "submit", Attrs: attrs("data-onclick", "order-summary.pay")}) {
 			{ props.Pay }
 		}
 		@text.Text(text.TextProps{Class: "order-summary-text"}) {

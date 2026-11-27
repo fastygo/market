@@ -15,6 +15,7 @@ type ActionCardProps struct {
 	CtaIcon string
 	Disabled bool
 	HeadingId string
+	Href string
 	Lines []string
 	Text string
 	Title string
@@ -38,7 +39,7 @@ templ ActionCard(props ActionCardProps) {
 			}
 		}
 		if props.Cta != "" {
-			@button.Button(button.ButtonProps{Class: cx("action-card-button" + "-" + or(pick((props.Tone == "block"), "lg", "sm"), "md") + "-" + or(pick((props.Tone == "block"), "muted", "outline"), "outline"), (props.Tone == "block"), "action-card-button-is1", (props.Tone != "block"), "action-card-button-is2"), Disabled: props.Disabled, Attrs: attrs("data-onclick", "action-card.action")}) {
+			@button.Button(button.ButtonProps{Class: cx("action-card-button" + "-" + or(pick((props.Tone == "block"), "lg", "sm"), "md") + "-" + or(pick((props.Tone == "block"), "muted", "outline"), "outline"), (props.Tone == "block"), "action-card-button-is1", (props.Tone != "block"), "action-card-button-is2"), Disabled: props.Disabled, Href: props.Href, Attrs: attrs("data-onclick", "action-card.action")}) {
 				if props.CtaIcon != "" {
 					@icon.Icon(icon.IconProps{Size: "sm"}) {
 						@Glyph(or(props.CtaIcon, "file-text"))

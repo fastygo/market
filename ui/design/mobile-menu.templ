@@ -30,7 +30,7 @@ type MobileMenuProps struct {
 // MobileMenu: Mobile sheet menu (Dialog primitive): navigation, catalog, seller or account links, theme and session. Escape and the backdrop close it; focus returns to the burger.
 templ MobileMenu(props MobileMenuProps) {
 	@box.Box(box.BoxProps{Class: "mobile-menu"}) {
-		@dialog.Dialog(dialog.DialogProps{Class: "mobile-menu-sheet", AriaLabel: props.Labels.Menu, Open: props.Open}) {
+		@dialog.Dialog(dialog.DialogProps{Class: "mobile-menu-sheet", AriaLabel: props.Labels.Menu, ID: "mobile-menu", Open: props.Open}) {
 			@button.Button(button.ButtonProps{Class: "mobile-menu-button", AriaLabel: props.Labels.Close, Attrs: attrs("data-onclick", "mobile-menu.close", "tabindex", "-1")})
 			@box.Box(box.BoxProps{Class: "mobile-menu-stack"}) {
 				@box.Box(box.BoxProps{Class: "mobile-menu-group"}) {

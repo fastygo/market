@@ -51,7 +51,7 @@ templ HomeHero(props HomeHeroProps) {
 				}
 				@box.Box(box.BoxProps{Class: "home-hero-group"}) {
 					for _, tag := range props.Tags {
-						@button.Button(button.ButtonProps{Class: "home-hero-button-2", Attrs: attrs("data-onclick", "home-hero.tag", "data-value", tag)}) {
+						@button.Button(button.ButtonProps{Class: "home-hero-button-2", Href: ("/catalog?q=" + tag), Attrs: attrs("data-onclick", "home-hero.tag", "data-value", tag)}) {
 							{ tag }
 						}
 					}

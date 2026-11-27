@@ -256,7 +256,7 @@ func HomeHero(props HomeHeroProps) templ.Component {
 								}
 								return nil
 							})
-							templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "home-hero-button-2", Attrs: attrs("data-onclick", "home-hero.tag", "data-value", tag)}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "home-hero-button-2", Href: ("/catalog?q=" + tag), Attrs: attrs("data-onclick", "home-hero.tag", "data-value", tag)}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

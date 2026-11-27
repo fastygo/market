@@ -78,7 +78,7 @@ func SearchField(props SearchFieldProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = input.Input(input.InputProps{Class: "search-field-input", Placeholder: props.Placeholder, Type: "search", Value: strPtr(props.Value), Attrs: attrs("aria-label", props.Placeholder, "data-oninput", "search-field.input")}).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = input.Input(input.InputProps{Class: "search-field-input", Name: "q", Placeholder: props.Placeholder, Type: "search", Value: strPtr(props.Value), Attrs: attrs("aria-label", props.Placeholder, "data-oninput", "search-field.input")}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

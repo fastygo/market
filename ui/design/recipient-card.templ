@@ -37,7 +37,7 @@ templ RecipientCard(props RecipientCardProps) {
 			@icon.Icon(icon.IconProps{Class: "recipient-card-icon", Size: "sm"}) {
 				@Glyph("mail")
 			}
-			@input.Input(input.InputProps{Class: "recipient-card-input", AriaDescribedBy: pick(props.Invalid, "checkout-email-error", ""), AriaInvalid: strconv.FormatBool(props.Invalid), ID: "checkout-email", Type: "email", Value: strPtr(props.Email), Attrs: attrs("autocomplete", "email", "data-oninput", "recipient-card.email")})
+			@input.Input(input.InputProps{Class: "recipient-card-input", AriaDescribedBy: pick(props.Invalid, "checkout-email-error", ""), AriaInvalid: strconv.FormatBool(props.Invalid), ID: "checkout-email", Name: "email", Required: true, Type: "email", Value: strPtr(props.Email), Attrs: attrs("autocomplete", "email", "data-oninput", "recipient-card.email")})
 		}
 		if props.Invalid {
 			@text.Text(text.TextProps{Class: "recipient-card-text-2", Attrs: attrs("id", "checkout-email-error")}) {

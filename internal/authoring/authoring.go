@@ -8,6 +8,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Errors.
@@ -26,7 +27,31 @@ type Item struct {
 	ID, SellerID, Title, Slug, Status string
 	Description, DescriptionHTML      string
 	Version                           int
+	Meta                              Meta
+	CoverURL, ReviewNote              string
+	Images                            []Image
+	Updated                           time.Time
 }
+
+// Meta is the product card data edited in the cabinet (ADR-0035). Prices
+// are minor units in Currency; zero Extended hides that license.
+type Meta struct {
+	Title, Slug, Excerpt, Category, DemoURL string
+	Stack, Tags, Currency                   string
+	Price, Extended                         int64
+}
+
+// Category is a selectable product category.
+type Category struct{ ID, Title string }
+
+// Status actions of the seller.
+const (
+	ActSubmit   = "submit"   // draft -> in_review
+	ActWithdraw = "withdraw" // in_review -> draft
+	ActUnlist   = "unlist"   // published -> unlisted
+	ActRelist   = "relist"   // unlisted -> in_review
+	ActArchive  = "archive"  // any -> archived
+)
 
 // Image is a file stored on the product and served at a public URL.
 type Image struct {
@@ -50,6 +75,12 @@ type Store interface {
 	// transaction. version is the If-Match value the client last saw.
 	SaveDescription(ctx context.Context, userID, productID, markdown string, version int) (Item, error)
 	AddImage(ctx context.Context, userID, productID, filename string, r io.Reader) (Image, error)
+	// Create makes a draft product of the seller (the user must be a member).
+	Create(ctx context.Context, userID, sellerID string, m Meta) (Item, error)
+	SaveMeta(ctx context.Context, userID, productID string, m Meta) (Item, error)
+	SetCover(ctx context.Context, userID, productID, filename string, r io.Reader) (Image, error)
+	Act(ctx context.Context, userID, productID, action string) (Item, error)
+	Categories(ctx context.Context) ([]Category, error)
 }
 
 // ETag is the document version as an HTTP ETag / If-Match token.

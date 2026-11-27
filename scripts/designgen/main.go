@@ -40,6 +40,15 @@ func main() {
 	if b, err := os.ReadFile(*patchFile); err == nil {
 		must(json.Unmarshal(b, &g.patches))
 	}
+	extraProps := map[string]map[string]PropDecl{}
+	for id, nodes := range g.patches {
+		if ps, ok := nodes["$props"]; ok {
+			b, _ := json.Marshal(ps)
+			var decl map[string]PropDecl
+			must(json.Unmarshal(b, &decl))
+			extraProps[id] = decl
+		}
+	}
 	var comps, blocks []*Spec
 	for _, dir := range []string{"compose", "blocks"} {
 		files, _ := filepath.Glob(filepath.Join(specDir, "json", dir, "*.json"))
@@ -50,6 +59,12 @@ func main() {
 			var s Spec
 			must(json.Unmarshal(b, &s))
 			s.file = f
+			for k, d := range extraProps[s.ID] {
+				if s.Props == nil {
+					s.Props = map[string]PropDecl{}
+				}
+				s.Props[k] = d
+			}
 			g.specs[s.Name] = &s
 			if s.Kind == "composition" {
 				comps = append(comps, &s)

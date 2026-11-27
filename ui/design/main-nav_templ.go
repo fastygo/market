@@ -112,13 +112,13 @@ func MainNav(props MainNavProps) templ.Component {
 								}
 								return nil
 							})
-							templ_7745c5c3_Err = icon.Icon(icon.IconProps{Class: cx("main-nav-icon", props.Open, "main-nav-icon-is1"), Size: "sm"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = icon.Icon(icon.IconProps{Class: "main-nav-icon", Size: "sm"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "main-nav-button", Expanded: boolPtr(props.Open), Attrs: attrs("data-onclick", "main-nav.toggle")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "main-nav-button", Expanded: boolPtr(false), Attrs: attrs("data-onclick", "main-nav.toggle")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -206,7 +206,7 @@ func MainNav(props MainNavProps) templ.Component {
 								}
 								return nil
 							})
-							templ_7745c5c3_Err = box.Box(box.BoxProps{Class: "main-nav-box-2", Tag: "ul"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = box.Box(box.BoxProps{Class: "main-nav-box-2", Tag: "ul", Attrs: attrs("hidden", true)}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
