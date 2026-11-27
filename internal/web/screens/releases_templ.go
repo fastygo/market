@@ -174,7 +174,7 @@ func EditorReleasePage(s Shell, v ReleaseReviewView) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.release.no_flags")}).Render(ctx, templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = NoteLine("shield-check", s.T("ui.release.no_flags")).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -189,7 +189,7 @@ func EditorReleasePage(s Shell, v ReleaseReviewView) templ.Component {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.release.no_listing")}).Render(ctx, templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = NoteLine("info", s.T("ui.release.no_listing")).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

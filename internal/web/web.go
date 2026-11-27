@@ -307,6 +307,10 @@ func (h *Handler) notice(w http.ResponseWriter, r *http.Request, status int, key
 		h.fail(w, r, err)
 		return
 	}
+	if status >= http.StatusBadRequest {
+		s.NoIndex = true
+		w.Header().Set("X-Robots-Tag", "noindex")
+	}
 	h.render(w, r, status, screens.NoticePage(s, key))
 }
 

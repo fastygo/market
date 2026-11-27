@@ -30,12 +30,12 @@ templ EditorReleasePage(s Shell, v ReleaseReviewView) {
 					if len(v.Report.Flags) > 0 {
 						@design.FileList(design.FileListProps{HeadingId: "release-flags", Title: s.T("ui.release.flags_title"), Items: flagItems(s, v.Report.Flags)})
 					} else {
-						@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.release.no_flags")})
+						@NoteLine("shield-check", s.T("ui.release.no_flags"))
 					}
 					if len(v.Report.Entries) > 0 {
 						@design.FileList(design.FileListProps{HeadingId: "release-files", Title: listingTitle(s, v.Report), Items: entryItems(s, v.Report.Entries)})
 					} else {
-						@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.release.no_listing")})
+						@NoteLine("info", s.T("ui.release.no_listing"))
 					}
 				}
 				@design.Stack(design.StackProps{Class: "min-w-0 gap-4 lg:col-span-2", BoxProps: box.BoxProps{}}) {

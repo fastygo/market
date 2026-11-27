@@ -323,3 +323,18 @@ func TestStorefrontHasCSPAndNoEditorAssets(t *testing.T) {
 		}
 	}
 }
+
+// A missing page is not indexable and does not claim its URL as canonical.
+func TestNotFoundHasNoCanonical(t *testing.T) {
+	rec := get(handlerWith(t, "https://market.example.com/"), "/products/no-such-item")
+	body := rec.Body.String()
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("status %d", rec.Code)
+	}
+	if strings.Contains(body, `rel="canonical"`) || strings.Contains(body, `property="og:url"`) {
+		t.Error("404 page has canonical or og:url")
+	}
+	if !strings.Contains(body, `<meta name="robots" content="noindex">`) || rec.Header().Get("X-Robots-Tag") != "noindex" {
+		t.Error("404 page is indexable")
+	}
+}

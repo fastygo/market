@@ -256,3 +256,16 @@ templ NoticePage(s Shell, messageKey string) {
 		}
 	}
 }
+
+// NoteLine is a quiet one-line notice in a card: an icon and small muted
+// text (no heading; for "nothing to report" states inside a page).
+templ NoteLine(icon, msg string) {
+	@design.Card(design.CardProps{Class: "text-sm", Pad: "md", BoxProps: box.BoxProps{Attrs: templ.Attributes{"role": "status"}}}) {
+		@design.Group(design.GroupProps{Class: "items-start gap-2", BoxProps: box.BoxProps{}}) {
+			@design.Icon(design.IconProps{Size: "sm", Name: icon, Class: "mt-0.5 shrink-0 text-muted-foreground"})
+			@design.Text(design.TextProps{Size: "sm", Tone: "muted", TextProps: text.TextProps{}}) {
+				{ msg }
+			}
+		}
+	}
+}

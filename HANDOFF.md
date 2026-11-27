@@ -200,3 +200,15 @@ Prefer the CLI for partners: it generates the referral code.
 - Generated files (`*_templ.go`, skin CSS, `ui/kit`) are committed; never
   edit them by hand (ADR-0014).
 - No secrets, real personal data or Cyrillic in the repo (ADR-0016).
+- Item delete (ADR-0036): only `draft` or `archived` items without order
+  lines, entitlements or reviews. Release files that storage refused to
+  delete are logged as `release file orphaned` with the key; remove them
+  by hand.
+- Error pages (`notice` with status >= 400) send `noindex` (meta and
+  `X-Robots-Tag`) and no canonical or `og:url`.
+- Dependabot GHSA-q7pp-wcgr-pffx (`disintegration/imaging` <= 1.6.2, TIFF
+  panic): no patched release exists and PocketBase v0.40.6 (latest) needs
+  it for thumbnails. Not reachable: PocketBase makes thumbnails only for
+  files whose sniffed type is png/jpeg/gif/webp (never TIFF), and market's
+  own uploads accept only JPEG, PNG, GIF and WebP. Revisit when PocketBase
+  drops or replaces the library.

@@ -24,6 +24,9 @@ templ Layout(s Shell) {
 			<meta property="og:title" content={ s.pageTitle() }/>
 			<meta property="og:description" content={ s.metaDescription() }/>
 			<meta property="og:type" content="website"/>
+			if s.NoIndex {
+				<meta name="robots" content="noindex"/>
+			}
 			if s.canonical() != "" {
 				<link rel="canonical" href={ s.canonical() }/>
 				<meta property="og:url" content={ s.canonical() }/>

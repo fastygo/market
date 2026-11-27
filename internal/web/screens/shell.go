@@ -34,6 +34,9 @@ type Shell struct {
 	// omitted.
 	BaseURL string
 	Path    string // request path, for the canonical link
+	// NoIndex marks error pages: robots noindex, and no canonical or
+	// og:url pointing at a URL that does not exist.
+	NoIndex bool
 	// Description overrides the meta description (default ui.meta.description).
 	Description string
 	// JSONLD is the schema.org graph of the page (nil: none).
@@ -96,7 +99,12 @@ func (s Shell) abs(path string) string {
 	return s.BaseURL + path
 }
 
-func (s Shell) canonical() string { return s.abs(s.Path) }
+func (s Shell) canonical() string {
+	if s.NoIndex {
+		return ""
+	}
+	return s.abs(s.Path)
+}
 
 func (s Shell) ogImage() string {
 	img := s.Image
