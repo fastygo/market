@@ -7,7 +7,6 @@ replace github.com/ui8kit/codegen/generated/templ => ./ui/kit
 require (
 	github.com/HugoSmits86/nativewebp v1.3.0
 	github.com/a-h/templ v0.3.1070
-	github.com/disintegration/imaging v1.6.2
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pocketbase/dbx v1.12.0
 	github.com/pocketbase/pocketbase v0.40.6
@@ -24,6 +23,7 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/domodwyer/mailyak/v3 v3.6.2 // indirect
 	github.com/dustin/go-humanize v1.1.0 // indirect
 	github.com/fatih/color v1.19.0 // indirect

@@ -20,7 +20,7 @@ if ! command -v bun >/dev/null 2>&1; then
 fi
 
 tmp=
-cleanup() { [ -n "${tmp:-}" ] && rm -rf "$tmp"; }
+cleanup() { if [ -n "${tmp:-}" ]; then rm -rf "$tmp"; fi; }
 trap cleanup EXIT
 
 build_into() {

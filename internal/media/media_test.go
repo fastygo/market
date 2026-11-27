@@ -2,6 +2,7 @@ package media
 
 import (
 	"bytes"
+	"image"
 	"image/color"
 	"image/png"
 	"net/http"
@@ -10,8 +11,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/disintegration/imaging"
 )
 
 func TestDeriveIdempotentAndSrcset(t *testing.T) {
@@ -75,16 +74,46 @@ func TestHandlerImmutable(t *testing.T) {
 }
 
 func TestResizeNoUpscale(t *testing.T) {
-	img := imaging.New(400, 300, color.NRGBA{R: 20, G: 40, B: 60, A: 255})
-	out := imaging.Resize(img, 400, 0, imaging.Lanczos)
-	if out.Bounds().Dx() != 400 {
-		t.Fatalf("width %d", out.Bounds().Dx())
+	img := solid(400, 300, color.NRGBA{R: 20, G: 40, B: 60, A: 255})
+	out := resizeWidth(img, 200)
+	if out.Bounds().Dx() != 200 || out.Bounds().Dy() != 150 {
+		t.Fatalf("size %v", out.Bounds())
 	}
+}
+
+func TestOrientRotates(t *testing.T) {
+	img := solid(40, 30, color.NRGBA{A: 255})
+	if b := orient(img, 6).Bounds(); b.Dx() != 30 || b.Dy() != 40 {
+		t.Fatalf("orient 6: %v", b)
+	}
+	if b := orient(img, 3).Bounds(); b.Dx() != 40 || b.Dy() != 30 {
+		t.Fatalf("orient 3: %v", b)
+	}
+}
+
+func TestOpenImageRejectsUnknownFormat(t *testing.T) {
+	p := filepath.Join(t.TempDir(), "x.tif")
+	if err := os.WriteFile(p, []byte("II*\x00\x08\x00\x00\x00"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := openImage(p); err == nil {
+		t.Fatal("tiff decoded")
+	}
+}
+
+func solid(w, h int, c color.NRGBA) *image.NRGBA {
+	img := image.NewNRGBA(image.Rect(0, 0, w, h))
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			img.SetNRGBA(x, y, c)
+		}
+	}
+	return img
 }
 
 func writePNG(t *testing.T, path string, w, h int) {
 	t.Helper()
-	img := imaging.New(w, h, color.NRGBA{R: 200, G: 80, B: 40, A: 255})
+	img := solid(w, h, color.NRGBA{R: 200, G: 80, B: 40, A: 255})
 	// a little structure so compression is realistic
 	for x := 0; x < w; x += 17 {
 		img.Set(x, h/2, color.NRGBA{A: 255, B: 200})

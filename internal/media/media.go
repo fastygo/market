@@ -22,7 +22,6 @@ import (
 	"sync"
 
 	"github.com/HugoSmits86/nativewebp"
-	"github.com/disintegration/imaging"
 	_ "golang.org/x/image/webp"
 )
 
@@ -113,7 +112,7 @@ func (s *Store) Derive(src Source) error {
 	if m, err := s.readMeta(src.ProductID); err == nil && m.SHA256 == sum && m.Source == src.Name && filesExist(s.Dir, src.ProductID, sum, m.Widths) {
 		return nil
 	}
-	img, err := imaging.Open(src.Path, imaging.AutoOrientation(true))
+	img, err := openImage(src.Path)
 	if err != nil {
 		return fmt.Errorf("media: open %s: %w", src.Path, err)
 	}
@@ -137,7 +136,7 @@ func (s *Store) Derive(src Source) error {
 		}
 		out := img
 		if srcW > w {
-			out = imaging.Resize(img, w, 0, imaging.Lanczos)
+			out = resizeWidth(img, w)
 		}
 		if err := writeWebP(filepath.Join(dir, "w"+strconv.Itoa(w)+".webp"), out); err != nil {
 			return err
