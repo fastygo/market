@@ -534,7 +534,7 @@ func SecurityPage(s Shell) templ.Component {
 							var templ_7745c5c3_Var25 string
 							templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.header.signout"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `account.templ`, Line: 81, Col: 32}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/account.templ`, Line: 81, Col: 32}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 							if templ_7745c5c3_Err != nil {
@@ -776,7 +776,7 @@ func roleCard(s Shell, v RolesView, r cabinet.Role, icon string) templ.Component
 					var templ_7745c5c3_Var36 string
 					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.role." + string(r)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `account.templ`, Line: 115, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/account.templ`, Line: 115, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 					if templ_7745c5c3_Err != nil {
@@ -809,7 +809,7 @@ func roleCard(s Shell, v RolesView, r cabinet.Role, icon string) templ.Component
 				var templ_7745c5c3_Var38 string
 				templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.roles." + string(r) + "_text"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `account.templ`, Line: 119, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/account.templ`, Line: 119, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 				if templ_7745c5c3_Err != nil {
@@ -837,7 +837,7 @@ func roleCard(s Shell, v RolesView, r cabinet.Role, icon string) templ.Component
 					var templ_7745c5c3_Var40 string
 					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.roles.active"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `account.templ`, Line: 123, Col: 28}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/account.templ`, Line: 123, Col: 28}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 					if templ_7745c5c3_Err != nil {
@@ -869,7 +869,7 @@ func roleCard(s Shell, v RolesView, r cabinet.Role, icon string) templ.Component
 					var templ_7745c5c3_Var42 string
 					templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.status.pending"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `account.templ`, Line: 128, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/account.templ`, Line: 128, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 					if templ_7745c5c3_Err != nil {
@@ -998,7 +998,7 @@ func itemAccess(s Shell, it account.Item) templ.Component {
 					var templ_7745c5c3_Var47 string
 					templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.download"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `account.templ`, Line: 150, Col: 32}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/account.templ`, Line: 150, Col: 32}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 					if templ_7745c5c3_Err != nil {

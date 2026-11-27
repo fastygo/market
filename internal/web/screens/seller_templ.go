@@ -546,7 +546,7 @@ func SellerItemPage(s Shell, v ItemForm) templ.Component {
 									var templ_7745c5c3_Var25 string
 									templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(itemStatus(s, v.Item.Status))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller.templ`, Line: 92, Col: 38}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/seller.templ`, Line: 92, Col: 38}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 									if templ_7745c5c3_Err != nil {
@@ -737,7 +737,7 @@ func SellerItemPage(s Shell, v ItemForm) templ.Component {
 									var templ_7745c5c3_Var34 string
 									templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.common.stub"))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller.templ`, Line: 123, Col: 31}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/seller.templ`, Line: 123, Col: 31}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 									if templ_7745c5c3_Err != nil {
@@ -1500,7 +1500,7 @@ func SellerStorePage(s Shell, v StoreView) templ.Component {
 						var templ_7745c5c3_Var66 string
 						templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.common.stub"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller.templ`, Line: 245, Col: 28}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/seller.templ`, Line: 245, Col: 28}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var66))
 						if templ_7745c5c3_Err != nil {

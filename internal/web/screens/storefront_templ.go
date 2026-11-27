@@ -248,7 +248,7 @@ func CatalogPage(s Shell, v CatalogView) templ.Component {
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(or(v.Active.Title, s.T("ui.catalog.title")))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 48, Col: 50}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 48, Col: 50}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -275,7 +275,7 @@ func CatalogPage(s Shell, v CatalogView) templ.Component {
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.catalog.lead"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 51, Col: 29}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 51, Col: 29}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
@@ -336,7 +336,7 @@ func CatalogPage(s Shell, v CatalogView) templ.Component {
 							var templ_7745c5c3_Var17 string
 							templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.catalog.apply"))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 58, Col: 31}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 58, Col: 31}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 							if templ_7745c5c3_Err != nil {
@@ -640,7 +640,7 @@ func ProductPage(s Shell, v ProductView) templ.Component {
 								var templ_7745c5c3_Var31 string
 								templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.description"))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 110, Col: 38}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 110, Col: 38}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 								if templ_7745c5c3_Err != nil {
@@ -674,7 +674,7 @@ func ProductPage(s Shell, v ProductView) templ.Component {
 										var templ_7745c5c3_Var33 string
 										templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(para)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 117, Col: 15}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 117, Col: 15}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 										if templ_7745c5c3_Err != nil {
@@ -760,7 +760,7 @@ func ProductPage(s Shell, v ProductView) templ.Component {
 								var templ_7745c5c3_Var37 string
 								templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.product.reviews"))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 134, Col: 34}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 134, Col: 34}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 								if templ_7745c5c3_Err != nil {
@@ -1096,7 +1096,7 @@ func CheckoutPage(s Shell, v CheckoutPageView) templ.Component {
 						var templ_7745c5c3_Var51 string
 						templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.checkout.title"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 188, Col: 31}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 188, Col: 31}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 						if templ_7745c5c3_Err != nil {
@@ -1123,7 +1123,7 @@ func CheckoutPage(s Shell, v CheckoutPageView) templ.Component {
 						var templ_7745c5c3_Var53 string
 						templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.checkout.lead"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 191, Col: 30}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 191, Col: 30}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 						if templ_7745c5c3_Err != nil {
@@ -1317,7 +1317,7 @@ func ReturnPage(s Shell, v ReturnView) templ.Component {
 					var templ_7745c5c3_Var61 string
 					templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.JoinStringErrs(s.T(returnKey(v.State)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 223, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 223, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var61))
 					if templ_7745c5c3_Err != nil {
@@ -1344,7 +1344,7 @@ func ReturnPage(s Shell, v ReturnView) templ.Component {
 					var templ_7745c5c3_Var63 string
 					templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(s.T(returnKey(v.State) + "_lead"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 226, Col: 39}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 226, Col: 39}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
 					if templ_7745c5c3_Err != nil {
@@ -1456,7 +1456,7 @@ func FakePayPage(s Shell, v FakePayView) templ.Component {
 						var templ_7745c5c3_Var69 string
 						templ_7745c5c3_Var69, templ_7745c5c3_Err = templ.JoinStringErrs(Money(v.Amount))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 243, Col: 22}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 243, Col: 22}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var69))
 						if templ_7745c5c3_Err != nil {
@@ -1529,7 +1529,7 @@ func FakePayPage(s Shell, v FakePayView) templ.Component {
 								var templ_7745c5c3_Var74 string
 								templ_7745c5c3_Var74, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.fakepay.cancel"))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 251, Col: 33}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 251, Col: 33}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var74))
 								if templ_7745c5c3_Err != nil {
@@ -1698,7 +1698,7 @@ func BlogPage(s Shell, as []editorial.Article) templ.Component {
 						var templ_7745c5c3_Var82 string
 						templ_7745c5c3_Var82, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.blog.title"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 275, Col: 27}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 275, Col: 27}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var82))
 						if templ_7745c5c3_Err != nil {
@@ -1725,7 +1725,7 @@ func BlogPage(s Shell, as []editorial.Article) templ.Component {
 						var templ_7745c5c3_Var84 string
 						templ_7745c5c3_Var84, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.blog.lead"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 278, Col: 26}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 278, Col: 26}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var84))
 						if templ_7745c5c3_Err != nil {
@@ -1847,7 +1847,7 @@ func ArticlePage(s Shell, a editorial.Article) templ.Component {
 						var templ_7745c5c3_Var90 string
 						templ_7745c5c3_Var90, templ_7745c5c3_Err = templ.JoinStringErrs(a.Title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 297, Col: 14}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 297, Col: 14}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var90))
 						if templ_7745c5c3_Err != nil {
@@ -1874,7 +1874,7 @@ func ArticlePage(s Shell, a editorial.Article) templ.Component {
 						var templ_7745c5c3_Var92 string
 						templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinStringErrs(a.AuthorName + " \u00b7 " + fmtDate(a.PublishedAt))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 300, Col: 57}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 300, Col: 57}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var92))
 						if templ_7745c5c3_Err != nil {
@@ -1902,7 +1902,7 @@ func ArticlePage(s Shell, a editorial.Article) templ.Component {
 							var templ_7745c5c3_Var94 string
 							templ_7745c5c3_Var94, templ_7745c5c3_Err = templ.JoinStringErrs(a.Excerpt)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 304, Col: 17}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 304, Col: 17}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var94))
 							if templ_7745c5c3_Err != nil {
@@ -2014,7 +2014,7 @@ func InfoPage(s Shell, p editorial.Page) templ.Component {
 						var templ_7745c5c3_Var100 string
 						templ_7745c5c3_Var100, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 319, Col: 14}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 319, Col: 14}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var100))
 						if templ_7745c5c3_Err != nil {
@@ -2042,7 +2042,7 @@ func InfoPage(s Shell, p editorial.Page) templ.Component {
 							var templ_7745c5c3_Var102 string
 							templ_7745c5c3_Var102, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.page.version") + " " + p.Version + " \u00b7 " + fmtDate(p.Updated))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 323, Col: 82}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 323, Col: 82}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var102))
 							if templ_7745c5c3_Err != nil {
@@ -2160,7 +2160,7 @@ func CollectionsPage(s Shell, cs []editorial.Collection) templ.Component {
 						var templ_7745c5c3_Var108 string
 						templ_7745c5c3_Var108, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.collections.title"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 341, Col: 34}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 341, Col: 34}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var108))
 						if templ_7745c5c3_Err != nil {
@@ -2187,7 +2187,7 @@ func CollectionsPage(s Shell, cs []editorial.Collection) templ.Component {
 						var templ_7745c5c3_Var110 string
 						templ_7745c5c3_Var110, templ_7745c5c3_Err = templ.JoinStringErrs(s.T("ui.collections.lead"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 344, Col: 33}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 344, Col: 33}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var110))
 						if templ_7745c5c3_Err != nil {
@@ -2330,7 +2330,7 @@ func CollectionPage(s Shell, c editorial.Collection, ps []catalog.Product) templ
 							var templ_7745c5c3_Var117 string
 							templ_7745c5c3_Var117, templ_7745c5c3_Err = templ.JoinStringErrs(c.Eyebrow)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 368, Col: 17}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 368, Col: 17}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var117))
 							if templ_7745c5c3_Err != nil {
@@ -2362,7 +2362,7 @@ func CollectionPage(s Shell, c editorial.Collection, ps []catalog.Product) templ
 						var templ_7745c5c3_Var119 string
 						templ_7745c5c3_Var119, templ_7745c5c3_Err = templ.JoinStringErrs(c.Title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 372, Col: 14}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 372, Col: 14}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var119))
 						if templ_7745c5c3_Err != nil {
@@ -2390,7 +2390,7 @@ func CollectionPage(s Shell, c editorial.Collection, ps []catalog.Product) templ
 							var templ_7745c5c3_Var121 string
 							templ_7745c5c3_Var121, templ_7745c5c3_Err = templ.JoinStringErrs(c.Lead)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `storefront.templ`, Line: 376, Col: 14}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/storefront.templ`, Line: 376, Col: 14}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var121))
 							if templ_7745c5c3_Err != nil {

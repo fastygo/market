@@ -215,7 +215,7 @@ func Flash(msg string, isError bool) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(msg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 49, Col: 8}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 49, Col: 8}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -243,7 +243,7 @@ func Flash(msg string, isError bool) templ.Component {
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(msg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 53, Col: 8}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 53, Col: 8}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -352,7 +352,7 @@ func Panel(title, lead string) templ.Component {
 						var templ_7745c5c3_Var17 string
 						templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 69, Col: 12}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 69, Col: 12}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 						if templ_7745c5c3_Err != nil {
@@ -380,7 +380,7 @@ func Panel(title, lead string) templ.Component {
 							var templ_7745c5c3_Var19 string
 							templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(lead)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 73, Col: 12}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 73, Col: 12}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 							if templ_7745c5c3_Err != nil {
@@ -610,7 +610,7 @@ func fieldLabel(f F) templ.Component {
 			var templ_7745c5c3_Var28 string
 			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(f.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 109, Col: 11}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 109, Col: 11}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 			if templ_7745c5c3_Err != nil {
@@ -663,7 +663,7 @@ func fieldHint(f F) templ.Component {
 				var templ_7745c5c3_Var31 string
 				templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(f.Hint)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 116, Col: 11}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 116, Col: 11}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 				if templ_7745c5c3_Err != nil {
@@ -901,7 +901,7 @@ func Check(f F, checked bool) templ.Component {
 				var templ_7745c5c3_Var41 string
 				templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(f.Label)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 155, Col: 12}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 155, Col: 12}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 				if templ_7745c5c3_Err != nil {
@@ -972,7 +972,7 @@ func Submit(labelText string) templ.Component {
 				var templ_7745c5c3_Var45 string
 				templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(labelText)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 164, Col: 14}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 164, Col: 14}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 				if templ_7745c5c3_Err != nil {
@@ -1035,7 +1035,7 @@ func Act(name, value, labelText, variant string) templ.Component {
 			var templ_7745c5c3_Var48 string
 			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(labelText)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 173, Col: 13}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 173, Col: 13}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 			if templ_7745c5c3_Err != nil {
@@ -1098,7 +1098,7 @@ func LinkButton(href, labelText, variant, icon string) templ.Component {
 			var templ_7745c5c3_Var51 string
 			templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(labelText)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 183, Col: 13}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 183, Col: 13}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 			if templ_7745c5c3_Err != nil {
@@ -1217,7 +1217,7 @@ func Rows(rows []Row, empty string, actions func(i int) templ.Component) templ.C
 										var templ_7745c5c3_Var58 string
 										templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinStringErrs(r.Title)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 203, Col: 18}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 203, Col: 18}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
 										if templ_7745c5c3_Err != nil {
@@ -1245,7 +1245,7 @@ func Rows(rows []Row, empty string, actions func(i int) templ.Component) templ.C
 										var templ_7745c5c3_Var60 string
 										templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinStringErrs(r.Title)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 207, Col: 18}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 207, Col: 18}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
 										if templ_7745c5c3_Err != nil {
@@ -1278,7 +1278,7 @@ func Rows(rows []Row, empty string, actions func(i int) templ.Component) templ.C
 										var templ_7745c5c3_Var62 string
 										templ_7745c5c3_Var62, templ_7745c5c3_Err = templ.JoinStringErrs(r.Meta)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 212, Col: 17}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 212, Col: 17}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var62))
 										if templ_7745c5c3_Err != nil {
@@ -1307,7 +1307,7 @@ func Rows(rows []Row, empty string, actions func(i int) templ.Component) templ.C
 										var templ_7745c5c3_Var64 string
 										templ_7745c5c3_Var64, templ_7745c5c3_Err = templ.JoinStringErrs(l)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 217, Col: 12}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 217, Col: 12}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var64))
 										if templ_7745c5c3_Err != nil {
@@ -1360,7 +1360,7 @@ func Rows(rows []Row, empty string, actions func(i int) templ.Component) templ.C
 									var templ_7745c5c3_Var67 string
 									templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.JoinStringErrs(r.Badge)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 225, Col: 17}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 225, Col: 17}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var67))
 									if templ_7745c5c3_Err != nil {
@@ -1519,7 +1519,7 @@ func NoticePage(s Shell, messageKey string) templ.Component {
 					var templ_7745c5c3_Var74 string
 					templ_7745c5c3_Var74, templ_7745c5c3_Err = templ.JoinStringErrs(s.T(messageKey))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `parts.templ`, Line: 253, Col: 21}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/web/screens/parts.templ`, Line: 253, Col: 21}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var74))
 					if templ_7745c5c3_Err != nil {
