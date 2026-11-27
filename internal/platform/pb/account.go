@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -88,6 +89,23 @@ func (u *Users) CheckPassword(ctx context.Context, email, password string) (acco
 		return account.User{}, account.ErrCredentials
 	}
 	return toUser(r), nil
+}
+
+// MinPassword is the shortest password the operator CLI accepts.
+const MinPassword = 16
+
+// SetPassword sets the password of an existing account (operator CLI). It
+// rotates the token key, so existing sessions end; no email is sent.
+func (u *Users) SetPassword(ctx context.Context, email, password string) error {
+	if len(password) < MinPassword || len(password) > 71 {
+		return fmt.Errorf("password must be %d to 71 bytes", MinPassword)
+	}
+	r, err := u.find(email)
+	if err != nil {
+		return err
+	}
+	r.SetPassword(password)
+	return u.App.Save(r)
 }
 
 // SessionToken implements account.Users.

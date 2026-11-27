@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/sha256"
@@ -9,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -97,6 +99,22 @@ func registerCommands(app *pocketbase.PocketBase) {
 			} else {
 				fmt.Println("exists", u.Email)
 			}
+			return nil
+		},
+	})
+	user.AddCommand(&cobra.Command{
+		Use:   "password <email>",
+		Short: "Set an account password read from stdin (no email is sent; for operator and test accounts)",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			line, err := bufio.NewReader(cmd.InOrStdin()).ReadString('\n')
+			if err != nil && !errors.Is(err, io.EOF) {
+				return fmt.Errorf("user password: %w", err)
+			}
+			if err := (&pb.Users{App: app}).SetPassword(context.Background(), args[0], strings.TrimRight(line, "\r\n")); err != nil {
+				return fmt.Errorf("user password: %w", err)
+			}
+			fmt.Println("password set")
 			return nil
 		},
 	})

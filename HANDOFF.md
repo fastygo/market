@@ -131,6 +131,7 @@ the container as the service user with the service data dir, for example
 | Goal                               | Command                                          |
 |------------------------------------|--------------------------------------------------|
 | create a buyer account (no email)  | `market user add <email>`                        |
+| set a password (stdin, no email)   | `market user password <email> < file`            |
 | vendor of an existing store        | `market seller add-member <store-slug> <email> [owner\|staff]` |
 | vendor with a new store            | `market role grant <email> vendor` (store `<name>-store`, `pending_review`) |
 | author, partner, editor            | `market role grant <email> author\|partner\|editor` |
