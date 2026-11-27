@@ -115,7 +115,7 @@ func LicenseOptions(props LicenseOptionsProps) templ.Component {
 								var templ_7745c5c3_Var7 string
 								templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(lic.Label)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `license-options.templ`, Line: 29, Col: 18}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/license-options.templ`, Line: 29, Col: 18}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 								if templ_7745c5c3_Err != nil {
@@ -142,7 +142,7 @@ func LicenseOptions(props LicenseOptionsProps) templ.Component {
 								var templ_7745c5c3_Var9 string
 								templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(lic.Price)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `license-options.templ`, Line: 32, Col: 18}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/license-options.templ`, Line: 32, Col: 18}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 								if templ_7745c5c3_Err != nil {
@@ -175,7 +175,7 @@ func LicenseOptions(props LicenseOptionsProps) templ.Component {
 							var templ_7745c5c3_Var11 string
 							templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(lic.Text)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `license-options.templ`, Line: 36, Col: 16}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/license-options.templ`, Line: 36, Col: 16}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 							if templ_7745c5c3_Err != nil {

@@ -91,7 +91,7 @@ func ValueList(props ValueListProps) templ.Component {
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `value-list.templ`, Line: 30, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/value-list.templ`, Line: 30, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -127,7 +127,7 @@ func ValueList(props ValueListProps) templ.Component {
 						var templ_7745c5c3_Var7 string
 						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(props.Badge)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `value-list.templ`, Line: 35, Col: 18}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/value-list.templ`, Line: 35, Col: 18}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -160,7 +160,7 @@ func ValueList(props ValueListProps) templ.Component {
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(props.Text)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `value-list.templ`, Line: 40, Col: 17}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/value-list.templ`, Line: 40, Col: 17}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -220,7 +220,7 @@ func ValueList(props ValueListProps) templ.Component {
 								var templ_7745c5c3_Var13 string
 								templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(r.Label)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `value-list.templ`, Line: 49, Col: 16}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/value-list.templ`, Line: 49, Col: 16}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 								if templ_7745c5c3_Err != nil {
@@ -247,7 +247,7 @@ func ValueList(props ValueListProps) templ.Component {
 								var templ_7745c5c3_Var15 string
 								templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(r.Value)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `value-list.templ`, Line: 52, Col: 16}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/value-list.templ`, Line: 52, Col: 16}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 								if templ_7745c5c3_Err != nil {
@@ -310,7 +310,7 @@ func ValueList(props ValueListProps) templ.Component {
 							return props.Summary.Label
 						}())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `value-list.templ`, Line: 61, Col: 92}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/value-list.templ`, Line: 61, Col: 92}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 						if templ_7745c5c3_Err != nil {
@@ -342,7 +342,7 @@ func ValueList(props ValueListProps) templ.Component {
 							return props.Summary.Value
 						}())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `value-list.templ`, Line: 64, Col: 92}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/value-list.templ`, Line: 64, Col: 92}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 						if templ_7745c5c3_Err != nil {
@@ -381,7 +381,7 @@ func ValueList(props ValueListProps) templ.Component {
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(props.Note)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `value-list.templ`, Line: 70, Col: 16}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/value-list.templ`, Line: 70, Col: 16}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -442,7 +442,7 @@ func ValueList(props ValueListProps) templ.Component {
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(props.Cta)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `value-list.templ`, Line: 80, Col: 15}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/value-list.templ`, Line: 80, Col: 15}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {

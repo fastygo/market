@@ -1,8 +1,8 @@
 {
   "block.main-nav": {"button": {"expanded": false}, "icon": {"class": "transition-transform"}, "box-2": {"hidden": true}},
-  "block.account-menu": {"button": {"expanded": false}, "icon": {"class": "text-muted-foreground transition-transform"}, "stack": {"hidden": true}},
+  "block.account-menu": {"button": {"expanded": false}, "icon": {"class": "text-muted-foreground transition-transform"}, "stack": {"hidden": true}, "button-2": {"type": "submit", "form": "signout-form"}},
   "block.catalog-filters": {"checkbox": {"name": "editor"}, "checkbox-2": {"name": "free", "value": "1"}, "checkbox-3": {"name": "type"}, "input": {"name": "min"}, "input-2": {"name": "max"}},
-  "block.catalog-results": {"select": {"name": "sort"}},
+  "block.catalog-results": {"select": {"name": "sort"}, "button": {"href": {"$": "chip.id"}}, "button-2": {"href": "/catalog"}},
   "block.search-field": {"input": {"name": "q"}},
   "block.home-hero": {"button-2": {"href": {"$": "'/catalog?q=' + tag"}}},
   "block.order-summary": {"checkbox": {"name": "terms", "value": "1", "required": true}, "button": {"type": "submit"}},
@@ -10,6 +10,8 @@
   "block.checkout-item": {"license-options": {"name": "license"}},
   "block.action-card": {"$props": {"href": {"type": "string", "optional": true}}, "button": {"href": {"$": "href"}}},
   "block.check-list": {"$props": {"href": {"type": "string", "optional": true}}, "button": {"href": {"$": "href"}}},
-  "block.product-gallery": {"button": {"data-src": {"$": "img.src"}}, "main": {"id": "gallery-main"}},
-  "block.mobile-menu": {"sheet": {"id": "mobile-menu"}}
+  "block.product-gallery": {"button": {"data-src": {"$": "img.src"}}, "main": {"id": "gallery-main", "loading": "eager", "fetchpriority": "high"}},
+  "block.mobile-menu": {"sheet": {"id": "mobile-menu"}, "button-4": {"href": "/account"}, "button-5": {"type": "submit", "form": "signout-form"}},
+  "block.site-header": {"button-3": {"href": "/account"}},
+  "block.segmented": {"button": {"href": {"$": "it.href"}}}
 }

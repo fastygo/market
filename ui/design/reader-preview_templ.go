@@ -87,7 +87,7 @@ func ReaderPreview(props ReaderPreviewProps) templ.Component {
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `reader-preview.templ`, Line: 26, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/reader-preview.templ`, Line: 26, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -114,7 +114,7 @@ func ReaderPreview(props ReaderPreviewProps) templ.Component {
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(props.Eyebrow)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `reader-preview.templ`, Line: 29, Col: 19}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/reader-preview.templ`, Line: 29, Col: 19}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -159,7 +159,7 @@ func ReaderPreview(props ReaderPreviewProps) templ.Component {
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(props.Box)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `reader-preview.templ`, Line: 34, Col: 15}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/reader-preview.templ`, Line: 34, Col: 15}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -198,7 +198,7 @@ func ReaderPreview(props ReaderPreviewProps) templ.Component {
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(props.Prev)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `reader-preview.templ`, Line: 38, Col: 17}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/reader-preview.templ`, Line: 38, Col: 17}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
@@ -247,7 +247,7 @@ func ReaderPreview(props ReaderPreviewProps) templ.Component {
 						var templ_7745c5c3_Var16 string
 						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(props.PrevTitle)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `reader-preview.templ`, Line: 44, Col: 22}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/reader-preview.templ`, Line: 44, Col: 22}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 						if templ_7745c5c3_Err != nil {
@@ -286,7 +286,7 @@ func ReaderPreview(props ReaderPreviewProps) templ.Component {
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(props.Note)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `reader-preview.templ`, Line: 49, Col: 15}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/reader-preview.templ`, Line: 49, Col: 15}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {

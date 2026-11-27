@@ -89,7 +89,7 @@ func AccountMenu(props AccountMenuProps) templ.Component {
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.User.Initials)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `account-menu.templ`, Line: 28, Col: 25}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/account-menu.templ`, Line: 28, Col: 25}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -169,7 +169,7 @@ func AccountMenu(props AccountMenuProps) templ.Component {
 							var templ_7745c5c3_Var10 string
 							templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(props.User.Initials)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `account-menu.templ`, Line: 38, Col: 27}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/account-menu.templ`, Line: 38, Col: 27}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 							if templ_7745c5c3_Err != nil {
@@ -208,7 +208,7 @@ func AccountMenu(props AccountMenuProps) templ.Component {
 								var templ_7745c5c3_Var13 string
 								templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(props.User.Name)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `account-menu.templ`, Line: 42, Col: 24}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/account-menu.templ`, Line: 42, Col: 24}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 								if templ_7745c5c3_Err != nil {
@@ -236,7 +236,7 @@ func AccountMenu(props AccountMenuProps) templ.Component {
 									var templ_7745c5c3_Var15 string
 									templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(props.User.Role)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `account-menu.templ`, Line: 46, Col: 25}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/account-menu.templ`, Line: 46, Col: 25}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 									if templ_7745c5c3_Err != nil {
@@ -323,7 +323,7 @@ func AccountMenu(props AccountMenuProps) templ.Component {
 									var templ_7745c5c3_Var20 string
 									templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(l.Label)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `account-menu.templ`, Line: 58, Col: 17}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/account-menu.templ`, Line: 58, Col: 17}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 									if templ_7745c5c3_Err != nil {
@@ -389,7 +389,7 @@ func AccountMenu(props AccountMenuProps) templ.Component {
 						var templ_7745c5c3_Var23 string
 						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(props.Signout)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `account-menu.templ`, Line: 68, Col: 20}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/account-menu.templ`, Line: 68, Col: 20}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 						if templ_7745c5c3_Err != nil {
@@ -397,7 +397,7 @@ func AccountMenu(props AccountMenuProps) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "account-menu-button-2", Attrs: attrs("data-onclick", "account-menu.signout")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var21), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "account-menu-button-2", Form: "signout-form", Type: "submit", Attrs: attrs("data-onclick", "account-menu.signout")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var21), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

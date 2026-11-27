@@ -19,7 +19,7 @@ type SegmentedProps struct {
 templ Segmented(props SegmentedProps) {
 	@box.Box(box.BoxProps{Class: "segmented", Attrs: attrs("aria-label", props.Label, "role", "group")}) {
 		for _, it := range props.Items {
-			@button.Button(button.ButtonProps{Class: cx("segmented-button" + "-" + or(pick((it.ID == props.Current), "dark", "muted"), "outline"), (props.Size == "sm"), "segmented-button-is1", (props.Size != "sm"), "segmented-button-is2"), Pressed: boolPtr((it.ID == props.Current)), Attrs: attrs("data-onclick", "segmented.select", "data-value", it.ID)}) {
+			@button.Button(button.ButtonProps{Class: cx("segmented-button" + "-" + or(pick((it.ID == props.Current), "dark", "muted"), "outline"), (props.Size == "sm"), "segmented-button-is1", (props.Size != "sm"), "segmented-button-is2"), Href: it.Href, Pressed: boolPtr((it.ID == props.Current)), Attrs: attrs("data-onclick", "segmented.select", "data-value", it.ID)}) {
 				{ it.Label }
 			}
 		}

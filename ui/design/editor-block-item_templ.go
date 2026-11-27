@@ -129,7 +129,7 @@ func EditorBlockItem(props EditorBlockItemProps) templ.Component {
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(props.Item.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor-block-item.templ`, Line: 33, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/editor-block-item.templ`, Line: 33, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -231,7 +231,7 @@ func EditorBlockItem(props EditorBlockItemProps) templ.Component {
 							var templ_7745c5c3_Var13 string
 							templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(props.Item.Name)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor-block-item.templ`, Line: 46, Col: 23}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/editor-block-item.templ`, Line: 46, Col: 23}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 							if templ_7745c5c3_Err != nil {
@@ -258,7 +258,7 @@ func EditorBlockItem(props EditorBlockItemProps) templ.Component {
 							var templ_7745c5c3_Var15 string
 							templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(props.Item.Text)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor-block-item.templ`, Line: 49, Col: 23}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/editor-block-item.templ`, Line: 49, Col: 23}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 							if templ_7745c5c3_Err != nil {
@@ -328,7 +328,7 @@ func EditorBlockItem(props EditorBlockItemProps) templ.Component {
 								var templ_7745c5c3_Var19 string
 								templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(tb.Label)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor-block-item.templ`, Line: 59, Col: 17}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/editor-block-item.templ`, Line: 59, Col: 17}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 								if templ_7745c5c3_Err != nil {
@@ -362,7 +362,7 @@ func EditorBlockItem(props EditorBlockItemProps) templ.Component {
 						var templ_7745c5c3_Var21 string
 						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(props.Item.Text)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor-block-item.templ`, Line: 64, Col: 22}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/editor-block-item.templ`, Line: 64, Col: 22}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 						if templ_7745c5c3_Err != nil {
@@ -389,7 +389,7 @@ func EditorBlockItem(props EditorBlockItemProps) templ.Component {
 						var templ_7745c5c3_Var23 string
 						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(props.Item.Note)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor-block-item.templ`, Line: 67, Col: 22}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/editor-block-item.templ`, Line: 67, Col: 22}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 						if templ_7745c5c3_Err != nil {
@@ -454,7 +454,7 @@ func EditorBlockItem(props EditorBlockItemProps) templ.Component {
 									var templ_7745c5c3_Var27 string
 									templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs("·")
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor-block-item.templ`, Line: 77, Col: 14}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/editor-block-item.templ`, Line: 77, Col: 14}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 									if templ_7745c5c3_Err != nil {
@@ -486,7 +486,7 @@ func EditorBlockItem(props EditorBlockItemProps) templ.Component {
 								var templ_7745c5c3_Var29 string
 								templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(f)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `editor-block-item.templ`, Line: 81, Col: 10}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/editor-block-item.templ`, Line: 81, Col: 10}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 								if templ_7745c5c3_Err != nil {

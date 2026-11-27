@@ -115,7 +115,7 @@ func PurchaseList(props PurchaseListProps) templ.Component {
 									var templ_7745c5c3_Var7 string
 									templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(p.Title)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `purchase-list.templ`, Line: 29, Col: 17}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/purchase-list.templ`, Line: 29, Col: 17}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 									if templ_7745c5c3_Err != nil {
@@ -142,7 +142,7 @@ func PurchaseList(props PurchaseListProps) templ.Component {
 									var templ_7745c5c3_Var9 string
 									templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(((p.License + " · ") + p.Stack))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `purchase-list.templ`, Line: 32, Col: 42}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/purchase-list.templ`, Line: 32, Col: 42}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 									if templ_7745c5c3_Err != nil {
@@ -169,7 +169,7 @@ func PurchaseList(props PurchaseListProps) templ.Component {
 									var templ_7745c5c3_Var11 string
 									templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(((p.Number + " · ") + p.Date))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `purchase-list.templ`, Line: 35, Col: 40}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/purchase-list.templ`, Line: 35, Col: 40}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 									if templ_7745c5c3_Err != nil {
@@ -222,7 +222,7 @@ func PurchaseList(props PurchaseListProps) templ.Component {
 									var templ_7745c5c3_Var14 string
 									templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(p.StatusLabel)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `purchase-list.templ`, Line: 41, Col: 23}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/purchase-list.templ`, Line: 41, Col: 23}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 									if templ_7745c5c3_Err != nil {
@@ -249,7 +249,7 @@ func PurchaseList(props PurchaseListProps) templ.Component {
 									var templ_7745c5c3_Var16 string
 									templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(p.Action)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `purchase-list.templ`, Line: 44, Col: 18}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/purchase-list.templ`, Line: 44, Col: 18}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 									if templ_7745c5c3_Err != nil {
@@ -296,7 +296,7 @@ func PurchaseList(props PurchaseListProps) templ.Component {
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(props.Empty)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `purchase-list.templ`, Line: 52, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/purchase-list.templ`, Line: 52, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {

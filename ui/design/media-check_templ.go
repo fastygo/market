@@ -92,7 +92,7 @@ func MediaCheck(props MediaCheckProps) templ.Component {
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `media-check.templ`, Line: 31, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/media-check.templ`, Line: 31, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -127,7 +127,7 @@ func MediaCheck(props MediaCheckProps) templ.Component {
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(props.Badge)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `media-check.templ`, Line: 35, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/media-check.templ`, Line: 35, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -194,7 +194,7 @@ func MediaCheck(props MediaCheckProps) templ.Component {
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(props.CheckTitle)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `media-check.templ`, Line: 43, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/media-check.templ`, Line: 43, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -221,7 +221,7 @@ func MediaCheck(props MediaCheckProps) templ.Component {
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(props.CheckText)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `media-check.templ`, Line: 46, Col: 21}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/media-check.templ`, Line: 46, Col: 21}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -279,7 +279,7 @@ func MediaCheck(props MediaCheckProps) templ.Component {
 							var templ_7745c5c3_Var17 string
 							templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(col.Label)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `media-check.templ`, Line: 53, Col: 17}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/media-check.templ`, Line: 53, Col: 17}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 							if templ_7745c5c3_Err != nil {
@@ -307,7 +307,7 @@ func MediaCheck(props MediaCheckProps) templ.Component {
 								var templ_7745c5c3_Var19 string
 								templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(r)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `media-check.templ`, Line: 57, Col: 10}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/media-check.templ`, Line: 57, Col: 10}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 								if templ_7745c5c3_Err != nil {
@@ -401,7 +401,7 @@ func MediaCheck(props MediaCheckProps) templ.Component {
 									var templ_7745c5c3_Var25 string
 									templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(c)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `media-check.templ`, Line: 70, Col: 11}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/media-check.templ`, Line: 70, Col: 11}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 									if templ_7745c5c3_Err != nil {
@@ -466,7 +466,7 @@ func MediaCheck(props MediaCheckProps) templ.Component {
 									var templ_7745c5c3_Var29 string
 									templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(toStr(mget(row, "file")))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `media-check.templ`, Line: 79, Col: 34}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/media-check.templ`, Line: 79, Col: 34}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 									if templ_7745c5c3_Err != nil {
@@ -493,7 +493,7 @@ func MediaCheck(props MediaCheckProps) templ.Component {
 									var templ_7745c5c3_Var31 string
 									templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(toStr(mget(row, "size")))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `media-check.templ`, Line: 82, Col: 34}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/media-check.templ`, Line: 82, Col: 34}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 									if templ_7745c5c3_Err != nil {
@@ -520,7 +520,7 @@ func MediaCheck(props MediaCheckProps) templ.Component {
 									var templ_7745c5c3_Var33 string
 									templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(toStr(mget(row, "weight")))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `media-check.templ`, Line: 85, Col: 36}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/media-check.templ`, Line: 85, Col: 36}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 									if templ_7745c5c3_Err != nil {

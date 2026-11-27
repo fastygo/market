@@ -121,7 +121,7 @@ func SideNav(props SideNavProps) templ.Component {
 							var templ_7745c5c3_Var7 string
 							templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(item.Label)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `side-nav.templ`, Line: 30, Col: 18}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/side-nav.templ`, Line: 30, Col: 18}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 							if templ_7745c5c3_Err != nil {

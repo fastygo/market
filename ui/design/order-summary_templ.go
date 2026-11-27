@@ -81,7 +81,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 31, Col: 16}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 31, Col: 16}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -133,7 +133,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 							var templ_7745c5c3_Var8 string
 							templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(r.Label)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 37, Col: 15}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 37, Col: 15}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 							if templ_7745c5c3_Err != nil {
@@ -160,7 +160,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 							var templ_7745c5c3_Var10 string
 							templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(r.Value)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 40, Col: 15}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 40, Col: 15}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 							if templ_7745c5c3_Err != nil {
@@ -210,7 +210,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(props.TotalLabel)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 46, Col: 23}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 46, Col: 23}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
@@ -237,7 +237,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(props.Total)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 49, Col: 18}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 49, Col: 18}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -292,7 +292,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(props.Agree.Start)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 56, Col: 23}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 56, Col: 23}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -305,7 +305,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(" ")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 57, Col: 9}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 57, Col: 9}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -326,7 +326,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 						var templ_7745c5c3_Var21 string
 						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(props.Agree.Terms)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 59, Col: 24}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 59, Col: 24}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 						if templ_7745c5c3_Err != nil {
@@ -341,7 +341,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(" ")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 61, Col: 9}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 61, Col: 9}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -354,7 +354,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(props.Agree.And)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 62, Col: 21}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 62, Col: 21}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -367,7 +367,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(" ")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 63, Col: 9}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 63, Col: 9}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -388,7 +388,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(props.Agree.License)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 65, Col: 26}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 65, Col: 26}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
@@ -403,7 +403,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(".")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 67, Col: 9}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 67, Col: 9}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 					if templ_7745c5c3_Err != nil {
@@ -436,7 +436,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 				var templ_7745c5c3_Var29 string
 				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(props.Pay)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 71, Col: 14}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 71, Col: 14}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 				if templ_7745c5c3_Err != nil {
@@ -463,7 +463,7 @@ func OrderSummary(props OrderSummaryProps) templ.Component {
 				var templ_7745c5c3_Var31 string
 				templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(props.Note)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `order-summary.templ`, Line: 74, Col: 15}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/order-summary.templ`, Line: 74, Col: 15}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 				if templ_7745c5c3_Err != nil {

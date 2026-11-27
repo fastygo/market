@@ -118,7 +118,7 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(props.Labels.Filters)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-filters.templ`, Line: 38, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-filters.templ`, Line: 38, Col: 26}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -197,7 +197,7 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(props.Labels.Categories)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-filters.templ`, Line: 47, Col: 30}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-filters.templ`, Line: 47, Col: 30}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -249,7 +249,7 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 									var templ_7745c5c3_Var15 string
 									templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(c.Label)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-filters.templ`, Line: 53, Col: 17}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-filters.templ`, Line: 53, Col: 17}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 									if templ_7745c5c3_Err != nil {
@@ -311,7 +311,7 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 						var templ_7745c5c3_Var18 string
 						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(props.Labels.Editor)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-filters.templ`, Line: 62, Col: 26}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-filters.templ`, Line: 62, Col: 26}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 						if templ_7745c5c3_Err != nil {
@@ -379,7 +379,7 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 										var templ_7745c5c3_Var23 string
 										templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(o.Label)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-filters.templ`, Line: 70, Col: 18}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-filters.templ`, Line: 70, Col: 18}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 										if templ_7745c5c3_Err != nil {
@@ -447,7 +447,7 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(props.Labels.Price)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-filters.templ`, Line: 80, Col: 25}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-filters.templ`, Line: 80, Col: 25}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
@@ -516,7 +516,7 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 							var templ_7745c5c3_Var30 string
 							templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(props.Labels.Free)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-filters.templ`, Line: 89, Col: 25}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-filters.templ`, Line: 89, Col: 25}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 							if templ_7745c5c3_Err != nil {
@@ -571,7 +571,7 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 						var templ_7745c5c3_Var33 string
 						templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(props.Labels.Type)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-filters.templ`, Line: 96, Col: 24}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-filters.templ`, Line: 96, Col: 24}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 						if templ_7745c5c3_Err != nil {
@@ -639,7 +639,7 @@ func CatalogFilters(props CatalogFiltersProps) templ.Component {
 										var templ_7745c5c3_Var38 string
 										templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(o.Label)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-filters.templ`, Line: 104, Col: 18}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-filters.templ`, Line: 104, Col: 18}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 										if templ_7745c5c3_Err != nil {

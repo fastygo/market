@@ -130,7 +130,7 @@ func CategoryStrip(props CategoryStripProps) templ.Component {
 								var templ_7745c5c3_Var8 string
 								templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(c.Label)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `category-strip.templ`, Line: 28, Col: 16}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/category-strip.templ`, Line: 28, Col: 16}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 								if templ_7745c5c3_Err != nil {

@@ -31,7 +31,7 @@ templ CatalogResults(props CatalogResultsProps) {
 		@box.Box(box.BoxProps{Class: "catalog-results-group"}) {
 			@box.Box(box.BoxProps{Class: "catalog-results-group-2"}) {
 				for _, chip := range props.Chips {
-					@button.Button(button.ButtonProps{Class: "catalog-results-button", AriaLabel: ((props.Labels.Remove + ": ") + chip.Label), Attrs: attrs("data-onclick", "catalog-results.chip", "data-value", chip.ID)}) {
+					@button.Button(button.ButtonProps{Class: "catalog-results-button", AriaLabel: ((props.Labels.Remove + ": ") + chip.Label), Href: chip.ID, Attrs: attrs("data-onclick", "catalog-results.chip", "data-value", chip.ID)}) {
 						{ chip.Label }
 						@icon.Icon(icon.IconProps{Size: "xs"}) {
 							@Glyph("x")
@@ -58,7 +58,7 @@ templ CatalogResults(props CatalogResultsProps) {
 				@text.Text(text.TextProps{Class: "catalog-results-text-2"}) {
 					{ props.Empty }
 				}
-				@button.Button(button.ButtonProps{Class: "catalog-results-button-2", Attrs: attrs("data-onclick", "catalog-results.reset")}) {
+				@button.Button(button.ButtonProps{Class: "catalog-results-button-2", Href: "/catalog", Attrs: attrs("data-onclick", "catalog-results.reset")}) {
 					{ props.Reset }
 				}
 			}

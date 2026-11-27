@@ -88,7 +88,7 @@ func MainNav(props MainNavProps) templ.Component {
 							var templ_7745c5c3_Var5 string
 							templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(item.Label)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `main-nav.templ`, Line: 27, Col: 18}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/main-nav.templ`, Line: 27, Col: 18}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 							if templ_7745c5c3_Err != nil {
@@ -185,7 +185,7 @@ func MainNav(props MainNavProps) templ.Component {
 											var templ_7745c5c3_Var11 string
 											templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(c.Label)
 											if templ_7745c5c3_Err != nil {
-												return templ.Error{Err: templ_7745c5c3_Err, FileName: `main-nav.templ`, Line: 40, Col: 19}
+												return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/main-nav.templ`, Line: 40, Col: 19}
 											}
 											_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 											if templ_7745c5c3_Err != nil {
@@ -233,7 +233,7 @@ func MainNav(props MainNavProps) templ.Component {
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(item.Label)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `main-nav.templ`, Line: 49, Col: 17}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/main-nav.templ`, Line: 49, Col: 17}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {

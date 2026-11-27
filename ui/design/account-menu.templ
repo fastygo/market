@@ -61,7 +61,7 @@ templ AccountMenu(props AccountMenuProps) {
 					}
 				}
 				@separator.Separator(separator.SeparatorProps{Class: "account-menu-separator"})
-				@button.Button(button.ButtonProps{Class: "account-menu-button-2", Attrs: attrs("data-onclick", "account-menu.signout")}) {
+				@button.Button(button.ButtonProps{Class: "account-menu-button-2", Form: "signout-form", Type: "submit", Attrs: attrs("data-onclick", "account-menu.signout")}) {
 					@icon.Icon(icon.IconProps{Class: "account-menu-icon-3", Size: "sm"}) {
 						@Glyph("log-out")
 					}

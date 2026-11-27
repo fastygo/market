@@ -80,7 +80,7 @@ func AuthorPromo(props AuthorPromoProps) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `author-promo.templ`, Line: 30, Col: 16}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/author-promo.templ`, Line: 30, Col: 16}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -143,7 +143,7 @@ func AuthorPromo(props AuthorPromoProps) templ.Component {
 							var templ_7745c5c3_Var9 string
 							templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(props.Initials)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `author-promo.templ`, Line: 36, Col: 22}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/author-promo.templ`, Line: 36, Col: 22}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 							if templ_7745c5c3_Err != nil {
@@ -170,7 +170,7 @@ func AuthorPromo(props AuthorPromoProps) templ.Component {
 							var templ_7745c5c3_Var11 string
 							templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(props.Name)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `author-promo.templ`, Line: 39, Col: 18}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/author-promo.templ`, Line: 39, Col: 18}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 							if templ_7745c5c3_Err != nil {
@@ -203,7 +203,7 @@ func AuthorPromo(props AuthorPromoProps) templ.Component {
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(props.Bio)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `author-promo.templ`, Line: 43, Col: 16}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/author-promo.templ`, Line: 43, Col: 16}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
@@ -230,7 +230,7 @@ func AuthorPromo(props AuthorPromoProps) templ.Component {
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(props.Cta)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `author-promo.templ`, Line: 46, Col: 16}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/author-promo.templ`, Line: 46, Col: 16}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -326,7 +326,7 @@ func AuthorPromo(props AuthorPromoProps) templ.Component {
 									var templ_7745c5c3_Var21 string
 									templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(w.Title)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `author-promo.templ`, Line: 58, Col: 17}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/author-promo.templ`, Line: 58, Col: 17}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 									if templ_7745c5c3_Err != nil {
@@ -353,7 +353,7 @@ func AuthorPromo(props AuthorPromoProps) templ.Component {
 									var templ_7745c5c3_Var23 string
 									templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs("·")
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `author-promo.templ`, Line: 61, Col: 14}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/author-promo.templ`, Line: 61, Col: 14}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 									if templ_7745c5c3_Err != nil {
@@ -380,7 +380,7 @@ func AuthorPromo(props AuthorPromoProps) templ.Component {
 									var templ_7745c5c3_Var25 string
 									templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(w.Meta)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `author-promo.templ`, Line: 64, Col: 16}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/author-promo.templ`, Line: 64, Col: 16}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 									if templ_7745c5c3_Err != nil {

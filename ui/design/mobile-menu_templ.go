@@ -124,7 +124,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 							var templ_7745c5c3_Var7 string
 							templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(props.Brand.Name)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `mobile-menu.templ`, Line: 38, Col: 24}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/mobile-menu.templ`, Line: 38, Col: 24}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 							if templ_7745c5c3_Err != nil {
@@ -222,7 +222,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 									var templ_7745c5c3_Var13 string
 									templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(item.Label)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `mobile-menu.templ`, Line: 50, Col: 20}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/mobile-menu.templ`, Line: 50, Col: 20}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 									if templ_7745c5c3_Err != nil {
@@ -275,7 +275,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 								var templ_7745c5c3_Var16 string
 								templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(props.Labels.Section)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `mobile-menu.templ`, Line: 58, Col: 29}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/mobile-menu.templ`, Line: 58, Col: 29}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 								if templ_7745c5c3_Err != nil {
@@ -349,7 +349,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 											var templ_7745c5c3_Var21 string
 											templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(item.Label)
 											if templ_7745c5c3_Err != nil {
-												return templ.Error{Err: templ_7745c5c3_Err, FileName: `mobile-menu.templ`, Line: 67, Col: 22}
+												return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/mobile-menu.templ`, Line: 67, Col: 22}
 											}
 											_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 											if templ_7745c5c3_Err != nil {
@@ -412,7 +412,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 							var templ_7745c5c3_Var24 string
 							templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(props.Labels.Catalog)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `mobile-menu.templ`, Line: 76, Col: 28}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/mobile-menu.templ`, Line: 76, Col: 28}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 							if templ_7745c5c3_Err != nil {
@@ -486,7 +486,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 										var templ_7745c5c3_Var29 string
 										templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(c.Label)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `mobile-menu.templ`, Line: 85, Col: 18}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/mobile-menu.templ`, Line: 85, Col: 18}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 										if templ_7745c5c3_Err != nil {
@@ -558,7 +558,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 						var templ_7745c5c3_Var32 string
 						templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(pick((props.Theme == "dark"), props.Labels.ThemeLight, props.Labels.ThemeDark))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `mobile-menu.templ`, Line: 96, Col: 85}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/mobile-menu.templ`, Line: 96, Col: 85}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 						if templ_7745c5c3_Err != nil {
@@ -586,7 +586,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 							var templ_7745c5c3_Var34 string
 							templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(props.Labels.Signin)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `mobile-menu.templ`, Line: 100, Col: 27}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/mobile-menu.templ`, Line: 100, Col: 27}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 							if templ_7745c5c3_Err != nil {
@@ -594,7 +594,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "mobile-menu-button-4", Attrs: attrs("data-onclick", "mobile-menu.signin")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "mobile-menu-button-4", Href: "/account", Attrs: attrs("data-onclick", "mobile-menu.signin")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -638,7 +638,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 									var templ_7745c5c3_Var38 string
 									templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(props.User.Initials)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `mobile-menu.templ`, Line: 106, Col: 29}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/mobile-menu.templ`, Line: 106, Col: 29}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 									if templ_7745c5c3_Err != nil {
@@ -665,7 +665,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 									var templ_7745c5c3_Var40 string
 									templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(props.User.Name)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `mobile-menu.templ`, Line: 109, Col: 25}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/mobile-menu.templ`, Line: 109, Col: 25}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 									if templ_7745c5c3_Err != nil {
@@ -745,7 +745,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 											var templ_7745c5c3_Var45 string
 											templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(l.Label)
 											if templ_7745c5c3_Err != nil {
-												return templ.Error{Err: templ_7745c5c3_Err, FileName: `mobile-menu.templ`, Line: 119, Col: 19}
+												return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/mobile-menu.templ`, Line: 119, Col: 19}
 											}
 											_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 											if templ_7745c5c3_Err != nil {
@@ -807,7 +807,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 								var templ_7745c5c3_Var48 string
 								templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(props.Labels.Signout)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `mobile-menu.templ`, Line: 128, Col: 29}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/mobile-menu.templ`, Line: 128, Col: 29}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 								if templ_7745c5c3_Err != nil {
@@ -815,7 +815,7 @@ func MobileMenu(props MobileMenuProps) templ.Component {
 								}
 								return nil
 							})
-							templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "mobile-menu-button-5", Attrs: attrs("data-onclick", "mobile-menu.signout")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var46), templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "mobile-menu-button-5", Form: "signout-form", Type: "submit", Attrs: attrs("data-onclick", "mobile-menu.signout")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var46), templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

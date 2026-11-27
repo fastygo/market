@@ -96,7 +96,7 @@ templ MobileMenu(props MobileMenuProps) {
 					{ pick((props.Theme == "dark"), props.Labels.ThemeLight, props.Labels.ThemeDark) }
 				}
 				if (props.Actor == "guest") {
-					@button.Button(button.ButtonProps{Class: "mobile-menu-button-4", Attrs: attrs("data-onclick", "mobile-menu.signin")}) {
+					@button.Button(button.ButtonProps{Class: "mobile-menu-button-4", Href: "/account", Attrs: attrs("data-onclick", "mobile-menu.signin")}) {
 						{ props.Labels.Signin }
 					}
 				} else {
@@ -121,7 +121,7 @@ templ MobileMenu(props MobileMenuProps) {
 								}
 							}
 						}
-						@button.Button(button.ButtonProps{Class: "mobile-menu-button-5", Attrs: attrs("data-onclick", "mobile-menu.signout")}) {
+						@button.Button(button.ButtonProps{Class: "mobile-menu-button-5", Form: "signout-form", Type: "submit", Attrs: attrs("data-onclick", "mobile-menu.signout")}) {
 							@icon.Icon(icon.IconProps{Size: "sm"}) {
 								@Glyph("log-out")
 							}

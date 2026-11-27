@@ -110,7 +110,7 @@ func CatalogResults(props CatalogResultsProps) templ.Component {
 							var templ_7745c5c3_Var6 string
 							templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(chip.Label)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-results.templ`, Line: 35, Col: 18}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-results.templ`, Line: 35, Col: 18}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 							if templ_7745c5c3_Err != nil {
@@ -140,7 +140,7 @@ func CatalogResults(props CatalogResultsProps) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "catalog-results-button", AriaLabel: ((props.Labels.Remove + ": ") + chip.Label), Attrs: attrs("data-onclick", "catalog-results.chip", "data-value", chip.ID)}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "catalog-results-button", AriaLabel: ((props.Labels.Remove + ": ") + chip.Label), Href: chip.ID, Attrs: attrs("data-onclick", "catalog-results.chip", "data-value", chip.ID)}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -164,7 +164,7 @@ func CatalogResults(props CatalogResultsProps) templ.Component {
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(props.Count)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-results.templ`, Line: 42, Col: 18}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-results.templ`, Line: 42, Col: 18}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -269,7 +269,7 @@ func CatalogResults(props CatalogResultsProps) templ.Component {
 						var templ_7745c5c3_Var14 string
 						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(props.Empty)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-results.templ`, Line: 59, Col: 18}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-results.templ`, Line: 59, Col: 18}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 						if templ_7745c5c3_Err != nil {
@@ -296,7 +296,7 @@ func CatalogResults(props CatalogResultsProps) templ.Component {
 						var templ_7745c5c3_Var16 string
 						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(props.Reset)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `catalog-results.templ`, Line: 62, Col: 18}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/catalog-results.templ`, Line: 62, Col: 18}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 						if templ_7745c5c3_Err != nil {
@@ -304,7 +304,7 @@ func CatalogResults(props CatalogResultsProps) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "catalog-results-button-2", Attrs: attrs("data-onclick", "catalog-results.reset")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var15), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "catalog-results-button-2", Href: "/catalog", Attrs: attrs("data-onclick", "catalog-results.reset")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var15), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

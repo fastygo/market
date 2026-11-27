@@ -72,7 +72,7 @@ func PurchaseSteps(props PurchaseStepsProps) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `purchase-steps.templ`, Line: 22, Col: 16}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/purchase-steps.templ`, Line: 22, Col: 16}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -146,7 +146,7 @@ func PurchaseSteps(props PurchaseStepsProps) templ.Component {
 							var templ_7745c5c3_Var9 string
 							templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(s.Title)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `purchase-steps.templ`, Line: 31, Col: 15}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/purchase-steps.templ`, Line: 31, Col: 15}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 							if templ_7745c5c3_Err != nil {
@@ -173,7 +173,7 @@ func PurchaseSteps(props PurchaseStepsProps) templ.Component {
 							var templ_7745c5c3_Var11 string
 							templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(s.Text)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `purchase-steps.templ`, Line: 34, Col: 14}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/purchase-steps.templ`, Line: 34, Col: 14}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 							if templ_7745c5c3_Err != nil {

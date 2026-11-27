@@ -129,7 +129,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 										var templ_7745c5c3_Var8 string
 										templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(row.Title)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 32, Col: 20}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 32, Col: 20}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 										if templ_7745c5c3_Err != nil {
@@ -156,7 +156,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 										var templ_7745c5c3_Var10 string
 										templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(row.Note)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 35, Col: 19}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 35, Col: 19}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 										if templ_7745c5c3_Err != nil {
@@ -215,7 +215,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 									var templ_7745c5c3_Var13 string
 									templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(row.StatusLabel)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 42, Col: 25}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 42, Col: 25}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 									if templ_7745c5c3_Err != nil {
@@ -242,7 +242,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 									var templ_7745c5c3_Var15 string
 									templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(((props.Columns.Updated + ": ") + row.Updated))
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 45, Col: 56}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 45, Col: 56}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 									if templ_7745c5c3_Err != nil {
@@ -269,7 +269,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 									var templ_7745c5c3_Var17 string
 									templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(props.Edit)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 48, Col: 20}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 48, Col: 20}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 									if templ_7745c5c3_Err != nil {
@@ -327,7 +327,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 						var templ_7745c5c3_Var20 string
 						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(props.Caption)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 56, Col: 20}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 56, Col: 20}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 						if templ_7745c5c3_Err != nil {
@@ -378,7 +378,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 								var templ_7745c5c3_Var24 string
 								templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(props.Columns.Item)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 61, Col: 27}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 61, Col: 27}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 								if templ_7745c5c3_Err != nil {
@@ -405,7 +405,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 								var templ_7745c5c3_Var26 string
 								templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(props.Columns.Status)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 64, Col: 29}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 64, Col: 29}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 								if templ_7745c5c3_Err != nil {
@@ -432,7 +432,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 								var templ_7745c5c3_Var28 string
 								templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(props.Columns.Updated)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 67, Col: 30}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 67, Col: 30}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 								if templ_7745c5c3_Err != nil {
@@ -471,7 +471,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 									var templ_7745c5c3_Var31 string
 									templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(props.Columns.Actions)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 71, Col: 31}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 71, Col: 31}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 									if templ_7745c5c3_Err != nil {
@@ -581,7 +581,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 												var templ_7745c5c3_Var38 string
 												templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(row.Title)
 												if templ_7745c5c3_Err != nil {
-													return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 84, Col: 22}
+													return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 84, Col: 22}
 												}
 												_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 												if templ_7745c5c3_Err != nil {
@@ -608,7 +608,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 												var templ_7745c5c3_Var40 string
 												templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(row.Note)
 												if templ_7745c5c3_Err != nil {
-													return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 87, Col: 21}
+													return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 87, Col: 21}
 												}
 												_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 												if templ_7745c5c3_Err != nil {
@@ -673,7 +673,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 										var templ_7745c5c3_Var43 string
 										templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(row.StatusLabel)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 95, Col: 26}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 95, Col: 26}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 										if templ_7745c5c3_Err != nil {
@@ -706,7 +706,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 									var templ_7745c5c3_Var45 string
 									templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(row.Updated)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 99, Col: 21}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 99, Col: 21}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 									if templ_7745c5c3_Err != nil {
@@ -745,7 +745,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 										var templ_7745c5c3_Var48 string
 										templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(props.Edit)
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 103, Col: 21}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 103, Col: 21}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 										if templ_7745c5c3_Err != nil {
@@ -798,7 +798,7 @@ func SellerItemsTable(props SellerItemsTableProps) templ.Component {
 					var templ_7745c5c3_Var50 string
 					templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(props.Empty)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-items-table.templ`, Line: 112, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-items-table.templ`, Line: 112, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 					if templ_7745c5c3_Err != nil {

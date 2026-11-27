@@ -26,7 +26,7 @@ type ProductGalleryProps struct {
 templ ProductGallery(props ProductGalleryProps) {
 	@box.Box(box.BoxProps{Class: "product-gallery", Tag: "section", Attrs: attrs("aria-label", props.Label)}) {
 		@box.Box(box.BoxProps{Class: "product-gallery-box"}) {
-			@image.Image(image.ImageProps{Class: "product-gallery-main", Alt: or(at(props.Images, props.Current).Alt, ""), Height: "458", Src: at(props.Images, props.Current).Src, Width: "806", Attrs: attrs("id", "gallery-main")})
+			@image.Image(image.ImageProps{Class: "product-gallery-main", Alt: or(at(props.Images, props.Current).Alt, ""), Height: "458", Loading: "eager", Src: at(props.Images, props.Current).Src, Width: "806", Attrs: attrs("fetchpriority", "high", "id", "gallery-main")})
 		}
 		@box.Box(box.BoxProps{Class: "product-gallery-group"}) {
 			@box.Box(box.BoxProps{Class: "product-gallery-group-2"}) {

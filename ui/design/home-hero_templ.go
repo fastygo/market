@@ -110,7 +110,7 @@ func HomeHero(props HomeHeroProps) templ.Component {
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `home-hero.templ`, Line: 38, Col: 18}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/home-hero.templ`, Line: 38, Col: 18}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -137,7 +137,7 @@ func HomeHero(props HomeHeroProps) templ.Component {
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(props.Lead)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `home-hero.templ`, Line: 41, Col: 17}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/home-hero.templ`, Line: 41, Col: 17}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
@@ -202,7 +202,7 @@ func HomeHero(props HomeHeroProps) templ.Component {
 							var templ_7745c5c3_Var12 string
 							templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(props.Submit)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `home-hero.templ`, Line: 49, Col: 20}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/home-hero.templ`, Line: 49, Col: 20}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 							if templ_7745c5c3_Err != nil {
@@ -248,7 +248,7 @@ func HomeHero(props HomeHeroProps) templ.Component {
 								var templ_7745c5c3_Var15 string
 								templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(tag)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `home-hero.templ`, Line: 55, Col: 12}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/home-hero.templ`, Line: 55, Col: 12}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 								if templ_7745c5c3_Err != nil {
@@ -328,7 +328,7 @@ func HomeHero(props HomeHeroProps) templ.Component {
 								var templ_7745c5c3_Var20 string
 								templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(props.Caption)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `home-hero.templ`, Line: 65, Col: 22}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/home-hero.templ`, Line: 65, Col: 22}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 								if templ_7745c5c3_Err != nil {
@@ -355,7 +355,7 @@ func HomeHero(props HomeHeroProps) templ.Component {
 								var templ_7745c5c3_Var22 string
 								templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(props.CaptionMeta)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `home-hero.templ`, Line: 68, Col: 26}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/home-hero.templ`, Line: 68, Col: 26}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 								if templ_7745c5c3_Err != nil {

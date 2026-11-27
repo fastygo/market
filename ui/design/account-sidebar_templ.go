@@ -85,7 +85,7 @@ func AccountSidebar(props AccountSidebarProps) templ.Component {
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.User.Initials)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `account-sidebar.templ`, Line: 24, Col: 25}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/account-sidebar.templ`, Line: 24, Col: 25}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -124,7 +124,7 @@ func AccountSidebar(props AccountSidebarProps) templ.Component {
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(props.User.Name)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `account-sidebar.templ`, Line: 28, Col: 22}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/account-sidebar.templ`, Line: 28, Col: 22}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
@@ -151,7 +151,7 @@ func AccountSidebar(props AccountSidebarProps) templ.Component {
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(props.User.Role)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `account-sidebar.templ`, Line: 31, Col: 22}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/account-sidebar.templ`, Line: 31, Col: 22}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {

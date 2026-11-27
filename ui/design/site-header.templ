@@ -54,7 +54,7 @@ templ SiteHeader(props SiteHeaderProps) {
 				}
 				@separator.Separator(separator.SeparatorProps{Class: "site-header-separator", Orientation: "vertical"})
 				if (props.Actor == "guest") {
-					@button.Button(button.ButtonProps{Class: "site-header-button-3", Attrs: attrs("data-onclick", "site-header.signin")}) {
+					@button.Button(button.ButtonProps{Class: "site-header-button-3", Href: "/account", Attrs: attrs("data-onclick", "site-header.signin")}) {
 						{ props.Labels.Signin }
 					}
 				} else {

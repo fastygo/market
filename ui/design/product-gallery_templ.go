@@ -76,7 +76,7 @@ func ProductGallery(props ProductGalleryProps) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = image.Image(image.ImageProps{Class: "product-gallery-main", Alt: or(at(props.Images, props.Current).Alt, ""), Height: "458", Src: at(props.Images, props.Current).Src, Width: "806", Attrs: attrs("id", "gallery-main")}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = image.Image(image.ImageProps{Class: "product-gallery-main", Alt: or(at(props.Images, props.Current).Alt, ""), Height: "458", Loading: "eager", Src: at(props.Images, props.Current).Src, Width: "806", Attrs: attrs("fetchpriority", "high", "id", "gallery-main")}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -155,7 +155,7 @@ func ProductGallery(props ProductGalleryProps) templ.Component {
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(props.Link)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `product-gallery.templ`, Line: 40, Col: 16}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/product-gallery.templ`, Line: 40, Col: 16}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {

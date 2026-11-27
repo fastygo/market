@@ -84,7 +84,7 @@ func SellerFooter(props SellerFooterProps) templ.Component {
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.Brand.Name)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-footer.templ`, Line: 23, Col: 22}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-footer.templ`, Line: 23, Col: 22}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -124,7 +124,7 @@ func SellerFooter(props SellerFooterProps) templ.Component {
 							var templ_7745c5c3_Var8 string
 							templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(l.Label)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `seller-footer.templ`, Line: 28, Col: 15}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/seller-footer.templ`, Line: 28, Col: 15}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 							if templ_7745c5c3_Err != nil {

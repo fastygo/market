@@ -91,7 +91,7 @@ func HighlightCard(props HighlightCardProps) templ.Component {
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.Eyebrow)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `highlight-card.templ`, Line: 30, Col: 19}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/highlight-card.templ`, Line: 30, Col: 19}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -118,7 +118,7 @@ func HighlightCard(props HighlightCardProps) templ.Component {
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `highlight-card.templ`, Line: 33, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/highlight-card.templ`, Line: 33, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -146,7 +146,7 @@ func HighlightCard(props HighlightCardProps) templ.Component {
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(props.Text)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `highlight-card.templ`, Line: 37, Col: 17}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/highlight-card.templ`, Line: 37, Col: 17}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -205,7 +205,7 @@ func HighlightCard(props HighlightCardProps) templ.Component {
 										var templ_7745c5c3_Var13 string
 										templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs("·")
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `highlight-card.templ`, Line: 46, Col: 15}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/highlight-card.templ`, Line: 46, Col: 15}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 										if templ_7745c5c3_Err != nil {
@@ -237,7 +237,7 @@ func HighlightCard(props HighlightCardProps) templ.Component {
 									var templ_7745c5c3_Var15 string
 									templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(m)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `highlight-card.templ`, Line: 50, Col: 11}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/highlight-card.templ`, Line: 50, Col: 11}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 									if templ_7745c5c3_Err != nil {
@@ -305,7 +305,7 @@ func HighlightCard(props HighlightCardProps) templ.Component {
 						var templ_7745c5c3_Var18 string
 						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(props.Cta)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `highlight-card.templ`, Line: 61, Col: 16}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/highlight-card.templ`, Line: 61, Col: 16}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 						if templ_7745c5c3_Err != nil {
@@ -360,7 +360,7 @@ func HighlightCard(props HighlightCardProps) templ.Component {
 						var templ_7745c5c3_Var21 string
 						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(props.Badge)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `highlight-card.templ`, Line: 69, Col: 18}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/highlight-card.templ`, Line: 69, Col: 18}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 						if templ_7745c5c3_Err != nil {

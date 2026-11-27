@@ -115,7 +115,7 @@ func SiteHeader(props SiteHeaderProps) templ.Component {
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(props.Brand.Name)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `site-header.templ`, Line: 40, Col: 23}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/site-header.templ`, Line: 40, Col: 23}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -249,7 +249,7 @@ func SiteHeader(props SiteHeaderProps) templ.Component {
 							var templ_7745c5c3_Var13 string
 							templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(props.Labels.Signin)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `site-header.templ`, Line: 58, Col: 27}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/site-header.templ`, Line: 58, Col: 27}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 							if templ_7745c5c3_Err != nil {
@@ -257,7 +257,7 @@ func SiteHeader(props SiteHeaderProps) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "site-header-button-3", Attrs: attrs("data-onclick", "site-header.signin")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var12), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = button.Button(button.ButtonProps{Class: "site-header-button-3", Href: "/account", Attrs: attrs("data-onclick", "site-header.signin")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var12), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

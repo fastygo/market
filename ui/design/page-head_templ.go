@@ -85,7 +85,7 @@ func PageHead(props PageHeadProps) templ.Component {
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `page-head.templ`, Line: 24, Col: 17}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/page-head.templ`, Line: 24, Col: 17}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -113,7 +113,7 @@ func PageHead(props PageHeadProps) templ.Component {
 						var templ_7745c5c3_Var7 string
 						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(props.Lead)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `page-head.templ`, Line: 28, Col: 17}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/page-head.templ`, Line: 28, Col: 17}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -172,7 +172,7 @@ func PageHead(props PageHeadProps) templ.Component {
 										var templ_7745c5c3_Var11 string
 										templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs("·")
 										if templ_7745c5c3_Err != nil {
-											return templ.Error{Err: templ_7745c5c3_Err, FileName: `page-head.templ`, Line: 37, Col: 15}
+											return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/page-head.templ`, Line: 37, Col: 15}
 										}
 										_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 										if templ_7745c5c3_Err != nil {
@@ -204,7 +204,7 @@ func PageHead(props PageHeadProps) templ.Component {
 									var templ_7745c5c3_Var13 string
 									templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(m)
 									if templ_7745c5c3_Err != nil {
-										return templ.Error{Err: templ_7745c5c3_Err, FileName: `page-head.templ`, Line: 41, Col: 11}
+										return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/page-head.templ`, Line: 41, Col: 11}
 									}
 									_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 									if templ_7745c5c3_Err != nil {

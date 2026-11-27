@@ -110,7 +110,7 @@ func ProductHead(props ProductHeadProps) templ.Component {
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `product-head.templ`, Line: 35, Col: 18}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/product-head.templ`, Line: 35, Col: 18}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -137,7 +137,7 @@ func ProductHead(props ProductHeadProps) templ.Component {
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(props.Lead)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `product-head.templ`, Line: 38, Col: 17}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/product-head.templ`, Line: 38, Col: 17}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
@@ -176,7 +176,7 @@ func ProductHead(props ProductHeadProps) templ.Component {
 							var templ_7745c5c3_Var11 string
 							templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(props.Seller)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `product-head.templ`, Line: 42, Col: 20}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/product-head.templ`, Line: 42, Col: 20}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 							if templ_7745c5c3_Err != nil {
@@ -204,7 +204,7 @@ func ProductHead(props ProductHeadProps) templ.Component {
 								var templ_7745c5c3_Var13 string
 								templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(tag)
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `product-head.templ`, Line: 46, Col: 12}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/product-head.templ`, Line: 46, Col: 12}
 								}
 								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 								if templ_7745c5c3_Err != nil {
@@ -266,7 +266,7 @@ func ProductHead(props ProductHeadProps) templ.Component {
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(pick(props.Saved, props.SavedLabel, props.SaveLabel))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `product-head.templ`, Line: 55, Col: 58}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ui/design/product-head.templ`, Line: 55, Col: 58}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
