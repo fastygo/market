@@ -25,8 +25,8 @@ in production without its required env (HANDOFF.md, start-up checks).
 
 The repository ships only the English source dictionary (`ui/dict/en.json`,
 no Cyrillic in the repo). The Russian UI is a DictionaryV04 bundle kept
-outside the repository (operator copy: `ru.json`, 701 keys for the current
-source) and imported into the `ui_messages` collection:
+outside the repository (operator copy: `ru.json`, covering every key of the
+current source) and imported into the `ui_messages` collection:
 
 ```sh
 # on the host, as the market user, with the service env loaded
@@ -43,6 +43,17 @@ keys. With `MARKET_LOCALE=ru` the page language is `ru` and prices use the
 Russian format (`1 490` followed by the rouble sign). Category names, the storefront tagline,
 legal page texts and products are content: edit them in the editor cabinet
 or the admin, not in the dictionary.
+
+## Stores and releases (ADR-0035)
+
+- A store opened through a vendor application cannot sell until its VAT
+  status is recorded: `market seller vat <store-slug> yes|no` (the RU tax
+  policy refuses offers otherwise). The editor sees a message when publishing
+  an item of such a store.
+- An item goes on sale only with a published release. With local storage
+  (no `MARKET_S3_ENDPOINT`) vendors upload `.zip` releases in the cabinet
+  (512 MB, archive checks, per-store quota) into `MARKET_FILES_DIR`; include
+  that directory in the backup. With S3 the operator uploads release files.
 
 ## Edge (Caddy)
 
