@@ -2,6 +2,8 @@ package s3
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
@@ -99,5 +101,34 @@ func TestPrefix(t *testing.T) {
 	bad.Endpoint = "s3.example.com"
 	if bad.Validate() == nil {
 		t.Fatal("endpoint without scheme must fail")
+	}
+}
+
+func TestExists(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodHead || r.URL.Query().Get("X-Amz-Signature") == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		switch r.URL.Path {
+		case "/bucket/p/ok.zip":
+			w.WriteHeader(http.StatusOK)
+		case "/bucket/p/missing.zip":
+			w.WriteHeader(http.StatusNotFound)
+		default:
+			w.WriteHeader(http.StatusForbidden)
+		}
+	}))
+	defer srv.Close()
+	p := Presigner{Endpoint: srv.URL, Region: "ru-1", Bucket: "bucket", AccessKey: "a", SecretKey: "s", PathStyle: true, Prefix: "p/"}
+	ctx := context.Background()
+	if ok, err := p.Exists(ctx, "ok.zip"); !ok || err != nil {
+		t.Fatalf("ok: %v %v", ok, err)
+	}
+	if ok, err := p.Exists(ctx, "missing.zip"); ok || err != nil {
+		t.Fatalf("missing: %v %v", ok, err)
+	}
+	if _, err := p.Exists(ctx, "denied.zip"); err == nil {
+		t.Fatal("403 must be an error, not a missing file")
 	}
 }

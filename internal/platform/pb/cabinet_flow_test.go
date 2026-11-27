@@ -118,9 +118,24 @@ func TestCabinetBrowserCycle(t *testing.T) {
 	if code != 200 || !strings.HasPrefix(path, "/checkout/return/") || !strings.Contains(page, `data-state="paid"`) {
 		t.Fatalf("return %d %s %s", code, path, page)
 	}
-	// guest was not signed in: no order link on the return page
+	// guest was not signed in: no order link on the return page, but the
+	// browser that placed the order sees its download (order cookie)
 	if strings.Contains(page, "/account/orders/") {
 		t.Fatal("guest sees the order link")
+	}
+	if !strings.Contains(page, "data-downloads") || !strings.Contains(page, `href="/dl/`) {
+		t.Fatal("placing browser has no download on the return page")
+	}
+	returnPath := path
+	// another browser (no order cookie) sees only the status
+	other, err := http.Get(srv.URL + returnPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ob, _ := io.ReadAll(other.Body)
+	other.Body.Close()
+	if !strings.Contains(string(ob), `data-state="paid"`) || strings.Contains(string(ob), "/dl/") || strings.Contains(string(ob), "data-downloads") {
+		t.Fatal("return page leaks downloads without the order cookie")
 	}
 	for i := 0; i < 10; i++ {
 		if ok, _ := r.svc.ProcessInboxOnce(ctx); !ok {
@@ -194,9 +209,16 @@ func TestCabinetBrowserCycle(t *testing.T) {
 	if code, page, _ := post("/account/login", url.Values{"csrf": {csrf}, "email": {"guest@example.com"}, "password": {"nope"}}); code != 401 || !strings.Contains(page, en.T("ui.account.bad_credentials")) {
 		t.Fatalf("bad login %d", code)
 	}
-	// the magic link request answers the same for unknown emails
-	if code, page, _ := post("/account/link", url.Values{"csrf": {csrf}, "email": {"nobody@example.com"}}); code != 200 || !strings.Contains(page, en.T("ui.account.link_sent")) {
+	// an unknown email is told there is no account; no user is created
+	if code, page, _ := post("/account/link", url.Values{"csrf": {csrf}, "email": {"nobody@example.com"}}); code != 404 || !strings.Contains(page, en.T("ui.account.no_account")) {
 		t.Fatalf("link %d", code)
+	}
+	if n := r.n(t, "SELECT COUNT(*) FROM users WHERE email = 'nobody@example.com'"); n != 0 {
+		t.Fatalf("unknown email created %d users", n)
+	}
+	// a known email gets the link
+	if code, page, _ := post("/account/link", url.Values{"csrf": {csrf}, "email": {"guest@example.com"}}); code != 200 || !strings.Contains(page, en.T("ui.account.link_sent")) {
+		t.Fatalf("link known %d", code)
 	}
 }
 

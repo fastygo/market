@@ -10,6 +10,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"sort"
 	"strings"
@@ -83,6 +84,39 @@ func ObjectKey(prefix, key string) (string, error) {
 // PresignGet returns a URL valid for ttl (1 s to 7 days) for the object
 // Prefix + key.
 func (p Presigner) PresignGet(_ context.Context, key string, ttl time.Duration) (string, error) {
+	return p.presign("GET", key, ttl)
+}
+
+// Exists reports whether the object Prefix + key is in the bucket, with a
+// pre-signed HEAD request (5 s timeout). A 404 is (false, nil); other
+// failures are errors, so a storage outage is not reported as a missing
+// file.
+func (p Presigner) Exists(ctx context.Context, key string) (bool, error) {
+	u, err := p.presign("HEAD", key, time.Minute)
+	if err != nil {
+		return false, err
+	}
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodHead, u, nil)
+	if err != nil {
+		return false, err
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("s3: head: %w", err)
+	}
+	res.Body.Close()
+	switch {
+	case res.StatusCode == http.StatusOK:
+		return true, nil
+	case res.StatusCode == http.StatusNotFound:
+		return false, nil
+	}
+	return false, fmt.Errorf("s3: head: status %d", res.StatusCode)
+}
+
+func (p Presigner) presign(method, key string, ttl time.Duration) (string, error) {
 	if p.Endpoint == "" || p.Region == "" || p.Bucket == "" || p.AccessKey == "" || p.SecretKey == "" {
 		return "", ErrConfig
 	}
@@ -127,7 +161,7 @@ func (p Presigner) PresignGet(_ context.Context, key string, ttl time.Duration) 
 		parts[i] = uriEncode(k, true) + "=" + uriEncode(q[k], true)
 	}
 	query := strings.Join(parts, "&")
-	canonical := strings.Join([]string{"GET", path, query, "host:" + host, "", "host", "UNSIGNED-PAYLOAD"}, "\n")
+	canonical := strings.Join([]string{method, path, query, "host:" + host, "", "host", "UNSIGNED-PAYLOAD"}, "\n")
 	sum := sha256.Sum256([]byte(canonical))
 	toSign := "AWS4-HMAC-SHA256\n" + amzDate + "\n" + scope + "\n" + hex.EncodeToString(sum[:])
 	k := mac([]byte("AWS4"+p.SecretKey), day)

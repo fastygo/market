@@ -27,8 +27,19 @@
   }
   function submit(el) {
     var f = el.form || el.closest("form");
-    if (f) { if (f.requestSubmit) f.requestSubmit(); else f.submit(); }
+    if (!f || f._sent) return;
+    f._sent = true; // Enter and the change event would post the same form twice
+    if (f.requestSubmit) f.requestSubmit(); else f.submit();
   }
+  // a GET form (catalog filters) submitted by Enter is not posted again by
+  // the change event that follows; the flag resets when the page is shown
+  d.addEventListener("submit", function (ev) {
+    var f = ev.target;
+    if (f.method && f.method.toLowerCase() === "get") f._sent = true;
+  });
+  window.addEventListener("pageshow", function () {
+    d.querySelectorAll("form").forEach(function (f) { f._sent = false; });
+  });
   function toggleTheme() {
     var root = d.documentElement, dark = !root.classList.contains("dark");
     root.classList.toggle("dark", dark);

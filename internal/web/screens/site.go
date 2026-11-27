@@ -104,7 +104,7 @@ func headerProps(s Shell) design.SiteHeaderProps {
 	return design.SiteHeaderProps{
 		Brand: siteBrand(s), HomeLabel: s.T("ui.a11y.home"), Nav: siteNav(s), NavLabel: s.T("ui.site.nav"),
 		Categories: navCategories(s.Categories), Actor: actor(s), User: viewerUser(s), MenuLinks: menuLinks(s),
-		AccountOpen: true, Theme: "light", SearchHref: "/catalog",
+		AccountOpen: true, CatalogOpen: true, Theme: "light", SearchHref: "/catalog",
 		Labels: design.SiteHeaderLabels{Search: s.T("ui.header.search"), Signin: s.T("ui.header.signin"), Menu: s.T("ui.header.menu"),
 			Account: s.T("ui.header.account"), Signout: s.T("ui.header.signout"), ThemeDark: s.T("ui.header.theme_dark"),
 			ThemeLight: s.T("ui.header.theme_light")},

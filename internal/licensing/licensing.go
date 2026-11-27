@@ -50,6 +50,16 @@ type Presigner interface {
 	PresignGet(ctx context.Context, key string, ttl time.Duration) (string, error)
 }
 
+// Checker is an optional Presigner capability: whether the object for a
+// key is in storage (S3 HEAD). Without it every key is assumed present.
+type Checker interface {
+	Exists(ctx context.Context, key string) (bool, error)
+}
+
+// ErrFileMissing: the release is published but its archive is not in
+// storage yet (the storage has no object for its key). Access is kept.
+var ErrFileMissing = errors.New("licensing: release file is not in storage")
+
 // Signer issues and verifies /dl tokens.
 type Signer struct {
 	Key []byte
@@ -135,6 +145,15 @@ func (s *Service) Resolve(ctx context.Context, token, ipHash, uaHash string) (st
 	t, err := s.Store.Recheck(ctx, ent, rel)
 	if err != nil {
 		return "", err
+	}
+	if c, ok := s.Presigner.(Checker); ok {
+		found, err := c.Exists(ctx, t.StorageKey)
+		if err != nil {
+			return "", err
+		}
+		if !found {
+			return "", fmt.Errorf("%w: release %s key %s", ErrFileMissing, t.ReleaseID, t.StorageKey)
+		}
 	}
 	if err := s.Store.LogDownload(ctx, t, ipHash, uaHash, s.now()); err != nil {
 		return "", err

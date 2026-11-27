@@ -410,7 +410,7 @@ func AccountMenu(props AccountMenuProps) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = box.Box(box.BoxProps{Class: "account-menu", Attrs: attrs("data-popover-root", "")}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = box.Box(box.BoxProps{Class: "account-menu", Attrs: attrs("data-popover-root", true)}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

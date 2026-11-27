@@ -32,6 +32,16 @@ type CheckoutView struct {
 type ReturnView struct {
 	State     string // paid, pending, failed
 	OrderHref string // only for the signed-in owner
+	// Number and Downloads are shown to the order owner and to the browser
+	// that placed the order (signed order cookie); Downloads are signed
+	// /dl links of the paid items.
+	Number    string
+	Downloads []ReturnDownload
+}
+
+// ReturnDownload is one paid item on the return page.
+type ReturnDownload struct {
+	Title, Href string
 }
 
 // FakePayView is the development provider page.

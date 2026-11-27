@@ -727,6 +727,8 @@
     "ui.size.b": "{n} B",
     "ui.auth.signups_closed": "Sign-up is by invitation for now. If you already have an account, sign in with a link or a password.",
     "ui.roles.closed": "Applications are closed for now. Write to the marketplace team and we will add the role by hand.",
-    "ui.account.pay_continue": "Continue payment"
+    "ui.account.pay_continue": "Continue payment",
+    "ui.product.download_missing": "The file for this item is not uploaded yet. Your purchase is safe: download it from your orders once the author publishes the release.",
+    "ui.account.no_account": "There is no account with this email. Check the address or buy as a guest: the account is created with the first purchase."
   }
 }

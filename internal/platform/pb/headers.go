@@ -9,7 +9,7 @@ import (
 )
 
 // PermissionsPolicy is a restrictive allow-list of empty features.
-const PermissionsPolicy = "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), usb=(), web-share=(), interest-cohort=(), browsing-topics=()"
+const PermissionsPolicy = "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), usb=(), interest-cohort=(), browsing-topics=()"
 
 // SetSecurityHeaders writes the storefront baseline (and overwrites
 // PocketBase's X-XSS-Protection: 1).

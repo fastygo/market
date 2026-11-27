@@ -349,8 +349,10 @@ func (h *Handler) accountLogin(w http.ResponseWriter, r *http.Request) {
 	h.startSession(w, r, u.ID, next)
 }
 
-// accountLink always answers the same way, so it does not reveal which
-// emails have accounts.
+// accountLink sends a sign-in link to an existing account. An unknown
+// email gets "no such account" (owner decision 2026-11-27; this reveals
+// which emails have accounts, so the request is rate limited per IP); it
+// creates no user and sends no mail.
 func (h *Handler) accountLink(w http.ResponseWriter, r *http.Request) {
 	if !h.checkAuthLimit(w, r) {
 		return
@@ -365,7 +367,16 @@ func (h *Handler) accountLink(w http.ResponseWriter, r *http.Request) {
 		h.signInPage(w, r, http.StatusUnprocessableEntity, screens.SignInView{Next: next, ErrorKey: "ui.account.bad_email"})
 		return
 	}
-	if u, err := c.Users.ByEmail(r.Context(), email); err == nil && c.Mailer != nil {
+	u, err := c.Users.ByEmail(r.Context(), email)
+	if errors.Is(err, account.ErrNotFound) {
+		h.signInPage(w, r, http.StatusNotFound, screens.SignInView{Email: email, Next: next, ErrorKey: "ui.account.no_account"})
+		return
+	}
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	if c.Mailer != nil {
 		if err := c.Mailer.SignInEmail(r.Context(), u, next); err != nil {
 			h.Log.Warn("account: sign-in email", "err", err)
 		}
@@ -505,6 +516,7 @@ func (h *Handler) checkoutForm(w http.ResponseWriter, r *http.Request) {
 	if v.Status == ordering.OrderPaid || target == "" {
 		target = "/checkout/return/" + v.OrderID
 	}
+	c.Cabinet.setOrderCookie(w, v.OrderID, time.Now())
 	w.Header().Set("Cache-Control", "no-store")
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
@@ -542,8 +554,16 @@ func (h *Handler) returnPage(w http.ResponseWriter, r *http.Request) {
 	case ordering.OrderCancelled:
 		rv.State = "failed"
 	}
+	owner := false
 	if b, ok := c.buyer(r); ok && b.ID == v.BuyerID {
 		rv.OrderHref = "/account/orders/" + v.Number
+		owner = true
+	}
+	if c.Cabinet != nil && (owner || c.Cabinet.placedOrder(r, v.OrderID, time.Now())) {
+		rv.Number = v.Number
+		if rv.State == "paid" {
+			rv.Downloads = h.returnDownloads(r, v.BuyerID, v.Number)
+		}
 	}
 	s, _, err := h.shell(r.Context(), h.Dict.T("ui.checkout.title"), "")
 	if err != nil {
@@ -579,4 +599,30 @@ func AllPatterns() []string {
 	out := append([]string{}, Patterns...)
 	out = append(out, CommercePatterns...)
 	return append(out, AccountPatterns...)
+}
+
+// returnDownloads are signed /dl links for the paid items of an order
+// (entitlement active); items without a published release are skipped.
+func (h *Handler) returnDownloads(r *http.Request, buyerID, number string) []screens.ReturnDownload {
+	c := h.Commerce
+	if c.Licenses == nil || c.Cabinet.Orders == nil {
+		return nil
+	}
+	o, err := c.Cabinet.Orders.Order(r.Context(), buyerID, number)
+	if err != nil {
+		h.Log.Warn("return: order items", "order", number, "err", err)
+		return nil
+	}
+	var out []screens.ReturnDownload
+	for _, it := range o.Items {
+		if it.Entitlement != "active" {
+			continue
+		}
+		link, err := c.Licenses.Link(r.Context(), buyerID, it.Slug)
+		if err != nil {
+			continue
+		}
+		out = append(out, screens.ReturnDownload{Title: it.Title, Href: link})
+	}
+	return out
 }

@@ -38,3 +38,45 @@ func TestLocalPresigner(t *testing.T) {
 		t.Fatal(u, err)
 	}
 }
+
+type oneTarget struct {
+	t    Target
+	logs int
+}
+
+func (s *oneTarget) DownloadTarget(context.Context, string, string) (Target, error) { return s.t, nil }
+func (s *oneTarget) Recheck(context.Context, string, string) (Target, error)        { return s.t, nil }
+func (s *oneTarget) LogDownload(context.Context, Target, string, string, time.Time) error {
+	s.logs++
+	return nil
+}
+
+type checkedPresigner struct{ present map[string]bool }
+
+func (p checkedPresigner) PresignGet(_ context.Context, key string, _ time.Duration) (string, error) {
+	return "https://s3.example/" + key, nil
+}
+func (p checkedPresigner) Exists(_ context.Context, key string) (bool, error) {
+	return p.present[key], nil
+}
+
+// TestResolveMissingFile: a published release whose object is not in
+// storage resolves to ErrFileMissing and logs no download.
+func TestResolveMissingFile(t *testing.T) {
+	ctx := context.Background()
+	for _, present := range []bool{false, true} {
+		st := &oneTarget{t: Target{EntitlementID: "e1", ReleaseID: "r1", StorageKey: "products/x/1.0.0/x.zip"}}
+		s := &Service{Store: st, Signer: Signer{Key: []byte("k")}, Presigner: checkedPresigner{present: map[string]bool{"products/x/1.0.0/x.zip": present}}}
+		link, err := s.Link(ctx, "u1", "x")
+		if err != nil {
+			t.Fatal(err)
+		}
+		u, err := s.Resolve(ctx, strings.TrimPrefix(link, "/dl/"), "", "")
+		if present && (err != nil || u == "" || st.logs != 1) {
+			t.Fatalf("present: %q %v logs %d", u, err, st.logs)
+		}
+		if !present && (!errors.Is(err, ErrFileMissing) || st.logs != 0) {
+			t.Fatalf("missing: %v logs %d", err, st.logs)
+		}
+	}
+}

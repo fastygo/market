@@ -308,6 +308,10 @@ func (h *Handler) dl(w http.ResponseWriter, r *http.Request) {
 	case errors.Is(err, licensing.ErrTokenInvalid), errors.Is(err, licensing.ErrNoEntitlement):
 		h.notice(w, r, http.StatusForbidden, "ui.product.download_denied")
 		return
+	case errors.Is(err, licensing.ErrFileMissing):
+		h.Log.Warn("download: release file missing", "err", err)
+		h.notice(w, r, http.StatusNotFound, "ui.product.download_missing")
+		return
 	case err != nil:
 		h.fail(w, r, err)
 		return

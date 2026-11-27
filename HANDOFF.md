@@ -76,7 +76,23 @@ serves `<MARKET_FILES_DIR>/<key>` on `/files/` with HMAC-signed, expiring
 links (`MARKET_DOWNLOAD_SECRET`); S3 mode pre-signs
 `<bucket>/<MARKET_S3_PREFIX><key>`, so one bucket can be shared with other
 folders. Upload files to the same path the key names; `.` and `..` key
-segments are rejected.
+segments are rejected. In S3 mode `/dl` checks the object with a signed
+HEAD first: a published release whose object is missing shows "file not
+uploaded yet" (404, logged as `download: release file missing`) instead of
+the storage's NoSuchKey page; the entitlement stays.
+
+### Return page and the order cookie
+
+The checkout form sets `market_order` (httpOnly, Lax, path
+`/checkout/return/`, 24 h, HMAC with `MARKET_SESSION_SECRET`, bound to one
+order id). When the provider sends the buyer back, the browser that placed
+the order sees the order number and signed `/dl` links of its paid items
+without signing in; another browser sees only the payment status. The
+cookie never starts a session.
+
+The sign-in link form answers "no such account" for an unknown email
+(owner decision 2026-11-27): it creates no user and sends no mail. This
+reveals which emails have accounts; the auth rate limit per IP applies.
 - Payments: `MARKET_YOOKASSA_SHOP_ID`, `MARKET_YOOKASSA_SECRET_KEY`,
   `MARKET_YOOKASSA_API_URL`, `MARKET_YOOKASSA_RECEIPTS`,
   `MARKET_YOOKASSA_REFUND_RECEIPTS`, `MARKET_YOOKASSA_CHECK_IP`;

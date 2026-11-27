@@ -665,7 +665,11 @@ func (k *blk) primitive(name string, n, p map[string]any, recipe *Recipe, static
 			continue
 		}
 		// everything else is an attribute
-		if s, ok := v.(string); ok {
+		if s, ok := v.(string); ok && s == "" {
+			// a literal empty value is a presence attribute (data-popover-root);
+			// attrs() drops empty strings, so emit it as a boolean
+			attrs = append(attrs, goStr(key), "true")
+		} else if s, ok := v.(string); ok {
 			attrs = append(attrs, goStr(key), goStr(hrefLit(s)))
 		} else if f, ok := v.(float64); ok {
 			attrs = append(attrs, goStr(key), goStr(strconv.FormatFloat(f, 'f', -1, 64)))
