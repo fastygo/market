@@ -44,6 +44,10 @@ type Cabinet struct {
 	// Roles is the four-role cabinet store (ADR-0035); nil hides the
 	// profile, roles, seller, studio, partner and editor routes.
 	Roles cabinet.Store
+	// Releases and FilesDir let vendors upload release archives into local
+	// file storage; empty FilesDir (S3) keeps uploads with the operator.
+	Releases authoring.Releases
+	FilesDir string
 }
 
 // AccountReader reads the cabinet data (platform/pb.Account).
@@ -93,6 +97,8 @@ var AccountPatterns = []string{
 	"POST /seller/items/{id}/status",
 	"POST /seller/items/{id}/cover",
 	"POST /seller/items/{id}/gallery",
+	"POST /seller/items/{id}/releases",
+	"POST /seller/items/{id}/releases/{rid}/publish",
 	"GET /seller/media",
 	"POST /seller/media",
 	"GET /seller/finance",

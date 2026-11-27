@@ -95,6 +95,31 @@ func TestRoleApplicationsGrantRoles(t *testing.T) {
 	if err := c.SetSellerVAT(ctx, "maker-studio", false); err != nil {
 		t.Fatal(err)
 	}
+	if err := ed.ModerateProduct(ctx, it.ID, "published", ""); !errors.Is(err, editorial.ErrNoRelease) {
+		t.Fatalf("publish without a release: %v", err)
+	}
+	rels := &pb.Releases{App: app}
+	stranger, _, _ := users.Ensure(ctx, "stranger@example.com")
+	in := authoring.NewRelease{Version: "1.0.0", Changelog: "First <b>cut</b>", StorageKey: s.ID + "/" + it.ID + "/abc/night.zip", SHA256: "abc", Size: 10}
+	if _, err := rels.AddRelease(ctx, stranger.ID, it.ID, in); !errors.Is(err, authoring.ErrDenied) {
+		t.Fatalf("stranger release: %v", err)
+	}
+	if _, err := rels.AddRelease(ctx, u.ID, it.ID, authoring.NewRelease{Version: "../x", StorageKey: "k", Size: 1}); !errors.Is(err, authoring.ErrInvalid) {
+		t.Fatalf("bad version: %v", err)
+	}
+	rl, err := rels.AddRelease(ctx, u.ID, it.ID, in)
+	if err != nil || rl.Status != "draft" || rl.Name != "night.zip" || rl.Changelog != "First &lt;b&gt;cut&lt;/b&gt;" {
+		t.Fatalf("release %+v %v", rl, err)
+	}
+	if _, err := rels.AddRelease(ctx, u.ID, it.ID, in); !errors.Is(err, authoring.ErrConflict) {
+		t.Fatalf("duplicate version: %v", err)
+	}
+	if err := rels.PublishRelease(ctx, u.ID, it.ID, rl.ID); err != nil {
+		t.Fatal(err)
+	}
+	if list, err := rels.ItemReleases(ctx, u.ID, it.ID); err != nil || len(list) != 1 || list[0].Status != "published" {
+		t.Fatalf("releases %+v %v", list, err)
+	}
 	if err := ed.ModerateProduct(ctx, it.ID, "published", ""); err != nil {
 		t.Fatal(err)
 	}

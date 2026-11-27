@@ -1,11 +1,16 @@
 package main
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/pocketbase/pocketbase"
@@ -233,6 +238,9 @@ func seedDemo(ctx context.Context, app *pocketbase.PocketBase, password string) 
 		if _, err := items.Act(ctx, ids["vendor@example.com"], it.ID, authoring.ActSubmit); err != nil {
 			return fmt.Errorf("submit: %w", err)
 		}
+		if err := seedRelease(ctx, app, ids["vendor@example.com"], sellerID, it.ID, it.Slug); err != nil {
+			return fmt.Errorf("release: %w", err)
+		}
 		if i == 0 {
 			if err := ed.ModerateProduct(ctx, it.ID, "published", ""); err != nil {
 				return err
@@ -294,4 +302,42 @@ func reportCoverage(d *i18n.Dict) error {
 		return errors.New("i18n: dictionary does not match the source")
 	}
 	return nil
+}
+
+// seedRelease writes a tiny demo archive into the local files directory
+// and publishes it as release 1.0.0 (demo seed only).
+func seedRelease(ctx context.Context, app *pocketbase.PocketBase, userID, sellerID, itemID, slug string) error {
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+	f, err := zw.Create("README.md")
+	if err != nil {
+		return err
+	}
+	if _, err := f.Write([]byte("# " + slug + "\n\nDemo release created by market demo seed.\n")); err != nil {
+		return err
+	}
+	if err := zw.Close(); err != nil {
+		return err
+	}
+	dir := os.Getenv("MARKET_FILES_DIR")
+	if dir == "" {
+		dir = filepath.Join(app.DataDir(), "files")
+	}
+	sum := sha256.Sum256(buf.Bytes())
+	hexSum := hex.EncodeToString(sum[:])
+	key := sellerID + "/" + itemID + "/" + hexSum[:16] + "/" + slug + "-1.0.0.zip"
+	full := filepath.Join(dir, filepath.FromSlash(key))
+	if err := os.MkdirAll(filepath.Dir(full), 0o750); err != nil {
+		return err
+	}
+	if err := os.WriteFile(full, buf.Bytes(), 0o640); err != nil {
+		return err
+	}
+	rels := &pb.Releases{App: app}
+	rl, err := rels.AddRelease(ctx, userID, itemID, authoring.NewRelease{Version: "1.0.0", Changelog: "First release.",
+		StorageKey: key, SHA256: hexSum, Size: int64(buf.Len())})
+	if err != nil {
+		return err
+	}
+	return rels.PublishRelease(ctx, userID, itemID, rl.ID)
 }

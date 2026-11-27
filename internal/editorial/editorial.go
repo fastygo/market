@@ -19,6 +19,9 @@ var (
 	// ErrTaxProfile: a store cannot go on sale before its VAT status is set
 	// (market seller vat <slug> yes|no); RU checkout refuses such offers.
 	ErrTaxProfile = errors.New("editorial: store VAT status is not set")
+	// ErrNoRelease: an item goes on sale only with a published release,
+	// otherwise a paid order has nothing to deliver and is refunded.
+	ErrNoRelease = errors.New("editorial: item has no published release")
 )
 
 // Article statuses.

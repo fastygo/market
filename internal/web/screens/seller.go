@@ -28,6 +28,10 @@ type ItemForm struct {
 	Categories []authoring.Category
 	New        bool
 	CSRF       string
+	// Releases of the item; ReleasesOn is false when files go to S3 and
+	// the operator uploads them.
+	Releases   []authoring.Release
+	ReleasesOn bool
 }
 
 // FinanceView is the sales and payouts screen of a seller or a partner.
@@ -285,3 +289,25 @@ func teamActions(s Shell, v TeamView) func(int) templ.Component {
 }
 
 func actLabel(s Shell, a string) string { return s.T("ui.seller.act_" + a) }
+
+func releaseRows(s Shell, rs []authoring.Release) []Row {
+	out := make([]Row, 0, len(rs))
+	for _, r := range rs {
+		meta := r.Name + " \u00b7 " + sizeText(r.Size) + " \u00b7 " + fmtDate(r.Created)
+		row := Row{Title: r.Version, Meta: meta, Badge: itemStatus(s, r.Status), Tone: statusTone(r.Status)}
+		if c := stripTags(r.Changelog); c != "" {
+			row.Lines = []string{c}
+		}
+		out = append(out, row)
+	}
+	return out
+}
+
+func releaseActions(s Shell, v ItemForm) func(i int) templ.Component {
+	return func(i int) templ.Component {
+		if i >= len(v.Releases) || v.Releases[i].Status != "draft" {
+			return nil
+		}
+		return ReleasePublish(SellerItemHref(v.Item.ID)+"/releases/"+v.Releases[i].ID+"/publish", v.CSRF, s.T("ui.release.publish"))
+	}
+}

@@ -30,6 +30,8 @@ func (h *Handler) mountRoles(m *http.ServeMux) {
 		m.HandleFunc("POST /seller/items/{id}/status", h.sellerItemStatus)
 		m.HandleFunc("POST /seller/items/{id}/cover", h.sellerItemUpload)
 		m.HandleFunc("POST /seller/items/{id}/gallery", h.sellerItemUpload)
+		m.HandleFunc("POST /seller/items/{id}/releases", h.sellerReleaseUpload)
+		m.HandleFunc("POST /seller/items/{id}/releases/{rid}/publish", h.sellerReleasePublish)
 		m.HandleFunc("GET /seller/media", h.sellerMedia)
 		m.HandleFunc("POST /seller/media", h.sellerMediaUpload)
 		m.HandleFunc("GET /seller/finance", h.sellerFinance)
@@ -119,7 +121,15 @@ func (h *Handler) itemForm(w http.ResponseWriter, r *http.Request, it authoring.
 		s.EditorCSS, s.EditorJS = assets.CSS, assets.JS
 		s.EditorProps = h.editorProps(w, r, it)
 	}
-	h.render(w, r, http.StatusOK, screens.SellerItemPage(s, screens.ItemForm{Item: it, Categories: cats, New: isNew, CSRF: s.Viewer.CSRF}))
+	form := screens.ItemForm{Item: it, Categories: cats, New: isNew, CSRF: s.Viewer.CSRF, ReleasesOn: h.releasesOn()}
+	if !isNew && form.ReleasesOn {
+		p, _ := h.principal(r)
+		if form.Releases, err = h.Commerce.Cabinet.Releases.ItemReleases(r.Context(), p.UserID, it.ID); err != nil {
+			h.fail(w, r, err)
+			return
+		}
+	}
+	h.render(w, r, http.StatusOK, screens.SellerItemPage(s, form))
 }
 
 func (h *Handler) sellerItemNew(w http.ResponseWriter, r *http.Request) {

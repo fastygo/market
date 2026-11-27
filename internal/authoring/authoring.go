@@ -103,3 +103,27 @@ func ParseETag(s string) (int, bool) {
 	}
 	return n, true
 }
+
+// Release is a versioned file of an item (ADR-0022). Drafts are private;
+// a published release is what buyers download and cannot be changed.
+type Release struct {
+	ID, Version, Status, Changelog, Name string
+	Size                                 int64
+	Created                              time.Time
+}
+
+// NewRelease is a received, checked file to attach to an item.
+type NewRelease struct {
+	Version, Changelog, StorageKey, SHA256 string
+	Size                                   int64
+}
+
+// Releases is the seller side of release files; every call checks that the
+// user is a member of the item's store.
+type Releases interface {
+	ItemReleases(ctx context.Context, userID, itemID string) ([]Release, error)
+	AddRelease(ctx context.Context, userID, itemID string, in NewRelease) (Release, error)
+	PublishRelease(ctx context.Context, userID, itemID, releaseID string) error
+	// ReleaseOwner returns the store of an item the user may edit.
+	ReleaseOwner(ctx context.Context, userID, itemID string) (sellerID string, err error)
+}

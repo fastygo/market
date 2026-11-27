@@ -5,6 +5,7 @@ import (
 
 	selectfield "github.com/ui8kit/codegen/generated/templ/ui/select"
 	"strconv"
+	"html"
 	"strings"
 
 	"github.com/fastygo/market/internal/catalog"
@@ -330,7 +331,7 @@ func stripTags(h string) string {
 			b.WriteRune(r)
 		}
 	}
-	return strings.TrimSpace(b.String())
+	return strings.TrimSpace(html.UnescapeString(b.String()))
 }
 
 func stars(n int) string { return strings.Repeat("\u2605", n) + strings.Repeat("\u2606", 5-n) }

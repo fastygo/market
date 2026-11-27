@@ -548,7 +548,7 @@ func ProductPage(s Shell, v ProductView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						if v.P.HasOffer {
+						if v.P.HasOffer && len(v.P.Releases) > 0 {
 							templ_7745c5c3_Err = design.LicensePicker(licensePicker(s, v)).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err

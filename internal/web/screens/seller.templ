@@ -119,14 +119,31 @@ templ SellerItemPage(s Shell, v ItemForm) {
 							}
 						}
 						@Panel(s.T("ui.seller.releases"), s.T("ui.seller.releases_lead")) {
-							@design.Badge(design.BadgeProps{Tone: "warning", TextProps: text.TextProps{}}) {
-								{ s.T("ui.common.stub") }
+							if v.ReleasesOn {
+								@Rows(releaseRows(s, v.Releases), s.T("ui.release.empty"), releaseActions(s, v))
+								@UploadForm(SellerItemHref(v.Item.ID)+"/releases", v.CSRF, s.T("ui.seller.releases")) {
+									@Field(F{ID: "release-version", Name: "version", Label: s.T("ui.release.version"), Required: true, Hint: s.T("ui.release.version_hint")})
+									@Field(F{ID: "release-changelog", Name: "changelog", Label: s.T("ui.release.changelog"), Type: "textarea", Rows: "3"})
+									@Field(F{ID: "release-file", Name: "file", Label: s.T("ui.release.file"), Type: "file", Required: true, Hint: s.T("ui.release.file_hint")})
+									@Submit(s.T("ui.release.upload"))
+								}
+							} else {
+								@design.Badge(design.BadgeProps{Tone: "warning", TextProps: text.TextProps{}}) {
+									{ s.T("ui.release.operator") }
+								}
 							}
 						}
 					}
 				}
 			}
 		}
+	}
+}
+
+// ReleasePublish is the publish button of a draft release.
+templ ReleasePublish(action, csrf, label string) {
+	@InlineForm(action, csrf) {
+		@Act("action", "publish", label, "dark")
 	}
 }
 

@@ -496,6 +496,14 @@ func (e *Editorial) ModerateProduct(ctx context.Context, id, status, note string
 		if !HasVATStatus(s) {
 			return editorial.ErrTaxProfile
 		}
+		n, err := count(e.App, `SELECT COUNT(*) FROM product_releases WHERE product = {:p} AND status = 'published' AND storage_key != ''`,
+			dbx.Params{"p": id})
+		if err != nil {
+			return err
+		}
+		if n == 0 {
+			return editorial.ErrNoRelease
+		}
 	}
 	r.Set("status", status)
 	r.Set("review_note", strings.TrimSpace(note))

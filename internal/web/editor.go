@@ -276,8 +276,11 @@ func (h *Handler) editorDecide(w http.ResponseWriter, r *http.Request) {
 			h.Log.Warn("editor decide", "queue", q, "err", err)
 		}
 		key := "ui.editor.failed"
-		if errors.Is(err, editorial.ErrTaxProfile) {
+		switch {
+		case errors.Is(err, editorial.ErrTaxProfile):
 			key = "ui.editor.vat_missing"
+		case errors.Is(err, editorial.ErrNoRelease):
+			key = "ui.editor.release_missing"
 		}
 		failed(w, r, back, key)
 		return

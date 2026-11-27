@@ -115,6 +115,7 @@ type offerRow struct {
 	SaleModel     string `db:"sale_model"`
 	CommissionBPS int    `db:"commission_bps"`
 	TaxProfile    string `db:"tax_profile"`
+	Releases      int    `db:"releases"`
 }
 
 // Offers implements ordering.Store (read, before any write tx).
@@ -131,7 +132,8 @@ func (s *Orders) Offers(ctx context.Context, ids []string) ([]ordering.Offer, er
 	var rows []offerRow
 	err := s.App.DB().NewQuery(`SELECT o.id, o.product, o.seller, o.license_type, o.price_minor, o.currency, o.tax_category,
 		o.support_months, o.active, p.slug, p.title, p.status, COALESCE(s.sale_model, '') AS sale_model, COALESCE(s.commission_bps, 0) AS commission_bps,
-		COALESCE(s.tax_profile, '{}') AS tax_profile
+		COALESCE(s.tax_profile, '{}') AS tax_profile,
+		(SELECT COUNT(*) FROM product_releases r WHERE r.product = o.product AND r.status = 'published' AND r.storage_key != '') AS releases
 		FROM offers o JOIN products p ON p.id = o.product JOIN sellers s ON s.id = o.seller
 		WHERE o.id IN (` + strings.Join(ph, ",") + `)`).Bind(p).All(&rows)
 	if err != nil {
@@ -159,7 +161,8 @@ func (s *Orders) Offers(ctx context.Context, ids []string) ([]ordering.Offer, er
 			ID: r.ID, ProductID: r.Product, ProductSlug: r.Slug, ProductTitle: r.Title, SellerID: r.Seller,
 			LicenseType: r.LicenseType, LicenseTitle: r.LicenseType, TaxCategory: r.TaxCategory,
 			Price: money.Money{Minor: r.PriceMinor, Currency: r.Currency}, SupportMonths: r.SupportMonths,
-			Active: r.Active, ProductPublished: r.Status == "published", SaleModel: model,
+			Active:           r.Active && r.Releases > 0, // nothing to deliver: not for sale
+			ProductPublished: r.Status == "published", SaleModel: model,
 			CommissionBPS: r.CommissionBPS, SellerTax: ordering.SellerTax{VATPayer: prof.VATPayer},
 		})
 	}

@@ -88,7 +88,7 @@ templ ProductPage(s Shell, v ProductView) {
 					@design.ProductGallery(gallery(s, v.P))
 				}
 				@design.Box(design.BoxProps{Class: "flex flex-col gap-4 lg:sticky lg:top-24 lg:col-span-2", BoxProps: box.BoxProps{}}) {
-					if v.P.HasOffer {
+					if v.P.HasOffer && len(v.P.Releases) > 0 {
 						@design.LicensePicker(licensePicker(s, v))
 					} else {
 						@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.product.unavailable")})
