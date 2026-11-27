@@ -88,7 +88,7 @@ func TestAuthoringCabinetFlow(t *testing.T) {
 	cab := &web.Cabinet{
 		Users: cabUsers, Magic: account.Magic{Key: []byte("session-key")},
 		Orders: &pb.Account{App: app}, CSRFKey: []byte("csrf-key"),
-		Items: &pb.Authoring{App: app}, TermsVersion: "1", Method: "card",
+		Items: &pb.Authoring{App: app}, Roles: &pb.Cabinet{App: app}, TermsVersion: "1", Method: "card",
 	}
 	repo := &pb.Catalog{App: app}
 	h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: "default", Dict: en, Commerce: &web.Commerce{Cabinet: cab}})
@@ -133,15 +133,15 @@ func TestAuthoringCabinetFlow(t *testing.T) {
 
 	// a non-member cannot see the item
 	// (we are a member; first check the list and edit page)
-	code, body, _ = get("/account/items")
-	if code != 200 || !strings.Contains(body, "aurora-theme") {
+	code, body, _ = get("/seller/items")
+	if code != 200 || !strings.Contains(body, "Aurora theme") {
 		t.Fatalf("items %d %s", code, body)
 	}
 	if strings.Contains(body, "/static/editor/") {
 		t.Fatal("items list loaded the editor island")
 	}
 	id := prod.Id
-	code, body, rec := get("/account/items/" + id)
+	code, body, rec := get("/seller/items/" + id)
 	if code != 200 || !strings.Contains(body, `id="description"`) {
 		t.Fatalf("edit %d %s", code, body)
 	}

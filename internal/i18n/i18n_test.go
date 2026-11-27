@@ -17,3 +17,14 @@ func TestTFallsBackToKey(t *testing.T) {
 		t.Fatal("empty dictionary accepted")
 	}
 }
+
+func TestOverlay(t *testing.T) {
+	d := &Dict{Locale: "en", Messages: map[string]string{"ui.a": "A", "ui.b": "B"}}
+	o := d.Overlay("xx", map[string]string{"ui.a": "AA", "ui.unknown": "U", "ui.b": " "})
+	if o.Locale != "xx" || o.T("ui.a") != "AA" || o.T("ui.b") != "B" || o.T("ui.unknown") != "ui.unknown" {
+		t.Fatalf("overlay: %+v", o)
+	}
+	if d.T("ui.a") != "A" {
+		t.Fatal("source changed")
+	}
+}

@@ -493,7 +493,21 @@ func (e *Editorial) ModerateProduct(ctx context.Context, id, status, note string
 	if status == "published" && r.GetDateTime("published_at").IsZero() {
 		r.Set("published_at", pbDate(e.now()))
 	}
-	return e.App.Save(r)
+	return e.App.RunInTransaction(func(tx core.App) error {
+		if err := tx.Save(r); err != nil {
+			return err
+		}
+		if status != "published" {
+			return nil
+		}
+		// the first published product opens a newly approved store
+		s, err := tx.FindRecordById("sellers", r.GetString("seller"))
+		if err != nil || s.GetString("status") != "pending_review" {
+			return nil
+		}
+		s.Set("status", "active")
+		return tx.Save(s)
+	})
 }
 
 // Counts implements editorial.Store.

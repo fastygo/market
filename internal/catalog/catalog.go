@@ -43,6 +43,30 @@ type Product struct {
 	SellerSlug      string
 	Price           money.Money
 	HasOffer        bool
+	// Stack and Tags come from attributes (ADR-0035 product card).
+	Stack       string
+	Tags        []string
+	Rating      float64
+	RatingCount int
+	PublishedAt time.Time
+	// Product page only (Product): gallery, licenses and releases.
+	Images   []string
+	Offers   []Offer
+	Releases []Release
+}
+
+// Offer is one active license of a product in the storefront currency.
+type Offer struct {
+	License       string
+	Price         money.Money
+	SupportMonths int
+}
+
+// Release is a published product version.
+type Release struct {
+	Version, Changelog string
+	Size               int64
+	At                 time.Time
 }
 
 // Seller is the public author profile (ADR-0020): only `display_name`
@@ -68,6 +92,12 @@ type Filter struct {
 	Exclude  string // product slug left out (more from this author)
 	Limit    int
 	Offset   int // numbered storefront pages; capped by MaxPage
+	// Sort: "" newest, "price", "-price", "popular", "rating".
+	Sort     string
+	MinPrice int64 // minor units, 0 none
+	MaxPrice int64
+	Free     bool
+	IDs      []string // only these products (collections)
 }
 
 // PageSize and MaxPage bound the numbered catalog pages: OFFSET is cheap

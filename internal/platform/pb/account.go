@@ -139,11 +139,17 @@ func (a *Account) Orders(ctx context.Context, buyerID string) ([]account.Order, 
 	var rows []accOrderRow
 	err := a.App.DB().NewQuery(`SELECT id, number, status, total_minor, currency, created FROM orders
 		WHERE buyer = {:b} ORDER BY created DESC LIMIT 100`).Bind(dbx.Params{"b": buyerID}).All(&rows)
+	if err != nil {
+		return nil, err
+	}
 	out := make([]account.Order, len(rows))
 	for i, r := range rows {
 		out[i] = r.order()
+		if out[i].Items, err = a.items(out[i].ID); err != nil {
+			return nil, err
+		}
 	}
-	return out, err
+	return out, nil
 }
 
 // Order returns one of the buyer's orders by its number, with lines.
@@ -174,19 +180,26 @@ func (a *Account) load(where string, p dbx.Params) (account.Order, error) {
 		return account.Order{}, err
 	}
 	o := r.order()
+	o.Items, err = a.items(o.ID)
+	return o, err
+}
+
+// items are the lines of an order with their entitlement status.
+func (a *Account) items(orderID string) ([]account.Item, error) {
 	var items []struct {
 		Title   string         `db:"title_snapshot"`
 		Slug    string         `db:"product_slug"`
 		License string         `db:"license_type"`
 		Ent     sql.NullString `db:"ent"`
 	}
-	err = a.App.DB().NewQuery(`SELECT i.title_snapshot, i.product_slug, i.license_type, e.status AS ent
+	err := a.App.DB().NewQuery(`SELECT i.title_snapshot, i.product_slug, i.license_type, e.status AS ent
 		FROM order_items i LEFT JOIN entitlements e ON e.order_item = i.id
-		WHERE i."order" = {:o} ORDER BY i.id`).Bind(dbx.Params{"o": o.ID}).All(&items)
+		WHERE i."order" = {:o} ORDER BY i.id`).Bind(dbx.Params{"o": orderID}).All(&items)
+	var out []account.Item
 	for _, it := range items {
-		o.Items = append(o.Items, account.Item{Title: it.Title, Slug: it.Slug, License: it.License, Entitlement: it.Ent.String})
+		out = append(out, account.Item{Title: it.Title, Slug: it.Slug, License: it.License, Entitlement: it.Ent.String})
 	}
-	return o, err
+	return out, err
 }
 
 // Purchase implements notify.Purchases.

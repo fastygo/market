@@ -5,6 +5,7 @@ package pb
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -48,6 +49,10 @@ type productRow struct {
 	SellerName      string         `db:"seller_name"`
 	SellerSlug      string         `db:"seller_slug"`
 	PriceMinor      sql.NullInt64  `db:"price_minor"`
+	Attributes      string         `db:"attributes"`
+	RatingAvg       float64        `db:"rating_avg"`
+	RatingCount     int            `db:"rating_count"`
+	PublishedAt     string         `db:"published_at"`
 }
 
 // One query, no N+1: the lowest active offer in the storefront currency
@@ -64,6 +69,8 @@ const productSelect = `
 SELECT p.id, p.slug, p.title, p.excerpt, p.description, COALESCE(p.description_html, '') AS description_html, p.product_type, p.demo_url, p.cover,
        c.slug AS cat_slug, c.title AS cat_title,
        s.display_name AS seller_name, s.slug AS seller_slug,
+       COALESCE(p.attributes, '') AS attributes, COALESCE(p.rating_avg, 0) AS rating_avg,
+       COALESCE(p.rating_count, 0) AS rating_count, COALESCE(p.published_at, '') AS published_at,
        (SELECT MIN(o.price_minor) FROM offers o
          WHERE o.product = p.id AND o.active = TRUE AND o.currency = {:currency}) AS price_minor
 FROM products p
@@ -85,6 +92,19 @@ func (r productRow) toDomain(currency, coverURL, coverSrcset string) catalog.Pro
 	if r.PriceMinor.Valid {
 		p.Price, p.HasOffer = money.Money{Minor: r.PriceMinor.Int64, Currency: currency}, true
 	}
+	var attrs map[string]any
+	if r.Attributes != "" && json.Unmarshal([]byte(r.Attributes), &attrs) == nil {
+		p.Stack, _ = attrs["stack"].(string)
+		if tags, _ := attrs["tags"].(string); tags != "" {
+			for _, t := range strings.Split(tags, ",") {
+				if t = strings.TrimSpace(t); t != "" {
+					p.Tags = append(p.Tags, t)
+				}
+			}
+		}
+	}
+	p.Rating, p.RatingCount = r.RatingAvg, r.RatingCount
+	p.PublishedAt = pbTime(r.PublishedAt)
 	return p
 }
 
@@ -189,7 +209,39 @@ func (c *Catalog) Products(ctx context.Context, currency string, f catalog.Filte
 		}
 		q += ` AND p.id IN (` + strings.Join(parts, " UNION ") + `)`
 	}
-	q += ` ORDER BY p.published_at DESC, p.created DESC`
+	const price = `(SELECT MIN(o.price_minor) FROM offers o WHERE o.product = p.id AND o.active = TRUE AND o.currency = {:currency})`
+	if f.Free {
+		q += ` AND ` + price + ` = 0`
+	}
+	if f.MinPrice > 0 {
+		q += ` AND ` + price + ` >= {:minp}`
+		params["minp"] = f.MinPrice
+	}
+	if f.MaxPrice > 0 {
+		q += ` AND ` + price + ` <= {:maxp}`
+		params["maxp"] = f.MaxPrice
+	}
+	if len(f.IDs) > 0 {
+		var ph []string
+		for i, id := range f.IDs {
+			k := fmt.Sprintf("id%d", i)
+			ph = append(ph, "{:"+k+"}")
+			params[k] = id
+		}
+		q += ` AND p.id IN (` + strings.Join(ph, ",") + `)`
+	}
+	switch f.Sort {
+	case "price":
+		q += ` ORDER BY price_minor ASC, p.published_at DESC`
+	case "-price":
+		q += ` ORDER BY price_minor DESC, p.published_at DESC`
+	case "popular":
+		q += ` ORDER BY p.sales_count DESC, p.published_at DESC`
+	case "rating":
+		q += ` ORDER BY p.rating_avg DESC, p.rating_count DESC, p.published_at DESC`
+	default:
+		q += ` ORDER BY p.published_at DESC, p.created DESC`
+	}
 	limit := f.Limit
 	if limit <= 0 || limit > 100 {
 		limit = 100
@@ -222,7 +274,38 @@ func (c *Catalog) Product(ctx context.Context, currency, slug string) (catalog.P
 		return catalog.Product{}, fmt.Errorf("catalog: product: %w", err)
 	}
 	url, srcset := c.cover(r.ID, r.Cover)
-	return r.toDomain(currency, url, srcset), nil
+	p := r.toDomain(currency, url, srcset)
+	if rec, err := c.App.FindRecordById("products", r.ID); err == nil {
+		for _, n := range rec.GetStringSlice("images") {
+			p.Images = append(p.Images, fileURL(c.App, rec, n))
+		}
+	}
+	var offers []struct {
+		License string `db:"license_type"`
+		Price   int64  `db:"price_minor"`
+		Support int    `db:"support_months"`
+	}
+	if err := c.App.DB().NewQuery(`SELECT license_type, price_minor, COALESCE(support_months, 0) AS support_months FROM offers
+		WHERE product = {:p} AND active = TRUE AND currency = {:c} ORDER BY price_minor`).WithContext(ctx).
+		Bind(dbx.Params{"p": r.ID, "c": currency}).All(&offers); err == nil {
+		for _, o := range offers {
+			p.Offers = append(p.Offers, catalog.Offer{License: o.License, Price: money.Money{Minor: o.Price, Currency: currency}, SupportMonths: o.Support})
+		}
+	}
+	var rels []struct {
+		Version   string `db:"version"`
+		Changelog string `db:"changelog"`
+		Size      int64  `db:"size"`
+		At        string `db:"created"`
+	}
+	if err := c.App.DB().NewQuery(`SELECT version, COALESCE(changelog, '') AS changelog, COALESCE(size, 0) AS size, created
+		FROM product_releases WHERE product = {:p} AND status = 'published' ORDER BY created DESC LIMIT 10`).WithContext(ctx).
+		Bind(dbx.Params{"p": r.ID}).All(&rels); err == nil {
+		for _, x := range rels {
+			p.Releases = append(p.Releases, catalog.Release{Version: x.Version, Changelog: x.Changelog, Size: x.Size, At: pbTime(x.At)})
+		}
+	}
+	return p, nil
 }
 
 // Categories lists categories by sort order.

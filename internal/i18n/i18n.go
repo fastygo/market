@@ -50,3 +50,18 @@ func (d *Dict) Labels(prefix string) map[string]any {
 	}
 	return out
 }
+
+// Overlay returns a copy of d in another locale: messages from m replace
+// the source ones key by key; missing keys stay in the source language.
+func (d *Dict) Overlay(locale string, m map[string]string) *Dict {
+	out := &Dict{Locale: locale, SourceLocale: d.Locale, Messages: make(map[string]string, len(d.Messages))}
+	for k, v := range d.Messages {
+		out.Messages[k] = v
+	}
+	for k, v := range m {
+		if _, ok := d.Messages[k]; ok && strings.TrimSpace(v) != "" {
+			out.Messages[k] = v
+		}
+	}
+	return out
+}

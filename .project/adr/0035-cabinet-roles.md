@@ -23,7 +23,8 @@ on `users`, so a buyer who becomes a vendor keeps the purchases.
 - Vendor is per seller entity (a team): the owner adds staff by email at
   `/seller/team`; staff cannot remove the owner. An approved vendor
   application creates the seller in `pending_review` with commission 50 %
-  (ADR-0021); the editor activates it.
+  (ADR-0021); the store opens (status `active`) when an editor publishes
+  its first product.
 - `cabinet.Principal` is loaded once per cabinet request and drives the
   navigation: the header account menu and the mobile menu list one entry
   per held role; each section has its own sidebar (design SellerSidebar /

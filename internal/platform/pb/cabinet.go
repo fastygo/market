@@ -77,7 +77,8 @@ func (c *Cabinet) Principal(ctx context.Context, userID string) (cabinet.Princip
 		p.Sellers = append(p.Sellers, cabinet.SellerRef{ID: s.ID, Slug: s.Slug, Name: s.Name, Status: s.Status, Owner: s.Role == "owner"})
 	}
 	if pr, err := c.App.FindFirstRecordByData("partners", "user", userID); err == nil {
-		p.Partner = &cabinet.PartnerRef{ID: pr.Id, Code: pr.GetString("code"), Status: pr.GetString("status"), RateBPS: pr.GetInt("rate_bps")}
+		p.Partner = &cabinet.PartnerRef{ID: pr.Id, Code: pr.GetString("code"), Status: pr.GetString("status"), RateBPS: pr.GetInt("rate_bps"),
+			PayoutMethod: pr.GetString("payout_method")}
 	}
 	return p, nil
 }
@@ -571,5 +572,63 @@ func (c *Cabinet) SavePartner(ctx context.Context, partnerID, payoutMethod strin
 		return cabinet.ErrInvalid
 	}
 	p.Set("payout_method", strings.TrimSpace(payoutMethod))
+	return c.App.Save(p)
+}
+
+// AllPayouts implements cabinet.Store (editor queue).
+func (c *Cabinet) AllPayouts(ctx context.Context, status string) ([]cabinet.Payout, error) {
+	var rows []struct {
+		ID        string `db:"id"`
+		Party     string `db:"party_type"`
+		Seller    string `db:"seller"`
+		Partner   string `db:"partner"`
+		Status    string `db:"status"`
+		Amount    int64  `db:"amount_minor"`
+		Currency  string `db:"currency"`
+		Period    string `db:"period"`
+		Reference string `db:"reference"`
+		Note      string `db:"note"`
+		Created   string `db:"created"`
+	}
+	q := `SELECT id, party_type, seller, partner, status, amount_minor, currency, period, reference, note, created FROM payouts`
+	params := dbx.Params{}
+	if status != "" {
+		q += ` WHERE status = {:s}`
+		params["s"] = status
+	}
+	err := c.App.DB().NewQuery(q + ` ORDER BY created DESC LIMIT 500`).WithContext(ctx).Bind(params).All(&rows)
+	out := make([]cabinet.Payout, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, cabinet.Payout{ID: r.ID, PartyType: r.Party, SellerID: r.Seller, PartnerID: r.Partner, Status: r.Status,
+			Amount: r.Amount, Currency: r.Currency, Period: r.Period, Reference: r.Reference, Note: r.Note, Created: pbTime(r.Created)})
+	}
+	return out, err
+}
+
+// MarkPayout implements cabinet.Store: approved, paid or rejected; no
+// money moves, the operator records what was done outside the system.
+func (c *Cabinet) MarkPayout(ctx context.Context, id, status, note string) error {
+	switch status {
+	case "approved", "paid", "rejected":
+	default:
+		return cabinet.ErrInvalid
+	}
+	p, err := c.App.FindRecordById("payouts", id)
+	if err != nil {
+		return cabinet.ErrNotFound
+	}
+	if st := p.GetString("status"); st == "paid" || st == "rejected" || st == "cancelled" {
+		return cabinet.ErrInvalid
+	}
+	p.Set("status", status)
+	if note = strings.TrimSpace(note); note != "" {
+		if len(note) > 500 {
+			note = note[:500]
+		}
+		p.Set("note", note)
+	}
+	if status == "paid" {
+		p.Set("paid_at", c.now())
+	}
 	return c.App.Save(p)
 }

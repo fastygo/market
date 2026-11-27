@@ -47,6 +47,7 @@ type SellerRef struct {
 type PartnerRef struct {
 	ID, Code, Status string
 	RateBPS          int
+	PayoutMethod     string
 }
 
 // Principal is the signed-in user with every role they hold.
@@ -146,6 +147,10 @@ type Store interface {
 	Balance(ctx context.Context, partyType, id string) (Balance, error)
 	Payouts(ctx context.Context, partyType, id string) ([]Payout, error)
 	RequestPayout(ctx context.Context, p Payout, userID string) error
+	// AllPayouts and MarkPayout are the editor (operator) side: requests
+	// are paid outside the system and only marked here.
+	AllPayouts(ctx context.Context, status string) ([]Payout, error)
+	MarkPayout(ctx context.Context, id, status, note string) error
 	Sales(ctx context.Context, sellerID string, limit int) ([]Sale, error)
 
 	Team(ctx context.Context, sellerID string) ([]Member, error)

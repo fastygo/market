@@ -101,9 +101,9 @@ func TestCabinetBrowserCycle(t *testing.T) {
 		return res.StatusCode, string(b), res.Request.URL.Path
 	}
 
-	code, page, _ := get("/products/aurora-theme")
+	code, page, _ := get("/checkout/aurora-theme")
 	csrf, key := field(reCSRF, page), field(reKey, page)
-	if code != 200 || csrf == "" || key == "" || !strings.Contains(page, `data-form="checkout"`) {
+	if code != 200 || csrf == "" || key == "" || !strings.Contains(page, `data-page="checkout"`) {
 		t.Fatalf("product page %d csrf=%q key=%q", code, csrf, key)
 	}
 	// CSRF is enforced
@@ -165,7 +165,7 @@ func TestCabinetBrowserCycle(t *testing.T) {
 		t.Fatalf("download %d %s %q", code, path, body)
 	}
 	code, page, _ = get("/account/orders")
-	if code != 200 || !strings.Contains(page, `data-order="`+number+`"`) {
+	if code != 200 || !strings.Contains(page, number) {
 		t.Fatalf("orders %d", code)
 	}
 	// refund closes access
