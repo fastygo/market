@@ -9,7 +9,6 @@ import (
 	"github.com/fastygo/market/internal/account"
 	"github.com/fastygo/market/internal/catalog"
 	"github.com/fastygo/market/internal/platform/money"
-
 )
 
 // SignInView is the sign-in and register page state.

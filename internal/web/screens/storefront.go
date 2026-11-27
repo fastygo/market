@@ -11,7 +11,6 @@ import (
 	"github.com/fastygo/market/internal/editorial"
 	"github.com/fastygo/market/internal/platform/money"
 	"github.com/fastygo/market/ui/design"
-
 )
 
 func or(a, b string) string {
