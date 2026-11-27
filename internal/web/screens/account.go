@@ -18,7 +18,7 @@ func purchases(s Shell, os []account.Order) []design.Purchase {
 	var out []design.Purchase
 	for _, o := range os {
 		for _, it := range o.Items {
-			p := design.Purchase{ID: o.ID + it.Slug, Title: it.Title, Cover: coverSrc(""), License: licenseLabel(s, it.License),
+			p := design.Purchase{ID: o.ID + it.Slug, Title: it.Title, Cover: coverSrc(""), License: licenseLabel(s, it.License), Stack: it.Stack,
 				Number: o.Number, Date: fmtDate(o.Created), Status: o.Status, StatusLabel: s.T(orderStatusKey(o.Status)),
 				Action: s.T("ui.account.open_order"), Href: OrderHref(o.Number)}
 			if it.Entitlement == "active" {

@@ -191,13 +191,15 @@ func (a *Account) items(orderID string) ([]account.Item, error) {
 		Slug    string         `db:"product_slug"`
 		License string         `db:"license_type"`
 		Ent     sql.NullString `db:"ent"`
+		Stack   string         `db:"stack"`
 	}
-	err := a.App.DB().NewQuery(`SELECT i.title_snapshot, i.product_slug, i.license_type, e.status AS ent
+	err := a.App.DB().NewQuery(`SELECT i.title_snapshot, i.product_slug, i.license_type, e.status AS ent,
+		COALESCE((SELECT CASE WHEN json_valid(p.attributes) THEN json_extract(p.attributes, '$.stack') END FROM products p WHERE p.slug = i.product_slug LIMIT 1), '') AS stack
 		FROM order_items i LEFT JOIN entitlements e ON e.order_item = i.id
 		WHERE i."order" = {:o} ORDER BY i.id`).Bind(dbx.Params{"o": orderID}).All(&items)
 	var out []account.Item
 	for _, it := range items {
-		out = append(out, account.Item{Title: it.Title, Slug: it.Slug, License: it.License, Entitlement: it.Ent.String})
+		out = append(out, account.Item{Title: it.Title, Slug: it.Slug, License: it.License, Stack: it.Stack, Entitlement: it.Ent.String})
 	}
 	return out, err
 }

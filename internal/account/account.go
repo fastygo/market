@@ -49,6 +49,7 @@ type Order struct {
 // Item is an order line with its entitlement status.
 type Item struct {
 	Title, Slug, License string
+	Stack                string // product stack now, for the purchase list
 	Entitlement          string // active, refunded, disputed, revoked; "" before payment
 }
 

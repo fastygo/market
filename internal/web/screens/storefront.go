@@ -4,8 +4,8 @@ import (
 	"net/url"
 
 	selectfield "github.com/ui8kit/codegen/generated/templ/ui/select"
-	"strconv"
 	"html"
+	"strconv"
 	"strings"
 
 	"github.com/fastygo/market/internal/catalog"
