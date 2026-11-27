@@ -101,7 +101,7 @@ func SellerTodayPage(s Shell, v SellerHome) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 gap-4 lg:col-span-3"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "min-w-0 gap-4 lg:col-span-3", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -123,13 +123,13 @@ func SellerTodayPage(s Shell, v SellerHome) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 gap-4 lg:col-span-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "min-w-0 gap-4 lg:col-span-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-4 lg:grid-cols-5"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "items-start gap-4 lg:grid-cols-5", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -366,7 +366,7 @@ func SellerItemPage(s Shell, v ItemForm) templ.Component {
 									}
 									return nil
 								})
-								templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var17), templ_7745c5c3_Buffer)
+								templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var17), templ_7745c5c3_Buffer)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -396,7 +396,7 @@ func SellerItemPage(s Shell, v ItemForm) templ.Component {
 									}
 									return nil
 								})
-								templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var18), templ_7745c5c3_Buffer)
+								templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var18), templ_7745c5c3_Buffer)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -426,7 +426,7 @@ func SellerItemPage(s Shell, v ItemForm) templ.Component {
 									}
 									return nil
 								})
-								templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var19), templ_7745c5c3_Buffer)
+								templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var19), templ_7745c5c3_Buffer)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -502,7 +502,7 @@ func SellerItemPage(s Shell, v ItemForm) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 gap-4 lg:col-span-3"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "min-w-0 gap-4 lg:col-span-3", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -606,7 +606,7 @@ func SellerItemPage(s Shell, v ItemForm) templ.Component {
 									}()
 								}
 								ctx = templ.InitializeContext(ctx)
-								templ_7745c5c3_Err = design.Image(design.ImageProps{ImageProps: image.ImageProps{Src: coverSrc(v.Item.CoverURL), Alt: "", Width: "400", Height: "300", Class: "aspect-[4/3] w-full rounded-md border border-border object-cover"}}).Render(ctx, templ_7745c5c3_Buffer)
+								templ_7745c5c3_Err = design.Image(design.ImageProps{Class: "aspect-[4/3] w-full rounded-md border border-border object-cover", ImageProps: image.ImageProps{Src: coverSrc(v.Item.CoverURL), Alt: "", Width: "400", Height: "300"}}).Render(ctx, templ_7745c5c3_Buffer)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -667,14 +667,14 @@ func SellerItemPage(s Shell, v ItemForm) templ.Component {
 									}
 									ctx = templ.InitializeContext(ctx)
 									for _, img := range v.Item.Images {
-										templ_7745c5c3_Err = design.Image(design.ImageProps{ImageProps: image.ImageProps{Src: img.URL, Alt: "", Width: "120", Height: "90", Loading: "lazy", Class: "aspect-[4/3] w-full rounded-md border border-border object-cover"}}).Render(ctx, templ_7745c5c3_Buffer)
+										templ_7745c5c3_Err = design.Image(design.ImageProps{Class: "aspect-[4/3] w-full rounded-md border border-border object-cover", ImageProps: image.ImageProps{Src: img.URL, Alt: "", Width: "120", Height: "90", Loading: "lazy"}}).Render(ctx, templ_7745c5c3_Buffer)
 										if templ_7745c5c3_Err != nil {
 											return templ_7745c5c3_Err
 										}
 									}
 									return nil
 								})
-								templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "grid-cols-3 gap-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var30), templ_7745c5c3_Buffer)
+								templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "grid-cols-3 gap-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var30), templ_7745c5c3_Buffer)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -757,14 +757,14 @@ func SellerItemPage(s Shell, v ItemForm) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 gap-4 lg:col-span-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var22), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "min-w-0 gap-4 lg:col-span-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var22), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-4 lg:grid-cols-5", Attrs: templ.Attributes{"data-item": v.Item.ID}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "items-start gap-4 lg:grid-cols-5", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-item": v.Item.ID}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var13), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -909,20 +909,20 @@ func SellerMediaPage(s Shell, items []authoring.Item, csrf string) templ.Compone
 								}
 								ctx = templ.InitializeContext(ctx)
 								if it.CoverURL != "" {
-									templ_7745c5c3_Err = design.Image(design.ImageProps{ImageProps: image.ImageProps{Src: it.CoverURL, Alt: it.Title, Width: "200", Height: "150", Loading: "lazy", Class: "aspect-[4/3] w-full rounded-md border-2 border-primary object-cover"}}).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = design.Image(design.ImageProps{Class: "aspect-[4/3] w-full rounded-md border-2 border-primary object-cover", ImageProps: image.ImageProps{Src: it.CoverURL, Alt: it.Title, Width: "200", Height: "150", Loading: "lazy"}}).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
 								}
 								for _, img := range it.Images {
-									templ_7745c5c3_Err = design.Image(design.ImageProps{ImageProps: image.ImageProps{Src: img.URL, Alt: "", Width: "200", Height: "150", Loading: "lazy", Class: "aspect-[4/3] w-full rounded-md border border-border object-cover"}}).Render(ctx, templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = design.Image(design.ImageProps{Class: "aspect-[4/3] w-full rounded-md border border-border object-cover", ImageProps: image.ImageProps{Src: img.URL, Alt: "", Width: "200", Height: "150", Loading: "lazy"}}).Render(ctx, templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
 								}
 								return nil
 							})
-							templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "grid-cols-2 gap-3 sm:grid-cols-4"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var41), templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "grid-cols-2 gap-3 sm:grid-cols-4", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var41), templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -1077,7 +1077,7 @@ func FinancePage(s Shell, v FinanceView) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-4 lg:grid-cols-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var45), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "items-start gap-4 lg:grid-cols-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var45), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

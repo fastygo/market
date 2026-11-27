@@ -171,7 +171,7 @@ func OrderPage(s Shell, o account.Order) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "lg:col-span-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Box(design.BoxProps{Class: "lg:col-span-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -181,7 +181,7 @@ func OrderPage(s Shell, o account.Order) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-4 lg:grid-cols-3", Attrs: templ.Attributes{"data-order": o.Number}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "items-start gap-4 lg:grid-cols-3", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-order": o.Number}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -251,7 +251,7 @@ func SavedPage(s Shell) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "grid gap-4 sm:grid-cols-2 xl:grid-cols-3", Attrs: templ.Attributes{"data-saved-list": "", "data-empty": s.T("ui.account.saved_empty")}}}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Box(design.BoxProps{Class: "grid gap-4 sm:grid-cols-2 xl:grid-cols-3", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-saved-list": "", "data-empty": s.T("ui.account.saved_empty")}}}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -650,7 +650,7 @@ func RolesPage(s Shell, v RolesView) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-4 lg:grid-cols-3"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var29), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "items-start gap-4 lg:grid-cols-3", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var29), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -790,7 +790,7 @@ func roleCard(s Shell, v RolesView, r cabinet.Role, icon string) templ.Component
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "gap-3"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = design.Group(design.GroupProps{Class: "gap-3", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -933,7 +933,7 @@ func roleCard(s Shell, v RolesView, r cabinet.Role, icon string) templ.Component
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Card(design.CardProps{Pad: "md", Tag: "section", BoxProps: box.BoxProps{Class: "flex flex-col gap-4", Attrs: templ.Attributes{"data-role": string(r)}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var32), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Card(design.CardProps{Class: "flex flex-col gap-4", Pad: "md", Tag: "section", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-role": string(r)}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var32), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1013,7 +1013,7 @@ func itemAccess(s Shell, it account.Item) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "flex flex-wrap gap-2", Attrs: templ.Attributes{"data-access": it.Entitlement}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var45), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Box(design.BoxProps{Class: "flex flex-wrap gap-2", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-access": it.Entitlement}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var45), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

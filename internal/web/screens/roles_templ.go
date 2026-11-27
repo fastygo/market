@@ -207,7 +207,7 @@ func StudioArticlePage(s Shell, v ArticleForm) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -511,7 +511,7 @@ func modForm(s Shell, csrf, action, id string, buttons [][2]string, note bool) t
 				return templ_7745c5c3_Err
 			}
 			if note {
-				templ_7745c5c3_Err = design.Input(design.InputProps{InputProps: input.InputProps{Name: "note", Placeholder: s.T("ui.editor.note"), Class: "h-8 w-44", Attrs: templ.Attributes{"aria-label": s.T("ui.editor.note")}}}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Input(design.InputProps{Class: "h-8 w-44", InputProps: input.InputProps{Name: "note", Placeholder: s.T("ui.editor.note"), Attrs: templ.Attributes{"aria-label": s.T("ui.editor.note")}}}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -524,7 +524,7 @@ func modForm(s Shell, csrf, action, id string, buttons [][2]string, note bool) t
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Form(design.FormProps{FormProps: form.FormProps{Action: action, Method: "post", Class: "flex flex-wrap items-center gap-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var20), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Form(design.FormProps{Class: "flex flex-wrap items-center gap-2", FormProps: form.FormProps{Action: action, Method: "post"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var20), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1060,7 +1060,7 @@ func EditorPageEdit(s Shell, v PageForm) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var44), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var44), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1090,7 +1090,7 @@ func EditorPageEdit(s Shell, v PageForm) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-3"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var45), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-3", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var45), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1316,7 +1316,7 @@ func EditorCollectionEdit(s Shell, v CollectionForm) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var54), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var54), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

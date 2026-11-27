@@ -64,7 +64,7 @@ func Page(class string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Container(design.ContainerProps{BoxProps: box.BoxProps{Class: class}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Container(design.ContainerProps{Class: class, BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -131,7 +131,7 @@ func Frame(s Shell, sec Section) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "md:w-56 md:shrink-0 md:border-r md:border-border md:pr-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = design.Box(design.BoxProps{Class: "md:w-56 md:shrink-0 md:border-r md:border-border md:pr-6", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -163,13 +163,13 @@ func Frame(s Shell, sec Section) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 flex-1 gap-4 md:pl-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "min-w-0 flex-1 gap-4 md:pl-6", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Container(design.ContainerProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-6 pb-12 pt-6 md:flex-row md:gap-0 md:pt-8", Attrs: templ.Attributes{"data-section": sec.Kind, "data-page": sec.Kind + "-" + sec.Current}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Container(design.ContainerProps{Class: "grid gap-6 pb-12 pt-6 md:grid-cols-[14rem_minmax(0,1fr)] md:gap-0 md:pt-8", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-section": sec.Kind, "data-page": sec.Kind + "-" + sec.Current}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -223,7 +223,7 @@ func Flash(msg string, isError bool) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = design.Card(design.CardProps{Pad: "md", BoxProps: box.BoxProps{Class: "border-destructive/40 bg-destructive/5 text-sm text-destructive", Attrs: templ.Attributes{"role": "alert"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = design.Card(design.CardProps{Class: "border-destructive/40 bg-destructive/5 text-sm text-destructive", Pad: "md", BoxProps: box.BoxProps{Attrs: templ.Attributes{"role": "alert"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -251,7 +251,7 @@ func Flash(msg string, isError bool) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = design.Card(design.CardProps{Pad: "md", BoxProps: box.BoxProps{Class: "bg-muted text-sm", Attrs: templ.Attributes{"role": "status"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var10), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = design.Card(design.CardProps{Class: "bg-muted text-sm", Pad: "md", BoxProps: box.BoxProps{Attrs: templ.Attributes{"role": "status"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var10), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -395,7 +395,7 @@ func Panel(title, lead string) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-1"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var15), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-1", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var15), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -410,7 +410,7 @@ func Panel(title, lead string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Card(design.CardProps{Pad: "md", Tag: "section", BoxProps: box.BoxProps{Class: "flex flex-col gap-4"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Card(design.CardProps{Class: "flex flex-col gap-4", Pad: "md", Tag: "section", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -462,7 +462,7 @@ func PostForm(action, csrf, aria string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Form(design.FormProps{FormProps: form.FormProps{Action: action, Method: "post", AriaLabel: aria, Class: "flex flex-col gap-4"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var21), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Form(design.FormProps{Class: "flex flex-col gap-4", FormProps: form.FormProps{Action: action, Method: "post", AriaLabel: aria}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var21), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -514,7 +514,7 @@ func UploadForm(action, csrf, aria string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Form(design.FormProps{FormProps: form.FormProps{Action: action, Method: "post", Enctype: "multipart/form-data", AriaLabel: aria, Class: "flex flex-col gap-4"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Form(design.FormProps{Class: "flex flex-col gap-4", FormProps: form.FormProps{Action: action, Method: "post", Enctype: "multipart/form-data", AriaLabel: aria}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -566,7 +566,7 @@ func InlineForm(action, csrf string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Form(design.FormProps{FormProps: form.FormProps{Action: action, Method: "post", Class: "flex flex-wrap items-center gap-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Form(design.FormProps{Class: "flex flex-wrap items-center gap-2", FormProps: form.FormProps{Action: action, Method: "post"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -728,7 +728,7 @@ func Field(f F) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-1.5"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-1.5", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -784,7 +784,7 @@ func Area(f F) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-1.5"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var35), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-1.5", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var35), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -840,7 +840,7 @@ func Choice(f F) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-1.5"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var37), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-1.5", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var37), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -909,13 +909,13 @@ func Check(f F, checked bool) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = design.Label(design.LabelProps{LabelProps: label.LabelProps{For: f.ID, Class: "font-normal"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var40), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = design.Label(design.LabelProps{Class: "font-normal", LabelProps: label.LabelProps{For: f.ID}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var40), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "items-start gap-3"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var39), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Group(design.GroupProps{Class: "items-start gap-3", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var39), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -990,7 +990,7 @@ func Submit(labelText string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "flex-wrap gap-3"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var43), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Group(design.GroupProps{Class: "flex-wrap gap-3", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var43), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1180,7 +1180,7 @@ func Rows(rows []Row, empty string, actions func(i int) templ.Component) templ.C
 							}
 							ctx = templ.InitializeContext(ctx)
 							if r.Image != "" {
-								templ_7745c5c3_Err = design.Image(design.ImageProps{ImageProps: image.ImageProps{Src: r.Image, Alt: "", Width: "80", Height: "48", Loading: "lazy", Class: "h-12 w-20 shrink-0 rounded-md border border-border object-cover"}}).Render(ctx, templ_7745c5c3_Buffer)
+								templ_7745c5c3_Err = design.Image(design.ImageProps{Class: "h-12 w-20 shrink-0 rounded-md border border-border object-cover", ImageProps: image.ImageProps{Src: r.Image, Alt: "", Width: "80", Height: "48", Loading: "lazy"}}).Render(ctx, templ_7745c5c3_Buffer)
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
@@ -1225,7 +1225,7 @@ func Rows(rows []Row, empty string, actions func(i int) templ.Component) templ.C
 										}
 										return nil
 									})
-									templ_7745c5c3_Err = design.Link(design.LinkProps{Variant: "nav", LinkProps: link.LinkProps{Href: r.Href, Class: "truncate"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var57), templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = design.Link(design.LinkProps{Class: "truncate", Variant: "nav", LinkProps: link.LinkProps{Href: r.Href}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var57), templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
@@ -1253,7 +1253,7 @@ func Rows(rows []Row, empty string, actions func(i int) templ.Component) templ.C
 										}
 										return nil
 									})
-									templ_7745c5c3_Err = design.Text(design.TextProps{Tone: "strong", TextProps: text.TextProps{Class: "truncate"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var59), templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = design.Text(design.TextProps{Class: "truncate", Tone: "strong", TextProps: text.TextProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var59), templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
@@ -1315,20 +1315,20 @@ func Rows(rows []Row, empty string, actions func(i int) templ.Component) templ.C
 										}
 										return nil
 									})
-									templ_7745c5c3_Err = design.Text(design.TextProps{Size: "sm", TextProps: text.TextProps{Class: "whitespace-pre-line"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var63), templ_7745c5c3_Buffer)
+									templ_7745c5c3_Err = design.Text(design.TextProps{Class: "whitespace-pre-line", Size: "sm", TextProps: text.TextProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var63), templ_7745c5c3_Buffer)
 									if templ_7745c5c3_Err != nil {
 										return templ_7745c5c3_Err
 									}
 								}
 								return nil
 							})
-							templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 gap-1"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var56), templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "min-w-0 gap-1", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var56), templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "min-w-0 items-start gap-3"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var55), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Group(design.GroupProps{Class: "min-w-0 items-start gap-3", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var55), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1387,20 +1387,20 @@ func Rows(rows []Row, empty string, actions func(i int) templ.Component) templ.C
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "shrink-0 flex-wrap gap-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var65), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Group(design.GroupProps{Class: "shrink-0 flex-wrap gap-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var65), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Box(design.BoxProps{Tag: "li", BoxProps: box.BoxProps{Class: "flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var54), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Box(design.BoxProps{Class: "flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between", Tag: "li", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var54), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = design.Card(design.CardProps{Pad: "none", Tag: "ul", BoxProps: box.BoxProps{Class: "divide-y divide-border"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var53), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = design.Card(design.CardProps{Class: "divide-y divide-border", Pad: "none", Tag: "ul", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var53), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1450,7 +1450,7 @@ func Prose(html string) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "ui-longread text-foreground/90", Attrs: templ.Attributes{"data-slot": "description"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var69), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Box(design.BoxProps{Class: "ui-longread text-foreground/90", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-slot": "description"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var69), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

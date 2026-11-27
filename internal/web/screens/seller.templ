@@ -14,12 +14,12 @@ templ SellerTodayPage(s Shell, v SellerHome) {
 	@Layout(s) {
 		@Frame(s, Section{Kind: "seller", Current: "today"}) {
 			@Head(s.T("ui.seller.today"), []string{v.Seller.Name, s.T("ui.status." + v.Seller.Status)}, LinkButton("/seller/items/new", s.T("ui.seller.new_item"), "dark", "plus"))
-			@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-4 lg:grid-cols-5"}}) {
-				@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 gap-4 lg:col-span-3"}}) {
+			@design.Grid(design.GridProps{Class: "items-start gap-4 lg:grid-cols-5", BoxProps: box.BoxProps{}}) {
+				@design.Stack(design.StackProps{Class: "min-w-0 gap-4 lg:col-span-3", BoxProps: box.BoxProps{}}) {
 					@design.HighlightCard(resume(s, v))
 					@design.TaskList(design.TaskListProps{Title: s.T("ui.seller.attention"), HeadingId: "attention-title", Items: attention(s, v)})
 				}
-				@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 gap-4 lg:col-span-2"}}) {
+				@design.Stack(design.StackProps{Class: "min-w-0 gap-4 lg:col-span-2", BoxProps: box.BoxProps{}}) {
 					@design.PlanCard(design.PlanCardProps{Title: s.T("ui.seller.catalog_state"), Text: s.T("ui.seller.catalog_state_text"), Items: statusPlan(s, v.Items)})
 				}
 			}
@@ -52,22 +52,22 @@ templ SellerItemPage(s Shell, v ItemForm) {
 					@Flash(s.T("ui.seller.review_note")+": "+v.Item.ReviewNote, true)
 				}
 			}
-			@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-4 lg:grid-cols-5", Attrs: templ.Attributes{"data-item": v.Item.ID}}}) {
-				@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 gap-4 lg:col-span-3"}}) {
+			@design.Grid(design.GridProps{Class: "items-start gap-4 lg:grid-cols-5", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-item": v.Item.ID}}}) {
+				@design.Stack(design.StackProps{Class: "min-w-0 gap-4 lg:col-span-3", BoxProps: box.BoxProps{}}) {
 					@Panel(s.T("ui.seller.card"), s.T("ui.seller.card_lead")) {
 						@PostForm(itemFormAction(v), v.CSRF, s.T("ui.seller.card")) {
 							@Field(F{ID: "item-title", Name: "title", Label: s.T("ui.seller.f_title"), Value: v.Item.Meta.Title, Required: true})
-							@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}) {
+							@design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-2", BoxProps: box.BoxProps{}}) {
 								@Field(F{ID: "item-slug", Name: "slug", Label: s.T("ui.seller.f_slug"), Value: v.Item.Meta.Slug, Hint: s.T("ui.seller.f_slug_hint")})
 								@Choice(F{ID: "item-category", Name: "category", Label: s.T("ui.seller.f_category"), Value: v.Item.Meta.Category, Options: categoryOptions(s, v.Categories)})
 							}
 							@Area(F{ID: "item-excerpt", Name: "excerpt", Label: s.T("ui.seller.f_excerpt"), Value: v.Item.Meta.Excerpt, Rows: "3"})
-							@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}) {
+							@design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-2", BoxProps: box.BoxProps{}}) {
 								@Field(F{ID: "item-stack", Name: "stack", Label: s.T("ui.seller.f_stack"), Value: v.Item.Meta.Stack, Placeholder: "Figma"})
 								@Field(F{ID: "item-tags", Name: "tags", Label: s.T("ui.seller.f_tags"), Value: v.Item.Meta.Tags, Hint: s.T("ui.seller.f_tags_hint")})
 							}
 							@Field(F{ID: "item-demo", Name: "demo_url", Label: s.T("ui.seller.f_demo"), Type: "url", Value: v.Item.Meta.DemoURL, Placeholder: "https://"})
-							@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}) {
+							@design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-2", BoxProps: box.BoxProps{}}) {
 								@Field(F{ID: "item-price", Name: "price", Label: s.T("ui.seller.f_price"), Type: "number", Min: "0", Step: "0.01", Value: minorInput(v.Item.Meta.Price), Hint: s.T("ui.seller.f_price_hint")})
 								@Field(F{ID: "item-extended", Name: "extended", Label: s.T("ui.seller.f_extended"), Type: "number", Min: "0", Step: "0.01", Value: minorInput(v.Item.Meta.Extended), Hint: s.T("ui.seller.f_extended_hint")})
 							}
@@ -86,7 +86,7 @@ templ SellerItemPage(s Shell, v ItemForm) {
 					}
 				}
 				if !v.New {
-					@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 gap-4 lg:col-span-2"}}) {
+					@design.Stack(design.StackProps{Class: "min-w-0 gap-4 lg:col-span-2", BoxProps: box.BoxProps{}}) {
 						@Panel(s.T("ui.seller.publication"), s.T("ui.seller.publication_lead")) {
 							@design.Badge(design.BadgeProps{Tone: statusTone(v.Item.Status), TextProps: text.TextProps{}}) {
 								{ itemStatus(s, v.Item.Status) }
@@ -101,16 +101,16 @@ templ SellerItemPage(s Shell, v ItemForm) {
 							}
 						}
 						@Panel(s.T("ui.seller.cover"), s.T("ui.seller.cover_lead")) {
-							@design.Image(design.ImageProps{ImageProps: image.ImageProps{Src: coverSrc(v.Item.CoverURL), Alt: "", Width: "400", Height: "300", Class: "aspect-[4/3] w-full rounded-md border border-border object-cover"}})
+							@design.Image(design.ImageProps{Class: "aspect-[4/3] w-full rounded-md border border-border object-cover", ImageProps: image.ImageProps{Src: coverSrc(v.Item.CoverURL), Alt: "", Width: "400", Height: "300"}})
 							@UploadForm(SellerItemHref(v.Item.ID)+"/cover", v.CSRF, s.T("ui.seller.cover")) {
 								@Field(F{ID: "cover-file", Name: "file", Label: s.T("ui.seller.choose_image"), Type: "file", Required: true, Hint: s.T("ui.seller.image_hint")})
 								@Submit(s.T("ui.seller.upload"))
 							}
 						}
 						@Panel(s.T("ui.seller.gallery"), s.T("ui.seller.gallery_lead")) {
-							@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "grid-cols-3 gap-2"}}) {
+							@design.Grid(design.GridProps{Class: "grid-cols-3 gap-2", BoxProps: box.BoxProps{}}) {
 								for _, img := range v.Item.Images {
-									@design.Image(design.ImageProps{ImageProps: image.ImageProps{Src: img.URL, Alt: "", Width: "120", Height: "90", Loading: "lazy", Class: "aspect-[4/3] w-full rounded-md border border-border object-cover"}})
+									@design.Image(design.ImageProps{Class: "aspect-[4/3] w-full rounded-md border border-border object-cover", ImageProps: image.ImageProps{Src: img.URL, Alt: "", Width: "120", Height: "90", Loading: "lazy"}})
 								}
 							}
 							@UploadForm(SellerItemHref(v.Item.ID)+"/gallery", v.CSRF, s.T("ui.seller.gallery")) {
@@ -145,12 +145,12 @@ templ SellerMediaPage(s Shell, items []authoring.Item, csrf string) {
 			for _, it := range items {
 				if it.CoverURL != "" || len(it.Images) > 0 {
 					@Panel(it.Title, itoa(len(it.Images)+boolInt(it.CoverURL != ""))+" "+s.T("ui.seller.files")) {
-						@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "grid-cols-2 gap-3 sm:grid-cols-4"}}) {
+						@design.Grid(design.GridProps{Class: "grid-cols-2 gap-3 sm:grid-cols-4", BoxProps: box.BoxProps{}}) {
 							if it.CoverURL != "" {
-								@design.Image(design.ImageProps{ImageProps: image.ImageProps{Src: it.CoverURL, Alt: it.Title, Width: "200", Height: "150", Loading: "lazy", Class: "aspect-[4/3] w-full rounded-md border-2 border-primary object-cover"}})
+								@design.Image(design.ImageProps{Class: "aspect-[4/3] w-full rounded-md border-2 border-primary object-cover", ImageProps: image.ImageProps{Src: it.CoverURL, Alt: it.Title, Width: "200", Height: "150", Loading: "lazy"}})
 							}
 							for _, img := range it.Images {
-								@design.Image(design.ImageProps{ImageProps: image.ImageProps{Src: img.URL, Alt: "", Width: "200", Height: "150", Loading: "lazy", Class: "aspect-[4/3] w-full rounded-md border border-border object-cover"}})
+								@design.Image(design.ImageProps{Class: "aspect-[4/3] w-full rounded-md border border-border object-cover", ImageProps: image.ImageProps{Src: img.URL, Alt: "", Width: "200", Height: "150", Loading: "lazy"}})
 							}
 						}
 					}
@@ -167,7 +167,7 @@ templ FinancePage(s Shell, v FinanceView) {
 		@Frame(s, financeSection(v)) {
 			@Head(s.T("ui.finance.title"), []string{s.T("ui.finance.meta")}, nil)
 			@design.StatGrid(design.StatGridProps{Items: balanceStats(s, v.Balance, v.Party == "partner"), Label: s.T("ui.finance.title")})
-			@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-4 lg:grid-cols-2"}}) {
+			@design.Grid(design.GridProps{Class: "items-start gap-4 lg:grid-cols-2", BoxProps: box.BoxProps{}}) {
 				if v.Party == "seller" {
 					@design.SplitBar(design.SplitBarProps{Title: s.T("ui.finance.split"), Label: s.T("ui.finance.split_label"), Note: s.T("ui.finance.split_note"), Rows: splitRows(s, v.Balance)})
 				}

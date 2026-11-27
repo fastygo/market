@@ -34,7 +34,7 @@ templ StudioArticlePage(s Shell, v ArticleForm) {
 				@PostForm(pickStr(v.New, "/studio/articles/new", ArticleHref(v.A.ID)), v.CSRF, s.T("ui.studio.editor")) {
 					@Hidden("version", itoa(v.A.Version))
 					@Field(F{ID: "a-title", Name: "title", Label: s.T("ui.seller.f_title"), Value: v.A.Title, Required: true})
-					@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}) {
+					@design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-2", BoxProps: box.BoxProps{}}) {
 						@Field(F{ID: "a-slug", Name: "slug", Label: s.T("ui.seller.f_slug"), Value: v.A.Slug, Hint: s.T("ui.seller.f_slug_hint")})
 						@Choice(F{ID: "a-kind", Name: "kind", Label: s.T("ui.article.kind"), Value: v.A.Kind, Options: kindOptions(s)})
 					}
@@ -80,11 +80,11 @@ templ EditorHomePage(s Shell, v EditorHome) {
 }
 
 templ modForm(s Shell, csrf, action, id string, buttons [][2]string, note bool) {
-	@design.Form(design.FormProps{FormProps: form.FormProps{Action: action, Method: "post", Class: "flex flex-wrap items-center gap-2"}}) {
+	@design.Form(design.FormProps{Class: "flex flex-wrap items-center gap-2", FormProps: form.FormProps{Action: action, Method: "post"}}) {
 		@Hidden("csrf", csrf)
 		@Hidden("id", id)
 		if note {
-			@design.Input(design.InputProps{InputProps: input.InputProps{Name: "note", Placeholder: s.T("ui.editor.note"), Class: "h-8 w-44", Attrs: templ.Attributes{"aria-label": s.T("ui.editor.note")}}})
+			@design.Input(design.InputProps{Class: "h-8 w-44", InputProps: input.InputProps{Name: "note", Placeholder: s.T("ui.editor.note"), Attrs: templ.Attributes{"aria-label": s.T("ui.editor.note")}}})
 		}
 		for _, b := range buttons {
 			@Act("status", b[0], s.T(b[1]), actTone(b[0]))
@@ -162,11 +162,11 @@ templ EditorPageEdit(s Shell, v PageForm) {
 			@Head(or(v.P.Title, s.T("ui.editor.new_page")), []string{"/pages/" + v.P.Slug}, LinkButton("/editor/pages", s.T("ui.seller.back"), "outline", "arrow-left"))
 			@Panel("", "") {
 				@PostForm(pickStr(v.New, "/editor/pages/new", "/editor/pages/"+v.P.Slug), v.CSRF, s.T("ui.editor.pages")) {
-					@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}) {
+					@design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-2", BoxProps: box.BoxProps{}}) {
 						@Field(F{ID: "p-title", Name: "title", Label: s.T("ui.seller.f_title"), Value: v.P.Title, Required: true})
 						@Field(F{ID: "p-slug", Name: "slug", Label: s.T("ui.seller.f_slug"), Value: v.P.Slug, Required: true, ReadOnly: !v.New})
 					}
-					@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-3"}}) {
+					@design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-3", BoxProps: box.BoxProps{}}) {
 						@Choice(F{ID: "p-kind", Name: "kind", Label: s.T("ui.page.kind"), Value: v.P.Kind, Options: pageKindOptions(s)})
 						@Field(F{ID: "p-version", Name: "version", Label: s.T("ui.page.version"), Value: v.P.Version})
 						@Choice(F{ID: "p-status", Name: "status", Label: s.T("ui.seller.col_status"), Value: v.P.Status, Options: statusOptions(s, "published", "draft")})
@@ -196,7 +196,7 @@ templ EditorCollectionEdit(s Shell, v CollectionForm) {
 			@Head(or(v.C.Title, s.T("ui.editor.new_collection")), []string{"/collections/" + v.C.Slug}, LinkButton("/editor/collections", s.T("ui.seller.back"), "outline", "arrow-left"))
 			@Panel("", "") {
 				@PostForm(pickStr(v.New, "/editor/collections/new", "/editor/collections/"+v.C.Slug), v.CSRF, s.T("ui.editor.collections")) {
-					@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}) {
+					@design.Grid(design.GridProps{Class: "gap-4 sm:grid-cols-2", BoxProps: box.BoxProps{}}) {
 						@Field(F{ID: "c-title", Name: "title", Label: s.T("ui.seller.f_title"), Value: v.C.Title, Required: true})
 						@Field(F{ID: "c-slug", Name: "slug", Label: s.T("ui.seller.f_slug"), Value: v.C.Slug, ReadOnly: !v.New})
 						@Field(F{ID: "c-eyebrow", Name: "eyebrow", Label: s.T("ui.collections.eyebrow"), Value: v.C.Eyebrow})

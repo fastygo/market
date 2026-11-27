@@ -25,8 +25,8 @@ templ OrderPage(s Shell, o account.Order) {
 	@Layout(s) {
 		@Frame(s, Section{Kind: "account", Current: "purchases"}) {
 			@Head(s.T("ui.account.order")+" "+o.Number, []string{fmtDate(o.Created)}, LinkButton("/account/purchases", s.T("ui.account.back"), "outline", "arrow-left"))
-			@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-4 lg:grid-cols-3", Attrs: templ.Attributes{"data-order": o.Number}}}) {
-				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "lg:col-span-2"}}) {
+			@design.Grid(design.GridProps{Class: "items-start gap-4 lg:grid-cols-3", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-order": o.Number}}}) {
+				@design.Box(design.BoxProps{Class: "lg:col-span-2", BoxProps: box.BoxProps{}}) {
 					@Rows(itemRows(s, o), s.T("ui.account.no_items"), orderItemActions(s, o))
 				}
 				@design.SpecCard(design.SpecCardProps{Title: s.T("ui.account.order_details"), Items: orderRows(s, o)})
@@ -40,7 +40,7 @@ templ SavedPage(s Shell) {
 	@Layout(s) {
 		@Frame(s, Section{Kind: "account", Current: "saved"}) {
 			@Head(s.T("ui.account.saved"), []string{s.T("ui.account.saved_meta")}, nil)
-			@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "grid gap-4 sm:grid-cols-2 xl:grid-cols-3", Attrs: templ.Attributes{"data-saved-list": "", "data-empty": s.T("ui.account.saved_empty")}}})
+			@design.Box(design.BoxProps{Class: "grid gap-4 sm:grid-cols-2 xl:grid-cols-3", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-saved-list": "", "data-empty": s.T("ui.account.saved_empty")}}})
 			@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.account.saved_empty"), Text: s.T("ui.account.saved_text")})
 		}
 	}
@@ -91,7 +91,7 @@ templ RolesPage(s Shell, v RolesView) {
 	@Layout(s) {
 		@Frame(s, Section{Kind: "account", Current: "roles"}) {
 			@Head(s.T("ui.roles.title"), []string{s.T("ui.roles.meta")}, nil)
-			@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-4 lg:grid-cols-3"}}) {
+			@design.Grid(design.GridProps{Class: "items-start gap-4 lg:grid-cols-3", BoxProps: box.BoxProps{}}) {
 				@roleCard(s, v, cabinet.Vendor, "store")
 				@roleCard(s, v, cabinet.Author, "newspaper")
 				@roleCard(s, v, cabinet.Partner, "handshake")
@@ -106,8 +106,8 @@ templ RolesPage(s Shell, v RolesView) {
 }
 
 templ roleCard(s Shell, v RolesView, r cabinet.Role, icon string) {
-	@design.Card(design.CardProps{Pad: "md", Tag: "section", BoxProps: box.BoxProps{Class: "flex flex-col gap-4", Attrs: templ.Attributes{"data-role": string(r)}}}) {
-		@design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "gap-3"}}) {
+	@design.Card(design.CardProps{Class: "flex flex-col gap-4", Pad: "md", Tag: "section", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-role": string(r)}}}) {
+		@design.Group(design.GroupProps{Class: "gap-3", BoxProps: box.BoxProps{}}) {
 			@design.Avatar(design.AvatarProps{Size: "md", Shape: "square", TextProps: text.TextProps{}}) {
 				@design.Icon(design.IconProps{Size: "sm", Name: icon})
 			}
@@ -143,7 +143,7 @@ templ roleCard(s Shell, v RolesView, r cabinet.Role, icon string) {
 }
 
 templ itemAccess(s Shell, it account.Item) {
-	@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "flex flex-wrap gap-2", Attrs: templ.Attributes{"data-access": it.Entitlement}}}) {
+	@design.Box(design.BoxProps{Class: "flex flex-wrap gap-2", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-access": it.Entitlement}}}) {
 		if it.Entitlement == "active" {
 			@design.Button(design.ButtonProps{Variant: "dark", Size: "sm", ButtonProps: button.ButtonProps{Href: ProductHref(it.Slug) + "/download", Attrs: templ.Attributes{"data-action": "download"}}}) {
 				@design.Icon(design.IconProps{Size: "sm", Name: "download"})

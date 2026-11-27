@@ -135,7 +135,7 @@ func HomePage(s Shell, v HomeView) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Stack(design.StackProps{Tag: "section", BoxProps: box.BoxProps{Class: "gap-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-6", Tag: "section", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -289,7 +289,7 @@ func CatalogPage(s Shell, v CatalogView) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-4", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var9), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -344,13 +344,13 @@ func CatalogPage(s Shell, v CatalogView) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Button(design.ButtonProps{Variant: "dark", Size: "sm", ButtonProps: button.ButtonProps{Type: "submit", Class: "mt-4 w-full"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var16), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Button(design.ButtonProps{Class: "mt-4 w-full", Variant: "dark", Size: "sm", ButtonProps: button.ButtonProps{Type: "submit"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var16), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "md:w-56 md:shrink-0 md:border-r md:border-border md:pr-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var15), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Box(design.BoxProps{Class: "md:w-56 md:shrink-0 md:border-r md:border-border md:pr-6", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var15), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -401,20 +401,20 @@ func CatalogPage(s Shell, v CatalogView) templ.Component {
 								}
 								return nil
 							})
-							templ_7745c5c3_Err = design.Group(design.GroupProps{Tag: "nav", BoxProps: box.BoxProps{Class: "mt-8 justify-between gap-4", Attrs: templ.Attributes{"aria-label": s.T("ui.a11y.pagination")}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var19), templ_7745c5c3_Buffer)
+							templ_7745c5c3_Err = design.Group(design.GroupProps{Class: "mt-8 justify-between gap-4", Tag: "nav", BoxProps: box.BoxProps{Attrs: templ.Attributes{"aria-label": s.T("ui.a11y.pagination")}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var19), templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "min-w-0 flex-1 md:pl-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var18), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Box(design.BoxProps{Class: "min-w-0 flex-1 md:pl-6", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var18), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Form(design.FormProps{FormProps: form.FormProps{ID: "catalog-form", Action: catalogHref(v), Method: "get", Class: "flex flex-col gap-6 md:flex-row md:gap-0", Attrs: templ.Attributes{"data-page": "catalog", "role": "search"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Form(design.FormProps{Class: "flex flex-col gap-6 md:flex-row md:gap-0", FormProps: form.FormProps{ID: "catalog-form", Action: catalogHref(v), Method: "get", Attrs: templ.Attributes{"data-page": "catalog", "role": "search"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var14), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -532,7 +532,7 @@ func ProductPage(s Shell, v ProductView) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "lg:col-span-5"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Box(design.BoxProps{Class: "lg:col-span-5", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -571,13 +571,13 @@ func ProductPage(s Shell, v ProductView) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-4 lg:sticky lg:top-24 lg:col-span-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var26), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Box(design.BoxProps{Class: "flex flex-col gap-4 lg:sticky lg:top-24 lg:col-span-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var26), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-6 lg:grid-cols-7"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var24), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "items-start gap-6 lg:grid-cols-7", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var24), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -690,7 +690,7 @@ func ProductPage(s Shell, v ProductView) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Stack(design.StackProps{Tag: "section", BoxProps: box.BoxProps{Class: "gap-4", Attrs: templ.Attributes{"id": "about", "aria-labelledby": "about-title"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var29), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-4", Tag: "section", BoxProps: box.BoxProps{Attrs: templ.Attributes{"id": "about", "aria-labelledby": "about-title"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var29), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -828,13 +828,13 @@ func ProductPage(s Shell, v ProductView) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Stack(design.StackProps{Tag: "section", BoxProps: box.BoxProps{Class: "gap-4", Attrs: templ.Attributes{"id": "reviews"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var35), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-4", Tag: "section", BoxProps: box.BoxProps{Attrs: templ.Attributes{"id": "reviews"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var35), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-10 lg:col-span-5 lg:pr-10"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var28), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-10 lg:col-span-5 lg:pr-10", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var28), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -870,13 +870,13 @@ func ProductPage(s Shell, v ProductView) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4 lg:col-span-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var40), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-4 lg:col-span-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var40), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-10 lg:grid-cols-7 lg:gap-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var27), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "items-start gap-10 lg:grid-cols-7 lg:gap-6", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var27), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -899,7 +899,7 @@ func ProductPage(s Shell, v ProductView) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "border-t border-border pt-10"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var41), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Box(design.BoxProps{Class: "border-t border-border pt-10", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var41), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1137,7 +1137,7 @@ func CheckoutPage(s Shell, v CheckoutPageView) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var49), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-4", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var49), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1208,7 +1208,7 @@ func CheckoutPage(s Shell, v CheckoutPageView) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var55), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-6", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var55), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1230,13 +1230,13 @@ func CheckoutPage(s Shell, v CheckoutPageView) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "lg:sticky lg:top-24"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var56), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Box(design.BoxProps{Class: "lg:sticky lg:top-24", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var56), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Form(design.FormProps{FormProps: form.FormProps{Action: "/checkout/form", Method: "post", Class: "grid items-start gap-4 lg:grid-cols-2 lg:gap-6", Attrs: templ.Attributes{"data-page": "checkout"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var54), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Form(design.FormProps{Class: "grid items-start gap-4 lg:grid-cols-2 lg:gap-6", FormProps: form.FormProps{Action: "/checkout/form", Method: "post", Attrs: templ.Attributes{"data-page": "checkout"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var54), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1498,7 +1498,7 @@ func FakePayPage(s Shell, v FakePayView) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Form(design.FormProps{FormProps: form.FormProps{Action: "/fakepay/" + v.ID + "/succeed", Method: "post", Class: "flex"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var71), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Form(design.FormProps{Class: "flex", FormProps: form.FormProps{Action: "/fakepay/" + v.ID + "/succeed", Method: "post"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var71), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1543,13 +1543,13 @@ func FakePayPage(s Shell, v FakePayView) templ.Component {
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Form(design.FormProps{FormProps: form.FormProps{Action: "/fakepay/" + v.ID + "/cancel", Method: "post", Class: "flex"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var72), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Form(design.FormProps{Class: "flex", FormProps: form.FormProps{Action: "/fakepay/" + v.ID + "/cancel", Method: "post"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var72), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "gap-3", Attrs: templ.Attributes{"data-page": "fakepay"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var70), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Group(design.GroupProps{Class: "gap-3", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "fakepay"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var70), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1617,7 +1617,7 @@ func ArticleGrid(s Shell, as []editorial.Article) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 md:grid-cols-3"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var76), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "gap-4 md:grid-cols-3", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var76), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1739,7 +1739,7 @@ func BlogPage(s Shell, as []editorial.Article) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4", Attrs: templ.Attributes{"data-page": "blog"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var80), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-4", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "blog"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var80), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1917,7 +1917,7 @@ func ArticlePage(s Shell, a editorial.Article) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Stack(design.StackProps{Tag: "header", BoxProps: box.BoxProps{Class: "gap-3", Attrs: templ.Attributes{"data-page": "article"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var88), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-3", Tag: "header", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "article"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var88), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2057,7 +2057,7 @@ func InfoPage(s Shell, p editorial.Page) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Stack(design.StackProps{Tag: "header", BoxProps: box.BoxProps{Class: "gap-3", Attrs: templ.Attributes{"data-page": "page-" + p.Slug}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var98), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-3", Tag: "header", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "page-" + p.Slug}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var98), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2201,7 +2201,7 @@ func CollectionsPage(s Shell, cs []editorial.Collection) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4", Attrs: templ.Attributes{"data-page": "collections"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var106), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-4", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "collections"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var106), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2231,7 +2231,7 @@ func CollectionsPage(s Shell, cs []editorial.Collection) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 md:grid-cols-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var111), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "gap-4 md:grid-cols-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var111), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2338,7 +2338,7 @@ func CollectionPage(s Shell, c editorial.Collection, ps []catalog.Product) templ
 							}
 							return nil
 						})
-						templ_7745c5c3_Err = design.Text(design.TextProps{Size: "xs", Tone: "muted", TextProps: text.TextProps{Class: "font-bold uppercase tracking-wide"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var116), templ_7745c5c3_Buffer)
+						templ_7745c5c3_Err = design.Text(design.TextProps{Class: "font-bold uppercase tracking-wide", Size: "xs", Tone: "muted", TextProps: text.TextProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var116), templ_7745c5c3_Buffer)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -2405,7 +2405,7 @@ func CollectionPage(s Shell, c editorial.Collection, ps []catalog.Product) templ
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-3", Attrs: templ.Attributes{"data-page": "collection"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var115), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-3", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "collection"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var115), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

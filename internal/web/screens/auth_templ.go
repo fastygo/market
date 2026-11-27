@@ -143,7 +143,7 @@ func SignInPage(s Shell, v SignInView) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "max-w-2xl gap-3", Attrs: templ.Attributes{"data-page": "signin"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "max-w-2xl gap-3", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "signin"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -303,7 +303,7 @@ func SignInPage(s Shell, v SignInView) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-6", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -337,13 +337,13 @@ func SignInPage(s Shell, v SignInView) templ.Component {
 						}
 						return nil
 					})
-					templ_7745c5c3_Err = design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-6"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var16), templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = design.Stack(design.StackProps{Class: "gap-6", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var16), templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-6 lg:grid-cols-2"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var10), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Grid(design.GridProps{Class: "items-start gap-6 lg:grid-cols-2", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var10), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

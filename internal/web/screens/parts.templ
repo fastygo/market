@@ -18,22 +18,22 @@ import (
 
 // Page is the storefront content container.
 templ Page(class string) {
-	@design.Container(design.ContainerProps{BoxProps: box.BoxProps{Class: class}}) {
+	@design.Container(design.ContainerProps{Class: class, BoxProps: box.BoxProps{}}) {
 		{ children... }
 	}
 }
 
 // Frame is a cabinet page: role sidebar and the content column (ADR-0035).
 templ Frame(s Shell, sec Section) {
-	@design.Container(design.ContainerProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-6 pb-12 pt-6 md:flex-row md:gap-0 md:pt-8", Attrs: templ.Attributes{"data-section": sec.Kind, "data-page": sec.Kind + "-" + sec.Current}}}) {
-		@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "md:w-56 md:shrink-0 md:border-r md:border-border md:pr-6"}}) {
+	@design.Container(design.ContainerProps{Class: "grid gap-6 pb-12 pt-6 md:grid-cols-[14rem_minmax(0,1fr)] md:gap-0 md:pt-8", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-section": sec.Kind, "data-page": sec.Kind + "-" + sec.Current}}}) {
+		@design.Box(design.BoxProps{Class: "md:w-56 md:shrink-0 md:border-r md:border-border md:pr-6", BoxProps: box.BoxProps{}}) {
 			if sec.Kind == "account" {
 				@design.AccountSidebar(accountSidebar(s, sec))
 			} else {
 				@design.SellerSidebar(sellerSidebar(s, sec))
 			}
 		}
-		@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 flex-1 gap-4 md:pl-6"}}) {
+		@design.Stack(design.StackProps{Class: "min-w-0 flex-1 gap-4 md:pl-6", BoxProps: box.BoxProps{}}) {
 			if s.Flash != "" {
 				@Flash(s.Flash, s.FlashError)
 			}
@@ -45,11 +45,11 @@ templ Frame(s Shell, sec Section) {
 // Flash is a status or error line after a form post.
 templ Flash(msg string, isError bool) {
 	if isError {
-		@design.Card(design.CardProps{Pad: "md", BoxProps: box.BoxProps{Class: "border-destructive/40 bg-destructive/5 text-sm text-destructive", Attrs: templ.Attributes{"role": "alert"}}}) {
+		@design.Card(design.CardProps{Class: "border-destructive/40 bg-destructive/5 text-sm text-destructive", Pad: "md", BoxProps: box.BoxProps{Attrs: templ.Attributes{"role": "alert"}}}) {
 			{ msg }
 		}
 	} else {
-		@design.Card(design.CardProps{Pad: "md", BoxProps: box.BoxProps{Class: "bg-muted text-sm", Attrs: templ.Attributes{"role": "status"}}}) {
+		@design.Card(design.CardProps{Class: "bg-muted text-sm", Pad: "md", BoxProps: box.BoxProps{Attrs: templ.Attributes{"role": "status"}}}) {
 			{ msg }
 		}
 	}
@@ -62,9 +62,9 @@ templ Head(title string, meta []string, actions templ.Component) {
 
 // Panel is a titled card.
 templ Panel(title, lead string) {
-	@design.Card(design.CardProps{Pad: "md", Tag: "section", BoxProps: box.BoxProps{Class: "flex flex-col gap-4"}}) {
+	@design.Card(design.CardProps{Class: "flex flex-col gap-4", Pad: "md", Tag: "section", BoxProps: box.BoxProps{}}) {
 		if title != "" {
-			@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-1"}}) {
+			@design.Stack(design.StackProps{Class: "gap-1", BoxProps: box.BoxProps{}}) {
 				@design.Title(design.TitleProps{Size: "card", As: 2, TextProps: text.TextProps{}}) {
 					{ title }
 				}
@@ -81,7 +81,7 @@ templ Panel(title, lead string) {
 
 // PostForm is a CSRF-protected POST form.
 templ PostForm(action, csrf, aria string) {
-	@design.Form(design.FormProps{FormProps: form.FormProps{Action: action, Method: "post", AriaLabel: aria, Class: "flex flex-col gap-4"}}) {
+	@design.Form(design.FormProps{Class: "flex flex-col gap-4", FormProps: form.FormProps{Action: action, Method: "post", AriaLabel: aria}}) {
 		@Hidden("csrf", csrf)
 		{ children... }
 	}
@@ -89,7 +89,7 @@ templ PostForm(action, csrf, aria string) {
 
 // UploadForm is a CSRF-protected multipart POST form.
 templ UploadForm(action, csrf, aria string) {
-	@design.Form(design.FormProps{FormProps: form.FormProps{Action: action, Method: "post", Enctype: "multipart/form-data", AriaLabel: aria, Class: "flex flex-col gap-4"}}) {
+	@design.Form(design.FormProps{Class: "flex flex-col gap-4", FormProps: form.FormProps{Action: action, Method: "post", Enctype: "multipart/form-data", AriaLabel: aria}}) {
 		@Hidden("csrf", csrf)
 		{ children... }
 	}
@@ -97,7 +97,7 @@ templ UploadForm(action, csrf, aria string) {
 
 // InlineForm is a one-button POST form (row actions).
 templ InlineForm(action, csrf string) {
-	@design.Form(design.FormProps{FormProps: form.FormProps{Action: action, Method: "post", Class: "flex flex-wrap items-center gap-2"}}) {
+	@design.Form(design.FormProps{Class: "flex flex-wrap items-center gap-2", FormProps: form.FormProps{Action: action, Method: "post"}}) {
 		@Hidden("csrf", csrf)
 		{ children... }
 	}
@@ -122,7 +122,7 @@ templ fieldHint(f F) {
 
 // Field is a labelled input.
 templ Field(f F) {
-	@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-1.5"}}) {
+	@design.Stack(design.StackProps{Class: "gap-1.5", BoxProps: box.BoxProps{}}) {
 		@fieldLabel(f)
 		@design.Input(design.InputProps{InputProps: input.InputProps{ID: f.ID, Name: f.Name, Type: or(f.Type, "text"), Value: strPtr(f.Value), Placeholder: f.Placeholder, Required: f.Required, ReadOnly: f.ReadOnly, Min: f.Min, Step: f.Step, AriaDescribedBy: hintID(f), Attrs: fieldAttrs(f)}})
 		@fieldHint(f)
@@ -131,7 +131,7 @@ templ Field(f F) {
 
 // Area is a labelled textarea.
 templ Area(f F) {
-	@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-1.5"}}) {
+	@design.Stack(design.StackProps{Class: "gap-1.5", BoxProps: box.BoxProps{}}) {
 		@fieldLabel(f)
 		@textarea.Textarea(textarea.TextareaProps{ID: f.ID, Name: f.Name, Value: f.Value, Placeholder: f.Placeholder, Rows: or(f.Rows, "6"), Required: f.Required, AriaDescribedBy: hintID(f), Class: "w-full rounded-md border border-border bg-card p-3 text-sm text-foreground field-placeholder focus-visible:border-ring"})
 		@fieldHint(f)
@@ -140,7 +140,7 @@ templ Area(f F) {
 
 // Choice is a labelled select.
 templ Choice(f F) {
-	@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-1.5"}}) {
+	@design.Stack(design.StackProps{Class: "gap-1.5", BoxProps: box.BoxProps{}}) {
 		@fieldLabel(f)
 		@design.Select(design.SelectProps{SelectProps: selectfield.SelectProps{ID: f.ID, Name: f.Name, Value: f.Value, Options: f.Options, Required: f.Required, AriaDescribedBy: hintID(f)}})
 		@fieldHint(f)
@@ -149,9 +149,9 @@ templ Choice(f F) {
 
 // Check is a labelled checkbox.
 templ Check(f F, checked bool) {
-	@design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "items-start gap-3"}}) {
+	@design.Group(design.GroupProps{Class: "items-start gap-3", BoxProps: box.BoxProps{}}) {
 		@design.Checkbox(design.CheckboxProps{CheckboxProps: checkbox.CheckboxProps{ID: f.ID, Name: f.Name, Value: strPtr(or(f.Value, "1")), Checked: checked, Required: f.Required, Attrs: templ.Attributes{"class": "mt-0.5"}}})
-		@design.Label(design.LabelProps{LabelProps: label.LabelProps{For: f.ID, Class: "font-normal"}}) {
+		@design.Label(design.LabelProps{Class: "font-normal", LabelProps: label.LabelProps{For: f.ID}}) {
 			{ f.Label }
 		}
 	}
@@ -159,7 +159,7 @@ templ Check(f F, checked bool) {
 
 // Submit is the primary form button.
 templ Submit(labelText string) {
-	@design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "flex-wrap gap-3"}}) {
+	@design.Group(design.GroupProps{Class: "flex-wrap gap-3", BoxProps: box.BoxProps{}}) {
 		@design.Button(design.ButtonProps{Variant: "dark", Size: "md", ButtonProps: button.ButtonProps{Type: "submit"}}) {
 			{ labelText }
 		}
@@ -190,20 +190,20 @@ templ Rows(rows []Row, empty string, actions func(i int) templ.Component) {
 	if len(rows) == 0 {
 		@design.EmptyNote(design.EmptyNoteProps{Title: empty})
 	} else {
-		@design.Card(design.CardProps{Pad: "none", Tag: "ul", BoxProps: box.BoxProps{Class: "divide-y divide-border"}}) {
+		@design.Card(design.CardProps{Class: "divide-y divide-border", Pad: "none", Tag: "ul", BoxProps: box.BoxProps{}}) {
 			for i, r := range rows {
-				@design.Box(design.BoxProps{Tag: "li", BoxProps: box.BoxProps{Class: "flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between"}}) {
-					@design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "min-w-0 items-start gap-3"}}) {
+				@design.Box(design.BoxProps{Class: "flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between", Tag: "li", BoxProps: box.BoxProps{}}) {
+					@design.Group(design.GroupProps{Class: "min-w-0 items-start gap-3", BoxProps: box.BoxProps{}}) {
 						if r.Image != "" {
-							@design.Image(design.ImageProps{ImageProps: image.ImageProps{Src: r.Image, Alt: "", Width: "80", Height: "48", Loading: "lazy", Class: "h-12 w-20 shrink-0 rounded-md border border-border object-cover"}})
+							@design.Image(design.ImageProps{Class: "h-12 w-20 shrink-0 rounded-md border border-border object-cover", ImageProps: image.ImageProps{Src: r.Image, Alt: "", Width: "80", Height: "48", Loading: "lazy"}})
 						}
-						@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 gap-1"}}) {
+						@design.Stack(design.StackProps{Class: "min-w-0 gap-1", BoxProps: box.BoxProps{}}) {
 							if r.Href != "" {
-								@design.Link(design.LinkProps{Variant: "nav", LinkProps: link.LinkProps{Href: r.Href, Class: "truncate"}}) {
+								@design.Link(design.LinkProps{Class: "truncate", Variant: "nav", LinkProps: link.LinkProps{Href: r.Href}}) {
 									{ r.Title }
 								}
 							} else {
-								@design.Text(design.TextProps{Tone: "strong", TextProps: text.TextProps{Class: "truncate"}}) {
+								@design.Text(design.TextProps{Class: "truncate", Tone: "strong", TextProps: text.TextProps{}}) {
 									{ r.Title }
 								}
 							}
@@ -213,13 +213,13 @@ templ Rows(rows []Row, empty string, actions func(i int) templ.Component) {
 								}
 							}
 							for _, l := range r.Lines {
-								@design.Text(design.TextProps{Size: "sm", TextProps: text.TextProps{Class: "whitespace-pre-line"}}) {
+								@design.Text(design.TextProps{Class: "whitespace-pre-line", Size: "sm", TextProps: text.TextProps{}}) {
 									{ l }
 								}
 							}
 						}
 					}
-					@design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "shrink-0 flex-wrap gap-2"}}) {
+					@design.Group(design.GroupProps{Class: "shrink-0 flex-wrap gap-2", BoxProps: box.BoxProps{}}) {
 						if r.Badge != "" {
 							@design.Badge(design.BadgeProps{Tone: or(r.Tone, "neutral"), TextProps: text.TextProps{}}) {
 								{ r.Badge }
@@ -240,7 +240,7 @@ templ Rows(rows []Row, empty string, actions func(i int) templ.Component) {
 // Prose injects sanitized HTML (ADR-0031). The HTML is allowlisted again
 // here so a manual database edit cannot run a script.
 templ Prose(html string) {
-	@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "ui-longread text-foreground/90", Attrs: templ.Attributes{"data-slot": "description"}}}) {
+	@design.Box(design.BoxProps{Class: "ui-longread text-foreground/90", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-slot": "description"}}}) {
 		@templ.Raw(content.Sanitize(html))
 	}
 }

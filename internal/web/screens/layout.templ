@@ -65,12 +65,12 @@ templ Layout(s Shell) {
 			</script>
 		</head>
 		<body class="min-h-screen bg-background text-foreground">
-			@design.Block(design.BlockProps{BoxProps: box.BoxProps{Class: "flex min-h-screen flex-col"}}) {
-				@design.Link(design.LinkProps{LinkProps: link.LinkProps{Href: "#main-content", Class: "sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg"}}) {
+			@design.Block(design.BlockProps{Class: "flex min-h-screen flex-col", BoxProps: box.BoxProps{}}) {
+				@design.Link(design.LinkProps{Class: "sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg", LinkProps: link.LinkProps{Href: "#main-content"}}) {
 					{ s.T("ui.site.skip") }
 				}
 				@design.SiteHeader(headerProps(s))
-				@design.Block(design.BlockProps{Tag: "main", BoxProps: box.BoxProps{Class: "flex-1 outline-none", Attrs: templ.Attributes{"id": "main-content", "tabindex": "-1"}}}) {
+				@design.Block(design.BlockProps{Class: "flex-1 outline-none", Tag: "main", BoxProps: box.BoxProps{Attrs: templ.Attributes{"id": "main-content", "tabindex": "-1"}}}) {
 					{ children... }
 				}
 				if s.Workspace {
@@ -80,7 +80,7 @@ templ Layout(s Shell) {
 				}
 				@design.MobileMenu(mobileProps(s))
 				if s.Viewer.Signed {
-					@design.Form(design.FormProps{FormProps: form.FormProps{ID: "signout-form", Action: "/account/logout", Method: "post", Class: "hidden"}}) {
+					@design.Form(design.FormProps{Class: "hidden", FormProps: form.FormProps{ID: "signout-form", Action: "/account/logout", Method: "post"}}) {
 						@Hidden("csrf", s.Viewer.CSRF)
 					}
 				}

@@ -347,7 +347,7 @@ func Layout(s Shell) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = design.Link(design.LinkProps{LinkProps: link.LinkProps{Href: "#main-content", Class: "sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var19), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = design.Link(design.LinkProps{Class: "sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:px-4 focus:py-2 focus:text-sm focus:shadow-lg", LinkProps: link.LinkProps{Href: "#main-content"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var19), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -373,7 +373,7 @@ func Layout(s Shell) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = design.Block(design.BlockProps{Tag: "main", BoxProps: box.BoxProps{Class: "flex-1 outline-none", Attrs: templ.Attributes{"id": "main-content", "tabindex": "-1"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var21), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = design.Block(design.BlockProps{Class: "flex-1 outline-none", Tag: "main", BoxProps: box.BoxProps{Attrs: templ.Attributes{"id": "main-content", "tabindex": "-1"}}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var21), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -415,7 +415,7 @@ func Layout(s Shell) templ.Component {
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = design.Form(design.FormProps{FormProps: form.FormProps{ID: "signout-form", Action: "/account/logout", Method: "post", Class: "hidden"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var22), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = design.Form(design.FormProps{Class: "hidden", FormProps: form.FormProps{ID: "signout-form", Action: "/account/logout", Method: "post"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var22), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -430,7 +430,7 @@ func Layout(s Shell) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = design.Block(design.BlockProps{BoxProps: box.BoxProps{Class: "flex min-h-screen flex-col"}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var18), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = design.Block(design.BlockProps{Class: "flex min-h-screen flex-col", BoxProps: box.BoxProps{}}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var18), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -87,7 +87,11 @@ func resume(s Shell, v SellerHome) design.HighlightCardProps {
 				Cta: s.T("ui.seller.open_draft"), Href: SellerItemHref(it.ID), HeadingId: "resume-title"}
 		}
 	}
-	return design.HighlightCardProps{Eyebrow: s.T("ui.seller.resume"), Title: s.T("ui.seller.first_item"), Text: s.T("ui.seller.first_item_text"),
+	title, text := s.T("ui.seller.first_item"), s.T("ui.seller.first_item_text")
+	if len(v.Items) > 0 {
+		title, text = s.T("ui.seller.next_item"), s.T("ui.seller.next_item_text")
+	}
+	return design.HighlightCardProps{Eyebrow: s.T("ui.seller.resume"), Title: title, Text: text,
 		Cta: s.T("ui.seller.new_item"), Href: "/seller/items/new", HeadingId: "resume-title"}
 }
 

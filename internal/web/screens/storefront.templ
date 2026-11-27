@@ -26,7 +26,7 @@ templ HomePage(s Shell, v HomeView) {
 				}
 				@design.PurchaseSteps(design.PurchaseStepsProps{Title: s.T("ui.home.steps"), HeadingId: "steps-title", Items: purchaseSteps(s)})
 				if len(v.Articles) > 0 {
-					@design.Stack(design.StackProps{Tag: "section", BoxProps: box.BoxProps{Class: "gap-6"}}) {
+					@design.Stack(design.StackProps{Class: "gap-6", Tag: "section", BoxProps: box.BoxProps{}}) {
 						@design.SectionHead(design.SectionHeadProps{Title: s.T("ui.home.journal"), HeadingId: "journal-title", More: s.T("ui.home.journal_more"), Href: "/blog"})
 						@ArticleGrid(s, v.Articles)
 					}
@@ -43,7 +43,7 @@ templ CatalogPage(s Shell, v CatalogView) {
 	@Layout(s) {
 		@Page("flex flex-col gap-6 pb-14 pt-6 md:pt-8") {
 			@design.Breadcrumbs(design.BreadcrumbsProps{Items: []design.Crumb{{Label: s.T("ui.nav.home"), Href: "/"}, {Label: s.T("ui.catalog.title"), Href: "/catalog"}}, Current: or(v.Active.Title, s.T("ui.catalog.all")), Label: s.T("ui.a11y.breadcrumbs")})
-			@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4"}}) {
+			@design.Stack(design.StackProps{Class: "gap-4", BoxProps: box.BoxProps{}}) {
 				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
 					{ or(v.Active.Title, s.T("ui.catalog.title")) }
 				}
@@ -51,17 +51,17 @@ templ CatalogPage(s Shell, v CatalogView) {
 					{ s.T("ui.catalog.lead") }
 				}
 			}
-			@design.Form(design.FormProps{FormProps: form.FormProps{ID: "catalog-form", Action: catalogHref(v), Method: "get", Class: "flex flex-col gap-6 md:flex-row md:gap-0", Attrs: templ.Attributes{"data-page": "catalog", "role": "search"}}}) {
-				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "md:w-56 md:shrink-0 md:border-r md:border-border md:pr-6"}}) {
+			@design.Form(design.FormProps{Class: "flex flex-col gap-6 md:flex-row md:gap-0", FormProps: form.FormProps{ID: "catalog-form", Action: catalogHref(v), Method: "get", Attrs: templ.Attributes{"data-page": "catalog", "role": "search"}}}) {
+				@design.Box(design.BoxProps{Class: "md:w-56 md:shrink-0 md:border-r md:border-border md:pr-6", BoxProps: box.BoxProps{}}) {
 					@design.CatalogFilters(catalogFilters(s, v))
-					@design.Button(design.ButtonProps{Variant: "dark", Size: "sm", ButtonProps: button.ButtonProps{Type: "submit", Class: "mt-4 w-full"}}) {
+					@design.Button(design.ButtonProps{Class: "mt-4 w-full", Variant: "dark", Size: "sm", ButtonProps: button.ButtonProps{Type: "submit"}}) {
 						{ s.T("ui.catalog.apply") }
 					}
 				}
-				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "min-w-0 flex-1 md:pl-6"}}) {
+				@design.Box(design.BoxProps{Class: "min-w-0 flex-1 md:pl-6", BoxProps: box.BoxProps{}}) {
 					@design.CatalogResults(catalogResults(s, v))
 					if v.Page > 1 || v.More {
-						@design.Group(design.GroupProps{Tag: "nav", BoxProps: box.BoxProps{Class: "mt-8 justify-between gap-4", Attrs: templ.Attributes{"aria-label": s.T("ui.a11y.pagination")}}}) {
+						@design.Group(design.GroupProps{Class: "mt-8 justify-between gap-4", Tag: "nav", BoxProps: box.BoxProps{Attrs: templ.Attributes{"aria-label": s.T("ui.a11y.pagination")}}}) {
 							if v.Page > 1 {
 								@LinkButton(pageHref(v, v.Page-1), s.T("ui.catalog.prev"), "outline", "arrow-left")
 							}
@@ -83,11 +83,11 @@ templ ProductPage(s Shell, v ProductView) {
 			@design.Box(design.BoxProps{BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "product", "data-product": v.P.Slug}}}) {
 				@design.ProductHead(productHead(s, v))
 			}
-			@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-6 lg:grid-cols-7"}}) {
-				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "lg:col-span-5"}}) {
+			@design.Grid(design.GridProps{Class: "items-start gap-6 lg:grid-cols-7", BoxProps: box.BoxProps{}}) {
+				@design.Box(design.BoxProps{Class: "lg:col-span-5", BoxProps: box.BoxProps{}}) {
 					@design.ProductGallery(gallery(s, v.P))
 				}
-				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-4 lg:sticky lg:top-24 lg:col-span-2"}}) {
+				@design.Box(design.BoxProps{Class: "flex flex-col gap-4 lg:sticky lg:top-24 lg:col-span-2", BoxProps: box.BoxProps{}}) {
 					if v.P.HasOffer {
 						@design.LicensePicker(licensePicker(s, v))
 					} else {
@@ -103,9 +103,9 @@ templ ProductPage(s Shell, v ProductView) {
 				{ID: "updates", Label: s.T("ui.product.tab_updates"), Href: "#updates"},
 				{ID: "reviews", Label: s.T("ui.product.tab_reviews"), Href: "#reviews"},
 			}})
-			@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-10 lg:grid-cols-7 lg:gap-6"}}) {
-				@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-10 lg:col-span-5 lg:pr-10"}}) {
-					@design.Stack(design.StackProps{Tag: "section", BoxProps: box.BoxProps{Class: "gap-4", Attrs: templ.Attributes{"id": "about", "aria-labelledby": "about-title"}}}) {
+			@design.Grid(design.GridProps{Class: "items-start gap-10 lg:grid-cols-7 lg:gap-6", BoxProps: box.BoxProps{}}) {
+				@design.Stack(design.StackProps{Class: "gap-10 lg:col-span-5 lg:pr-10", BoxProps: box.BoxProps{}}) {
+					@design.Stack(design.StackProps{Class: "gap-4", Tag: "section", BoxProps: box.BoxProps{Attrs: templ.Attributes{"id": "about", "aria-labelledby": "about-title"}}}) {
 						@design.Title(design.TitleProps{Size: "section", As: 2, TextProps: text.TextProps{Attrs: templ.Attributes{"id": "about-title"}}}) {
 							{ s.T("ui.product.description") }
 						}
@@ -129,7 +129,7 @@ templ ProductPage(s Shell, v ProductView) {
 							@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.product.updates"), HeadingId: "updates-title", Text: s.T("ui.product.no_updates")})
 						}
 					}
-					@design.Stack(design.StackProps{Tag: "section", BoxProps: box.BoxProps{Class: "gap-4", Attrs: templ.Attributes{"id": "reviews"}}}) {
+					@design.Stack(design.StackProps{Class: "gap-4", Tag: "section", BoxProps: box.BoxProps{Attrs: templ.Attributes{"id": "reviews"}}}) {
 						@design.Title(design.TitleProps{Size: "section", As: 2, TextProps: text.TextProps{}}) {
 							{ s.T("ui.product.reviews") }
 						}
@@ -145,7 +145,7 @@ templ ProductPage(s Shell, v ProductView) {
 						}
 					}
 				}
-				@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4 lg:col-span-2"}}) {
+				@design.Stack(design.StackProps{Class: "gap-4 lg:col-span-2", BoxProps: box.BoxProps{}}) {
 					@design.SpecCard(design.SpecCardProps{Title: s.T("ui.product.specs"), Items: specRows(s, v.P)})
 					if v.Author.Slug != "" {
 						@design.AuthorCard(authorCard(s, v.Author))
@@ -154,7 +154,7 @@ templ ProductPage(s Shell, v ProductView) {
 				}
 			}
 			if len(v.More) > 0 {
-				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "border-t border-border pt-10"}}) {
+				@design.Box(design.BoxProps{Class: "border-t border-border pt-10", BoxProps: box.BoxProps{}}) {
 					@design.ProductRail(design.ProductRailProps{Title: s.T("ui.product.more"), HeadingId: "more-title", More: s.T("ui.home.author_cta"), Href: AuthorHref(v.Author.Slug), Items: cards(s, v.More)})
 				}
 			}
@@ -183,7 +183,7 @@ templ CheckoutPage(s Shell, v CheckoutPageView) {
 	@Layout(s) {
 		@Page("flex flex-col gap-6 pb-14 pt-6 md:pt-8") {
 			@design.Breadcrumbs(design.BreadcrumbsProps{Items: []design.Crumb{{Label: s.T("ui.catalog.title"), Href: "/catalog"}, {Label: v.P.Title, Href: ProductHref(v.P.Slug)}}, Current: s.T("ui.checkout.title"), Label: s.T("ui.a11y.breadcrumbs")})
-			@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4"}}) {
+			@design.Stack(design.StackProps{Class: "gap-4", BoxProps: box.BoxProps{}}) {
 				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
 					{ s.T("ui.checkout.title") }
 				}
@@ -194,11 +194,11 @@ templ CheckoutPage(s Shell, v CheckoutPageView) {
 			if v.CV.ErrorKey != "" {
 				@Flash(s.T(v.CV.ErrorKey), true)
 			}
-			@design.Form(design.FormProps{FormProps: form.FormProps{Action: "/checkout/form", Method: "post", Class: "grid items-start gap-4 lg:grid-cols-2 lg:gap-6", Attrs: templ.Attributes{"data-page": "checkout"}}}) {
+			@design.Form(design.FormProps{Class: "grid items-start gap-4 lg:grid-cols-2 lg:gap-6", FormProps: form.FormProps{Action: "/checkout/form", Method: "post", Attrs: templ.Attributes{"data-page": "checkout"}}}) {
 				@Hidden("csrf", v.CV.CSRF)
 				@Hidden("key", v.CV.Key)
 				@Hidden("product", v.P.Slug)
-				@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-6"}}) {
+				@design.Stack(design.StackProps{Class: "gap-6", BoxProps: box.BoxProps{}}) {
 					@design.CheckoutItem(checkoutItem(s, v))
 					if v.CV.Signed {
 						@Hidden("email", v.CV.Email)
@@ -207,7 +207,7 @@ templ CheckoutPage(s Shell, v CheckoutPageView) {
 						@design.RecipientCard(design.RecipientCardProps{Title: s.T("ui.checkout.recipient"), Text: s.T("ui.checkout.recipient_text"), Label: s.T("ui.account.email"), Email: v.CV.Email, Error: s.T("ui.account.bad_email")})
 					}
 				}
-				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "lg:sticky lg:top-24"}}) {
+				@design.Box(design.BoxProps{Class: "lg:sticky lg:top-24", BoxProps: box.BoxProps{}}) {
 					@design.OrderSummary(orderSummary(s, v))
 				}
 			}
@@ -242,11 +242,11 @@ templ FakePayPage(s Shell, v FakePayView) {
 				@design.Text(design.TextProps{Size: "lg", Tone: "strong", TextProps: text.TextProps{}}) {
 					{ Money(v.Amount) }
 				}
-				@design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "gap-3", Attrs: templ.Attributes{"data-page": "fakepay"}}}) {
-					@design.Form(design.FormProps{FormProps: form.FormProps{Action: "/fakepay/" + v.ID + "/succeed", Method: "post", Class: "flex"}}) {
+				@design.Group(design.GroupProps{Class: "gap-3", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "fakepay"}}}) {
+					@design.Form(design.FormProps{Class: "flex", FormProps: form.FormProps{Action: "/fakepay/" + v.ID + "/succeed", Method: "post"}}) {
 						@Submit(s.T("ui.fakepay.pay"))
 					}
-					@design.Form(design.FormProps{FormProps: form.FormProps{Action: "/fakepay/" + v.ID + "/cancel", Method: "post", Class: "flex"}}) {
+					@design.Form(design.FormProps{Class: "flex", FormProps: form.FormProps{Action: "/fakepay/" + v.ID + "/cancel", Method: "post"}}) {
 						@design.Button(design.ButtonProps{Variant: "outline", Size: "md", ButtonProps: button.ButtonProps{Type: "submit"}}) {
 							{ s.T("ui.fakepay.cancel") }
 						}
@@ -259,7 +259,7 @@ templ FakePayPage(s Shell, v FakePayView) {
 
 // ArticleGrid lists article cards.
 templ ArticleGrid(s Shell, as []editorial.Article) {
-	@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 md:grid-cols-3"}}) {
+	@design.Grid(design.GridProps{Class: "gap-4 md:grid-cols-3", BoxProps: box.BoxProps{}}) {
 		for _, a := range as {
 			@design.InfoCard(design.InfoCardProps{Title: a.Title, Text: or(a.Excerpt, fmtDate(a.PublishedAt)), Cta: s.T("ui.blog.read"), Href: "/blog/" + a.Slug, Icon: "newspaper", Size: "sm"})
 		}
@@ -270,7 +270,7 @@ templ ArticleGrid(s Shell, as []editorial.Article) {
 templ BlogPage(s Shell, as []editorial.Article) {
 	@Layout(s) {
 		@Page("flex flex-col gap-8 pb-14 pt-6 md:pt-8") {
-			@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4", Attrs: templ.Attributes{"data-page": "blog"}}}) {
+			@design.Stack(design.StackProps{Class: "gap-4", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "blog"}}}) {
 				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
 					{ s.T("ui.blog.title") }
 				}
@@ -292,7 +292,7 @@ templ ArticlePage(s Shell, a editorial.Article) {
 	@Layout(s) {
 		@Page("flex max-w-3xl flex-col gap-6 pb-14 pt-6 md:pt-8") {
 			@design.Breadcrumbs(design.BreadcrumbsProps{Items: []design.Crumb{{Label: s.T("ui.blog.title"), Href: "/blog"}}, Current: a.Title, Label: s.T("ui.a11y.breadcrumbs")})
-			@design.Stack(design.StackProps{Tag: "header", BoxProps: box.BoxProps{Class: "gap-3", Attrs: templ.Attributes{"data-page": "article"}}}) {
+			@design.Stack(design.StackProps{Class: "gap-3", Tag: "header", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "article"}}}) {
 				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
 					{ a.Title }
 				}
@@ -314,7 +314,7 @@ templ ArticlePage(s Shell, a editorial.Article) {
 templ InfoPage(s Shell, p editorial.Page) {
 	@Layout(s) {
 		@Page("flex max-w-3xl flex-col gap-6 pb-14 pt-6 md:pt-8") {
-			@design.Stack(design.StackProps{Tag: "header", BoxProps: box.BoxProps{Class: "gap-3", Attrs: templ.Attributes{"data-page": "page-" + p.Slug}}}) {
+			@design.Stack(design.StackProps{Class: "gap-3", Tag: "header", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "page-" + p.Slug}}}) {
 				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
 					{ p.Title }
 				}
@@ -336,7 +336,7 @@ templ InfoPage(s Shell, p editorial.Page) {
 templ CollectionsPage(s Shell, cs []editorial.Collection) {
 	@Layout(s) {
 		@Page("flex flex-col gap-8 pb-14 pt-6 md:pt-8") {
-			@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4", Attrs: templ.Attributes{"data-page": "collections"}}}) {
+			@design.Stack(design.StackProps{Class: "gap-4", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "collections"}}}) {
 				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
 					{ s.T("ui.collections.title") }
 				}
@@ -347,7 +347,7 @@ templ CollectionsPage(s Shell, cs []editorial.Collection) {
 			if len(cs) == 0 {
 				@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.collections.empty")})
 			} else {
-				@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 md:grid-cols-2"}}) {
+				@design.Grid(design.GridProps{Class: "gap-4 md:grid-cols-2", BoxProps: box.BoxProps{}}) {
 					for _, c := range homeCollections(s, cs) {
 						@design.CollectionCard(design.CollectionCardProps{Item: c})
 					}
@@ -362,9 +362,9 @@ templ CollectionPage(s Shell, c editorial.Collection, ps []catalog.Product) {
 	@Layout(s) {
 		@Page("flex flex-col gap-8 pb-14 pt-6 md:pt-8") {
 			@design.Breadcrumbs(design.BreadcrumbsProps{Items: []design.Crumb{{Label: s.T("ui.collections.title"), Href: "/collections"}}, Current: c.Title, Label: s.T("ui.a11y.breadcrumbs")})
-			@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-3", Attrs: templ.Attributes{"data-page": "collection"}}}) {
+			@design.Stack(design.StackProps{Class: "gap-3", BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "collection"}}}) {
 				if c.Eyebrow != "" {
-					@design.Text(design.TextProps{Size: "xs", Tone: "muted", TextProps: text.TextProps{Class: "font-bold uppercase tracking-wide"}}) {
+					@design.Text(design.TextProps{Class: "font-bold uppercase tracking-wide", Size: "xs", Tone: "muted", TextProps: text.TextProps{}}) {
 						{ c.Eyebrow }
 					}
 				}
