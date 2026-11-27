@@ -130,7 +130,8 @@ func (s *Orders) Offers(ctx context.Context, ids []string) ([]ordering.Offer, er
 	}
 	var rows []offerRow
 	err := s.App.DB().NewQuery(`SELECT o.id, o.product, o.seller, o.license_type, o.price_minor, o.currency, o.tax_category,
-		o.support_months, o.active, p.slug, p.title, p.status, s.sale_model, s.commission_bps, s.tax_profile
+		o.support_months, o.active, p.slug, p.title, p.status, COALESCE(s.sale_model, '') AS sale_model, COALESCE(s.commission_bps, 0) AS commission_bps,
+		COALESCE(s.tax_profile, '{}') AS tax_profile
 		FROM offers o JOIN products p ON p.id = o.product JOIN sellers s ON s.id = o.seller
 		WHERE o.id IN (` + strings.Join(ph, ",") + `)`).Bind(p).All(&rows)
 	if err != nil {

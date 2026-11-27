@@ -5,6 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/pocketbase/dbx"
+
 	"github.com/fastygo/market/internal/authoring"
 	"github.com/fastygo/market/internal/cabinet"
 	"github.com/fastygo/market/internal/editorial"
@@ -89,6 +91,18 @@ func TestRoleApplicationsGrantRoles(t *testing.T) {
 	}
 	if err := ed.ModerateProduct(ctx, it.ID, "published", ""); err != nil {
 		t.Fatal(err)
+	}
+	// a store opened through an application can sell: checkout reads its offers
+	offers, err := app.FindAllRecords("offers", dbx.HashExp{"product": it.ID})
+	if err != nil || len(offers) == 0 {
+		t.Fatalf("offers %d %v", len(offers), err)
+	}
+	ids := make([]string, len(offers))
+	for i, o := range offers {
+		ids[i] = o.Id
+	}
+	if got, err := (&pb.Orders{App: app}).Offers(ctx, ids); err != nil || len(got) != len(ids) {
+		t.Fatalf("checkout offers of an applied store: %d %v", len(got), err)
 	}
 
 	// articles: author writes, editor publishes

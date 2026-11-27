@@ -259,7 +259,8 @@ func grant(tx core.App, userID string, r cabinet.Role, by, storeName, storeSlug,
 			return cabinet.ErrDuplicate
 		}
 		s, err := newRecord(tx, "sellers", map[string]any{"slug": storeSlug, "display_name": storeName, "status": "pending_review",
-			"website": website, "joined_at": pbDate(time.Now()), "sale_model": "principal", "commission_bps": 5000})
+			"website": website, "joined_at": pbDate(time.Now()), "sale_model": "principal", "commission_bps": 5000,
+			"tax_profile": map[string]any{}, "legal_ids": map[string]any{}})
 		if err != nil {
 			return err
 		}
