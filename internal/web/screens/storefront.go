@@ -303,19 +303,25 @@ func files(s Shell, p catalog.Product) []design.FileItem {
 		return nil
 	}
 	r := p.Releases[0]
-	return []design.FileItem{{Icon: "package", Name: p.Slug + "-" + r.Version + ".zip", Text: sizeText(r.Size), Kind: "zip"}}
+	return []design.FileItem{{Icon: "package", Name: p.Slug + "-" + r.Version + ".zip", Text: sizeText(s, r.Size), Kind: "zip"}}
 }
 
-func sizeText(n int64) string {
+func sizeText(s Shell, n int64) string {
+	var num, key string
 	switch {
 	case n >= 1<<20:
-		return strconv.FormatFloat(float64(n)/(1<<20), 'f', 1, 64) + " MB"
+		num, key = strconv.FormatFloat(float64(n)/(1<<20), 'f', 1, 64), "ui.size.mb"
 	case n >= 1<<10:
-		return strconv.FormatInt(n>>10, 10) + " KB"
+		num, key = strconv.FormatInt(n>>10, 10), "ui.size.kb"
 	case n > 0:
-		return strconv.FormatInt(n, 10) + " B"
+		num, key = strconv.FormatInt(n, 10), "ui.size.b"
+	default:
+		return ""
 	}
-	return ""
+	if l, _ := moneyLocale.Load().(string); l == "ru" {
+		num = strings.Replace(num, ".", ",", 1)
+	}
+	return strings.ReplaceAll(s.T(key), "{n}", num)
 }
 
 func stripTags(h string) string {

@@ -721,6 +721,9 @@
     "ui.release.duplicate": "This version already exists.",
     "ui.release.invalid": "Enter a version: letters, digits, dots and dashes.",
     "ui.release.operator": "With S3 storage, release files are uploaded by the operator.",
-    "ui.editor.release_missing": "The item has no published release: the vendor uploads and publishes one first."
+    "ui.editor.release_missing": "The item has no published release: the vendor uploads and publishes one first.",
+    "ui.size.mb": "{n} MB",
+    "ui.size.kb": "{n} KB",
+    "ui.size.b": "{n} B"
   }
 }

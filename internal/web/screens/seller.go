@@ -293,7 +293,7 @@ func actLabel(s Shell, a string) string { return s.T("ui.seller.act_" + a) }
 func releaseRows(s Shell, rs []authoring.Release) []Row {
 	out := make([]Row, 0, len(rs))
 	for _, r := range rs {
-		meta := r.Name + " \u00b7 " + sizeText(r.Size) + " \u00b7 " + fmtDate(r.Created)
+		meta := r.Name + " \u00b7 " + sizeText(s, r.Size) + " \u00b7 " + fmtDate(r.Created)
 		row := Row{Title: r.Version, Meta: meta, Badge: itemStatus(s, r.Status), Tone: statusTone(r.Status)}
 		if c := stripTags(r.Changelog); c != "" {
 			row.Lines = []string{c}
