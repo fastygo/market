@@ -13,16 +13,12 @@ import (
 	uiutils "github.com/ui8kit/codegen/generated/templ/orgutils"
 )
 
-// SignInView is the sign-in page state.
+// SignInView is the sign-in and register page state.
 type SignInView struct {
 	CSRF, Email, Next string
 	ErrorKey, InfoKey string
-}
-
-// AccountView is the signed-in cabinet frame.
-type AccountView struct {
-	Email, CSRF string
-	Seller      bool
+	// Register shows the account creation form first.
+	Register bool
 }
 
 // CheckoutView is the product page buy form.

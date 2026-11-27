@@ -1,0 +1,154 @@
+package screens
+
+import (
+	"github.com/fastygo/market/internal/account"
+	"github.com/fastygo/market/internal/cabinet"
+	"github.com/fastygo/market/ui/design"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/button"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+)
+
+// PurchasesPage is the buyer library (design screen market.library).
+templ PurchasesPage(s Shell, os []account.Order) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "account", Current: "purchases"}) {
+			@Head(s.T("ui.account.purchases"), []string{s.Viewer.Email}, nil)
+			@design.PurchaseList(design.PurchaseListProps{Items: purchases(s, os), Empty: s.T("ui.account.no_orders"), Label: s.T("ui.account.purchases")})
+			@design.CalloutRow(design.CalloutRowProps{Title: s.T("ui.account.help_title"), Text: s.T("ui.account.help_text"), Cta: s.T("ui.account.help_cta"), Href: "/pages/help"})
+		}
+	}
+}
+
+// OrderPage is one order of the buyer.
+templ OrderPage(s Shell, o account.Order) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "account", Current: "purchases"}) {
+			@Head(s.T("ui.account.order")+" "+o.Number, []string{fmtDate(o.Created)}, LinkButton("/account/purchases", s.T("ui.account.back"), "outline", "arrow-left"))
+			@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-4 lg:grid-cols-3", Attrs: templ.Attributes{"data-order": o.Number}}}) {
+				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "lg:col-span-2"}}) {
+					@Rows(itemRows(s, o), s.T("ui.account.no_items"), orderItemActions(s, o))
+				}
+				@design.SpecCard(design.SpecCardProps{Title: s.T("ui.account.order_details"), Items: orderRows(s, o)})
+			}
+		}
+	}
+}
+
+// SavedPage lists the wishlist kept in this browser (app.js fills it).
+templ SavedPage(s Shell) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "account", Current: "saved"}) {
+			@Head(s.T("ui.account.saved"), []string{s.T("ui.account.saved_meta")}, nil)
+			@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "grid gap-4 sm:grid-cols-2 xl:grid-cols-3", Attrs: templ.Attributes{"data-saved-list": "", "data-empty": s.T("ui.account.saved_empty")}}})
+			@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.account.saved_empty"), Text: s.T("ui.account.saved_text")})
+		}
+	}
+}
+
+// ProfilePage edits the display name.
+templ ProfilePage(s Shell) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "account", Current: "profile"}) {
+			@Head(s.T("ui.account.profile"), []string{s.Viewer.Email}, nil)
+			@Panel(s.T("ui.account.profile_title"), s.T("ui.account.profile_lead")) {
+				@PostForm("/account/profile", s.Viewer.CSRF, s.T("ui.account.profile")) {
+					@Field(F{ID: "profile-email", Name: "email_ro", Label: s.T("ui.account.email"), Value: s.Viewer.Email, ReadOnly: true})
+					@Field(F{ID: "profile-name", Name: "name", Label: s.T("ui.account.name"), Value: s.Viewer.Name, Auto: "name", Hint: s.T("ui.account.name_hint")})
+					@Submit(s.T("ui.common.save"))
+				}
+			}
+		}
+	}
+}
+
+// SecurityPage sets a password (magic link users have a random one).
+templ SecurityPage(s Shell) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "account", Current: "security"}) {
+			@Head(s.T("ui.account.security"), nil, nil)
+			@Panel(s.T("ui.account.password_title"), s.T("ui.account.password_lead")) {
+				@PostForm("/account/security", s.Viewer.CSRF, s.T("ui.account.password_title")) {
+					@Field(F{ID: "new-password", Name: "password", Label: s.T("ui.account.new_password"), Type: "password", Required: true, Auto: "new-password", Hint: s.T("ui.account.password_hint")})
+					@Field(F{ID: "new-password2", Name: "password2", Label: s.T("ui.account.repeat_password"), Type: "password", Required: true, Auto: "new-password"})
+					@Submit(s.T("ui.account.set_password"))
+				}
+			}
+			@Panel(s.T("ui.account.signout_title"), s.T("ui.account.signout_lead")) {
+				@design.Group(design.GroupProps{BoxProps: box.BoxProps{}}) {
+					@design.Button(design.ButtonProps{Variant: "outline", Size: "md", ButtonProps: button.ButtonProps{Type: "submit", Form: "signout-form"}}) {
+						@design.Icon(design.IconProps{Size: "sm", Name: "log-out"})
+						{ s.T("ui.header.signout") }
+					}
+				}
+			}
+		}
+	}
+}
+
+// RolesPage: held roles and applications for author, vendor and partner.
+templ RolesPage(s Shell, v RolesView) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "account", Current: "roles"}) {
+			@Head(s.T("ui.roles.title"), []string{s.T("ui.roles.meta")}, nil)
+			@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-4 lg:grid-cols-3"}}) {
+				@roleCard(s, v, cabinet.Vendor, "store")
+				@roleCard(s, v, cabinet.Author, "newspaper")
+				@roleCard(s, v, cabinet.Partner, "handshake")
+			}
+			if len(v.Apps) > 0 {
+				@Panel(s.T("ui.roles.applications"), "") {
+					@Rows(appRows(s, v.Apps), "", nil)
+				}
+			}
+		}
+	}
+}
+
+templ roleCard(s Shell, v RolesView, r cabinet.Role, icon string) {
+	@design.Card(design.CardProps{Pad: "md", Tag: "section", BoxProps: box.BoxProps{Class: "flex flex-col gap-4", Attrs: templ.Attributes{"data-role": string(r)}}}) {
+		@design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "gap-3"}}) {
+			@design.Avatar(design.AvatarProps{Size: "md", Shape: "square", TextProps: text.TextProps{}}) {
+				@design.Icon(design.IconProps{Size: "sm", Name: icon})
+			}
+			@design.Title(design.TitleProps{Size: "card", As: 2, TextProps: text.TextProps{}}) {
+				{ s.T("ui.role." + string(r)) }
+			}
+		}
+		@design.Text(design.TextProps{Size: "sm", Tone: "muted", TextProps: text.TextProps{}}) {
+			{ s.T("ui.roles." + string(r) + "_text") }
+		}
+		if v.P.Has(r) {
+			@design.Badge(design.BadgeProps{Tone: "success", TextProps: text.TextProps{}}) {
+				{ s.T("ui.roles.active") }
+			}
+			@LinkButton(cabinet.RolePath(r), s.T("ui.roles.open"), "dark", "arrow-right")
+		} else if pendingRole(v.Apps, string(r)) {
+			@design.Badge(design.BadgeProps{Tone: "warning", TextProps: text.TextProps{}}) {
+				{ s.T("ui.status.pending") }
+			}
+		} else {
+			@PostForm("/account/roles", v.CSRF, s.T("ui.roles.apply")) {
+				@Hidden("role", string(r))
+				if r == cabinet.Vendor {
+					@Field(F{ID: "store-name", Name: "store_name", Label: s.T("ui.roles.store_name"), Required: true})
+					@Field(F{ID: "store-slug", Name: "store_slug", Label: s.T("ui.roles.store_slug"), Hint: s.T("ui.roles.store_slug_hint")})
+				}
+				@Field(F{ID: "website-" + string(r), Name: "website", Label: s.T("ui.roles.website"), Type: "url", Placeholder: "https://"})
+				@Area(F{ID: "message-" + string(r), Name: "message", Label: s.T("ui.roles.message"), Rows: "3"})
+				@Submit(s.T("ui.roles.apply"))
+			}
+		}
+	}
+}
+
+templ itemAccess(s Shell, it account.Item) {
+	@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "flex flex-wrap gap-2", Attrs: templ.Attributes{"data-access": it.Entitlement}}}) {
+		if it.Entitlement == "active" {
+			@design.Button(design.ButtonProps{Variant: "dark", Size: "sm", ButtonProps: button.ButtonProps{Href: ProductHref(it.Slug) + "/download", Attrs: templ.Attributes{"data-action": "download"}}}) {
+				@design.Icon(design.IconProps{Size: "sm", Name: "download"})
+				{ s.T("ui.product.download") }
+			}
+		}
+	}
+}

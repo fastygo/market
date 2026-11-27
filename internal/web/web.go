@@ -24,6 +24,7 @@ import (
 	"github.com/a-h/templ"
 
 	"github.com/fastygo/market/internal/catalog"
+	"github.com/fastygo/market/internal/editorial"
 	"github.com/fastygo/market/internal/i18n"
 	"github.com/fastygo/market/internal/media"
 	"github.com/fastygo/market/internal/storefront"
@@ -47,6 +48,11 @@ var Patterns = []string{
 	"GET /products/{slug}",
 	"GET /products/{slug}/download",
 	"GET /authors/{slug}",
+	"GET /blog",
+	"GET /blog/{slug}",
+	"GET /pages/{slug}",
+	"GET /collections",
+	"GET /collections/{slug}",
 	"GET /static/{path...}",
 	"GET /robots.txt",
 	"GET /sitemap.xml",
@@ -73,7 +79,10 @@ type Handler struct {
 	Observe Observer
 	// Covers serves resized WebP product covers; nil hides /media/covers.
 	Covers *media.Store
-	mux    *http.ServeMux
+	// Editorial serves the blog, legal pages, collections and reviews
+	// (ADR-0035); nil hides those routes.
+	Editorial editorial.Store
+	mux       *http.ServeMux
 }
 
 // Observer is the metrics port (implemented by platform/metrics): Start
@@ -121,6 +130,7 @@ func New(h Handler) *Handler {
 	m.HandleFunc("GET /products/{slug}", h.product)
 	m.HandleFunc("GET /products/{slug}/download", h.download)
 	m.HandleFunc("GET /authors/{slug}", h.author)
+	h.mountContent(m)
 	h.mountCommerce(m)
 	root := Static()
 	m.Handle("GET /static/", http.StripPrefix("/static/", cacheStatic(noDirListing(root, http.FileServerFS(root)))))
@@ -142,6 +152,8 @@ type pathKey struct{}
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r = r.WithContext(context.WithValue(r.Context(), pathKey{}, r.URL.Path))
 	r, nonce := withNonce(r)
+	r = withRequest(w, r)
+	h.captureRef(w, r)
 	setSecurityHeaders(w)
 	if !strings.HasPrefix(r.URL.Path, "/static/") {
 		setCSP(w, nonce)
@@ -203,12 +215,14 @@ func (h *Handler) shell(ctx context.Context, title, current string) (screens.She
 		title = sf.BrandName
 	}
 	path, _ := ctx.Value(pathKey{}).(string)
-	return screens.Shell{
+	sh := screens.Shell{
 		Dict: h.Dict, Lang: h.Dict.Locale, Brand: sf.BrandName, Year: h.Now().Year(),
 		Title: title, Current: current, CSSHref: skinHref(sf.Skin), Categories: cats,
 		BrandInfo: sf.Brand, BaseURL: strings.TrimRight(h.BaseURL, "/"), Path: path,
-		CSPNonce: nonceFrom(ctx), FontPreloads: fontPreloads(),
-	}, sf, nil
+		CSPNonce: nonceFrom(ctx), FontPreloads: fontPreloads(), AppJS: "/static/app.js?v=" + assetVersion("app.js"),
+	}
+	h.decorate(ctx, &sh)
+	return sh, sf, nil
 }
 
 // skinHref is the compiled stylesheet of a storefront skin; unknown or
@@ -304,8 +318,35 @@ func (h *Handler) home(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, r, err)
 		return
 	}
+	v := screens.HomeView{Latest: ps}
+	if h.Editorial != nil {
+		if cs, err := h.Editorial.PublishedCollections(r.Context()); err == nil {
+			v.Collections = cs
+		}
+		if as, err := h.Editorial.PublishedArticles(r.Context(), 3); err == nil {
+			v.Articles = as
+		}
+	}
+	// the promoted author is the seller with the most items on the page
+	count := map[string]int{}
+	best := ""
+	for _, p := range ps {
+		if p.SellerSlug == "" {
+			continue
+		}
+		count[p.SellerSlug]++
+		if count[p.SellerSlug] > count[best] {
+			best = p.SellerSlug
+		}
+	}
+	if best != "" {
+		if a, err := h.Catalog.Seller(r.Context(), best); err == nil {
+			v.Author = a
+			v.Works, _ = h.Catalog.Products(r.Context(), sf.Currency, catalog.Filter{Seller: best, Limit: 3})
+		}
+	}
 	s.JSONLD = screens.SiteJSONLD(s)
-	h.render(w, r, http.StatusOK, screens.HomePage(s, ps))
+	h.render(w, r, http.StatusOK, screens.HomePage(s, v))
 }
 
 func (h *Handler) catalog(w http.ResponseWriter, r *http.Request) {
@@ -345,8 +386,16 @@ func (h *Handler) catalog(w http.ResponseWriter, r *http.Request) {
 		h.notice(w, r, http.StatusNotFound, "ui.error.not_found")
 		return
 	}
-	ps, err := h.Catalog.Products(r.Context(), sf.Currency, catalog.Filter{Category: active.Slug, Query: q,
-		Limit: catalog.PageSize, Offset: (page - 1) * catalog.PageSize})
+	qv := r.URL.Query()
+	f := catalog.Filter{Category: active.Slug, Query: q, Limit: catalog.PageSize + 1, Offset: (page - 1) * catalog.PageSize,
+		Free: qv.Get("free") == "1"}
+	switch so := qv.Get("sort"); so {
+	case "price", "-price", "popular", "rating":
+		f.Sort = so
+	}
+	f.MinPrice, _ = parseMinor(qv.Get("min"))
+	f.MaxPrice, _ = parseMinor(qv.Get("max"))
+	ps, err := h.Catalog.Products(r.Context(), sf.Currency, f)
 	if err != nil {
 		h.fail(w, r, err)
 		return
@@ -360,7 +409,12 @@ func (h *Handler) catalog(w http.ResponseWriter, r *http.Request) {
 		s.LCPSrcset = ps[0].CoverSrcset
 		s.LCPSizes = media.CardSizes
 	}
-	h.render(w, r, http.StatusOK, screens.CatalogPage(s, active, q, ps))
+	more := len(ps) > catalog.PageSize
+	if more {
+		ps = ps[:catalog.PageSize]
+	}
+	h.render(w, r, http.StatusOK, screens.CatalogPage(s, screens.CatalogView{Active: active, Query: q, Sort: f.Sort,
+		Min: qv.Get("min"), Max: qv.Get("max"), Free: f.Free, Products: ps, Page: page, More: more}))
 }
 
 func (h *Handler) loadProduct(w http.ResponseWriter, r *http.Request) (screens.Shell, catalog.Product, bool) {
@@ -399,7 +453,7 @@ func (h *Handler) product(w http.ResponseWriter, r *http.Request) {
 		s.LCPSizes = media.HeroSizes
 		s.Image = p.CoverURL
 	}
-	h.render(w, r, http.StatusOK, screens.ProductPage(s, p, h.checkoutView(w, r), author, more))
+	h.render(w, r, http.StatusOK, screens.ProductPage(s, h.productView(w, r, p, author, more)))
 }
 
 // authorOf loads the product's active seller profile and up to four more
@@ -454,7 +508,7 @@ func (h *Handler) author(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) robots(w http.ResponseWriter, r *http.Request) {
 	var b strings.Builder
-	b.WriteString("User-agent: *\nAllow: /\nDisallow: /account\nDisallow: /checkout\nDisallow: /_/\n")
+	b.WriteString("User-agent: *\nAllow: /\nDisallow: /account\nDisallow: /checkout\nDisallow: /seller\nDisallow: /studio\nDisallow: /partner\nDisallow: /editor\nDisallow: /_/\n")
 	if u := strings.TrimRight(h.BaseURL, "/"); u != "" {
 		b.WriteString("Sitemap: " + u + "/sitemap.xml\n")
 	}
@@ -479,6 +533,7 @@ func (h *Handler) sitemap(w http.ResponseWriter, r *http.Request) {
 	}
 	s, sf, err := h.shell(r.Context(), "", "")
 	locs := []string{"/", "/catalog"}
+	locs = append(locs, h.contentLocs(r.Context())...)
 	if err == nil {
 		for _, c := range s.Categories {
 			if c.Slug != "" {

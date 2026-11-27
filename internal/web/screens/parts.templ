@@ -1,0 +1,258 @@
+package screens
+
+import (
+	"github.com/fastygo/market/internal/content"
+	"github.com/fastygo/market/ui/design"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/button"
+	"github.com/ui8kit/codegen/generated/templ/ui/checkbox"
+	"github.com/ui8kit/codegen/generated/templ/ui/form"
+	"github.com/ui8kit/codegen/generated/templ/ui/image"
+	"github.com/ui8kit/codegen/generated/templ/ui/input"
+	"github.com/ui8kit/codegen/generated/templ/ui/label"
+	"github.com/ui8kit/codegen/generated/templ/ui/link"
+	selectfield "github.com/ui8kit/codegen/generated/templ/ui/select"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+	"github.com/ui8kit/codegen/generated/templ/ui/textarea"
+)
+
+// Page is the storefront content container.
+templ Page(class string) {
+	@design.Container(design.ContainerProps{BoxProps: box.BoxProps{Class: class}}) {
+		{ children... }
+	}
+}
+
+// Frame is a cabinet page: role sidebar and the content column (ADR-0035).
+templ Frame(s Shell, sec Section) {
+	@design.Container(design.ContainerProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-6 pb-12 pt-6 md:flex-row md:gap-0 md:pt-8", Attrs: templ.Attributes{"data-section": sec.Kind, "data-page": sec.Kind + "-" + sec.Current}}}) {
+		@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "md:w-56 md:shrink-0 md:border-r md:border-border md:pr-6"}}) {
+			if sec.Kind == "account" {
+				@design.AccountSidebar(accountSidebar(s, sec))
+			} else {
+				@design.SellerSidebar(sellerSidebar(s, sec))
+			}
+		}
+		@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 flex-1 gap-4 md:pl-6"}}) {
+			if s.Flash != "" {
+				@Flash(s.Flash, s.FlashError)
+			}
+			{ children... }
+		}
+	}
+}
+
+// Flash is a status or error line after a form post.
+templ Flash(msg string, isError bool) {
+	if isError {
+		@design.Card(design.CardProps{Pad: "md", BoxProps: box.BoxProps{Class: "border-destructive/40 bg-destructive/5 text-sm text-destructive", Attrs: templ.Attributes{"role": "alert"}}}) {
+			{ msg }
+		}
+	} else {
+		@design.Card(design.CardProps{Pad: "md", BoxProps: box.BoxProps{Class: "bg-muted text-sm", Attrs: templ.Attributes{"role": "status"}}}) {
+			{ msg }
+		}
+	}
+}
+
+// Head is the cabinet page title with meta and optional actions.
+templ Head(title string, meta []string, actions templ.Component) {
+	@design.PageHead(design.PageHeadProps{Title: title, Meta: meta, Size: "seller", Actions: actions})
+}
+
+// Panel is a titled card.
+templ Panel(title, lead string) {
+	@design.Card(design.CardProps{Pad: "md", Tag: "section", BoxProps: box.BoxProps{Class: "flex flex-col gap-4"}}) {
+		if title != "" {
+			@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-1"}}) {
+				@design.Title(design.TitleProps{Size: "card", As: 2, TextProps: text.TextProps{}}) {
+					{ title }
+				}
+				if lead != "" {
+					@design.Text(design.TextProps{Size: "sm", Tone: "muted", TextProps: text.TextProps{}}) {
+						{ lead }
+					}
+				}
+			}
+		}
+		{ children... }
+	}
+}
+
+// PostForm is a CSRF-protected POST form.
+templ PostForm(action, csrf, aria string) {
+	@design.Form(design.FormProps{FormProps: form.FormProps{Action: action, Method: "post", AriaLabel: aria, Class: "flex flex-col gap-4"}}) {
+		@Hidden("csrf", csrf)
+		{ children... }
+	}
+}
+
+// UploadForm is a CSRF-protected multipart POST form.
+templ UploadForm(action, csrf, aria string) {
+	@design.Form(design.FormProps{FormProps: form.FormProps{Action: action, Method: "post", Enctype: "multipart/form-data", AriaLabel: aria, Class: "flex flex-col gap-4"}}) {
+		@Hidden("csrf", csrf)
+		{ children... }
+	}
+}
+
+// InlineForm is a one-button POST form (row actions).
+templ InlineForm(action, csrf string) {
+	@design.Form(design.FormProps{FormProps: form.FormProps{Action: action, Method: "post", Class: "flex flex-wrap items-center gap-2"}}) {
+		@Hidden("csrf", csrf)
+		{ children... }
+	}
+}
+
+
+templ fieldLabel(f F) {
+	@design.Label(design.LabelProps{LabelProps: label.LabelProps{For: f.ID}}) {
+		{ f.Label }
+	}
+}
+
+templ fieldHint(f F) {
+	if f.Hint != "" {
+		@design.Text(design.TextProps{Size: "xs", Tone: "muted", TextProps: text.TextProps{Attrs: templ.Attributes{"id": f.ID + "-hint"}}}) {
+			{ f.Hint }
+		}
+	}
+}
+
+
+
+// Field is a labelled input.
+templ Field(f F) {
+	@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-1.5"}}) {
+		@fieldLabel(f)
+		@design.Input(design.InputProps{InputProps: input.InputProps{ID: f.ID, Name: f.Name, Type: or(f.Type, "text"), Value: strPtr(f.Value), Placeholder: f.Placeholder, Required: f.Required, ReadOnly: f.ReadOnly, Min: f.Min, Step: f.Step, AriaDescribedBy: hintID(f), Attrs: fieldAttrs(f)}})
+		@fieldHint(f)
+	}
+}
+
+// Area is a labelled textarea.
+templ Area(f F) {
+	@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-1.5"}}) {
+		@fieldLabel(f)
+		@textarea.Textarea(textarea.TextareaProps{ID: f.ID, Name: f.Name, Value: f.Value, Placeholder: f.Placeholder, Rows: or(f.Rows, "6"), Required: f.Required, AriaDescribedBy: hintID(f), Class: "w-full rounded-md border border-border bg-card p-3 text-sm text-foreground field-placeholder focus-visible:border-ring"})
+		@fieldHint(f)
+	}
+}
+
+// Choice is a labelled select.
+templ Choice(f F) {
+	@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-1.5"}}) {
+		@fieldLabel(f)
+		@design.Select(design.SelectProps{SelectProps: selectfield.SelectProps{ID: f.ID, Name: f.Name, Value: f.Value, Options: f.Options, Required: f.Required, AriaDescribedBy: hintID(f)}})
+		@fieldHint(f)
+	}
+}
+
+// Check is a labelled checkbox.
+templ Check(f F, checked bool) {
+	@design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "items-start gap-3"}}) {
+		@design.Checkbox(design.CheckboxProps{CheckboxProps: checkbox.CheckboxProps{ID: f.ID, Name: f.Name, Value: strPtr(or(f.Value, "1")), Checked: checked, Required: f.Required, Attrs: templ.Attributes{"class": "mt-0.5"}}})
+		@design.Label(design.LabelProps{LabelProps: label.LabelProps{For: f.ID, Class: "font-normal"}}) {
+			{ f.Label }
+		}
+	}
+}
+
+// Submit is the primary form button.
+templ Submit(labelText string) {
+	@design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "flex-wrap gap-3"}}) {
+		@design.Button(design.ButtonProps{Variant: "dark", Size: "md", ButtonProps: button.ButtonProps{Type: "submit"}}) {
+			{ labelText }
+		}
+		{ children... }
+	}
+}
+
+// Act is a small submit button with a name/value (row actions).
+templ Act(name, value, labelText, variant string) {
+	@design.Button(design.ButtonProps{Variant: or(variant, "outline"), Size: "sm", ButtonProps: button.ButtonProps{Type: "submit", Attrs: templ.Attributes{"name": name, "value": value}}}) {
+		{ labelText }
+	}
+}
+
+// LinkButton is a link styled as a button.
+templ LinkButton(href, labelText, variant, icon string) {
+	@design.Button(design.ButtonProps{Variant: or(variant, "outline"), Size: "sm", ButtonProps: button.ButtonProps{Href: href}}) {
+		if icon != "" {
+			@design.Icon(design.IconProps{Size: "sm", Name: icon})
+		}
+		{ labelText }
+	}
+}
+
+
+// Rows is a cabinet list: one card per row with an action slot.
+templ Rows(rows []Row, empty string, actions func(i int) templ.Component) {
+	if len(rows) == 0 {
+		@design.EmptyNote(design.EmptyNoteProps{Title: empty})
+	} else {
+		@design.Card(design.CardProps{Pad: "none", Tag: "ul", BoxProps: box.BoxProps{Class: "divide-y divide-border"}}) {
+			for i, r := range rows {
+				@design.Box(design.BoxProps{Tag: "li", BoxProps: box.BoxProps{Class: "flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between"}}) {
+					@design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "min-w-0 items-start gap-3"}}) {
+						if r.Image != "" {
+							@design.Image(design.ImageProps{ImageProps: image.ImageProps{Src: r.Image, Alt: "", Width: "80", Height: "48", Loading: "lazy", Class: "h-12 w-20 shrink-0 rounded-md border border-border object-cover"}})
+						}
+						@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "min-w-0 gap-1"}}) {
+							if r.Href != "" {
+								@design.Link(design.LinkProps{Variant: "nav", LinkProps: link.LinkProps{Href: r.Href, Class: "truncate"}}) {
+									{ r.Title }
+								}
+							} else {
+								@design.Text(design.TextProps{Tone: "strong", TextProps: text.TextProps{Class: "truncate"}}) {
+									{ r.Title }
+								}
+							}
+							if r.Meta != "" {
+								@design.Text(design.TextProps{Size: "sm", Tone: "muted", TextProps: text.TextProps{}}) {
+									{ r.Meta }
+								}
+							}
+							for _, l := range r.Lines {
+								@design.Text(design.TextProps{Size: "sm", TextProps: text.TextProps{Class: "whitespace-pre-line"}}) {
+									{ l }
+								}
+							}
+						}
+					}
+					@design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "shrink-0 flex-wrap gap-2"}}) {
+						if r.Badge != "" {
+							@design.Badge(design.BadgeProps{Tone: or(r.Tone, "neutral"), TextProps: text.TextProps{}}) {
+								{ r.Badge }
+							}
+						}
+						if actions != nil {
+							if a := actions(i); a != nil {
+								@a
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// Prose injects sanitized HTML (ADR-0031). The HTML is allowlisted again
+// here so a manual database edit cannot run a script.
+templ Prose(html string) {
+	@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "ui-longread text-foreground/90", Attrs: templ.Attributes{"data-slot": "description"}}}) {
+		@templ.Raw(content.Sanitize(html))
+	}
+}
+
+// NoticePage renders a short message page (not found, not yet available).
+templ NoticePage(s Shell, messageKey string) {
+	@Layout(s) {
+		@Page("flex flex-col items-center gap-6 py-20 text-center") {
+			@design.Title(design.TitleProps{Size: "section", As: 1, TextProps: text.TextProps{}}) {
+				{ s.T(messageKey) }
+			}
+			@LinkButton("/", s.T("ui.error.back_home"), "outline", "arrow-left")
+		}
+	}
+}

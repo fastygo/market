@@ -14,58 +14,14 @@ import (
 
 const itemFormMax = content.MaxMarkdown + (64 << 10) // cap plus form overhead
 
-func (h *Handler) accountView(w http.ResponseWriter, r *http.Request, b Buyer) screens.AccountView {
-	v := screens.AccountView{Email: b.Email, CSRF: h.Commerce.Cabinet.csrf(w, r)}
-	if h.Commerce.Cabinet.Items != nil {
-		v.Seller, _ = h.Commerce.Cabinet.Items.SellerMember(r.Context(), b.ID)
-	}
-	return v
-}
-
+// accountItems and accountItemEdit moved to the vendor workspace; the
+// old URLs redirect (the EditorY save and upload API stays here).
 func (h *Handler) accountItems(w http.ResponseWriter, r *http.Request) {
-	b, ok := h.requireBuyer(w, r)
-	if !ok {
-		return
-	}
-	items, err := h.Commerce.Cabinet.Items.List(r.Context(), b.ID)
-	if err != nil {
-		h.fail(w, r, err)
-		return
-	}
-	s, ok := h.accountShell(w, r, "ui.seller.items")
-	if !ok {
-		return
-	}
-	w.Header().Set("Cache-Control", "no-store")
-	h.render(w, r, http.StatusOK, screens.ItemsPage(s, h.accountView(w, r, b), items))
+	http.Redirect(w, r, "/seller/items", http.StatusMovedPermanently)
 }
 
 func (h *Handler) accountItemEdit(w http.ResponseWriter, r *http.Request) {
-	h.itemEdit(w, r, r.URL.Query().Get("notice"))
-}
-
-func (h *Handler) itemEdit(w http.ResponseWriter, r *http.Request, noticeKey string) {
-	b, ok := h.requireBuyer(w, r)
-	if !ok {
-		return
-	}
-	it, ok := h.loadItem(w, r, b)
-	if !ok {
-		return
-	}
-	s, ok := h.accountShell(w, r, it.Title)
-	if !ok {
-		return
-	}
-	assets := loadEditorAssets()
-	s.EditorCSS, s.EditorJS = assets.CSS, assets.JS
-	s.EditorProps = h.editorProps(w, r, it)
-	notice := ""
-	if noticeKey != "" {
-		notice = h.Dict.T(noticeKey)
-	}
-	w.Header().Set("Cache-Control", "no-store")
-	h.render(w, r, http.StatusOK, screens.ItemEditPage(s, h.accountView(w, r, b), it, notice))
+	http.Redirect(w, r, screens.SellerItemHref(r.PathValue("id")), http.StatusMovedPermanently)
 }
 
 func (h *Handler) editorProps(w http.ResponseWriter, r *http.Request, it authoring.Item) map[string]any {
@@ -118,7 +74,7 @@ func (h *Handler) accountItemSave(w http.ResponseWriter, r *http.Request) {
 	if !h.itemWriteErr(w, r, err) {
 		return
 	}
-	http.Redirect(w, r, screens.ItemEditHref(it.ID)+"?notice=ui.seller.saved", http.StatusSeeOther)
+	done(w, r, screens.SellerItemHref(it.ID), "ui.seller.saved")
 }
 
 func (h *Handler) accountItemAutosave(w http.ResponseWriter, r *http.Request) {

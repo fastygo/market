@@ -69,7 +69,7 @@
   background-color: currentColor;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
 }
-  [data-slot="button"]:not(.ui-button, .ui-link-button).rounded { border-radius: var(--radius-button, var(--radius)); }
+  [data-slot="button"]:not(.ui-button).rounded { border-radius: var(--radius-button, var(--radius)); }
   [data-slot="card"]:not(.ui-card).rounded { border-radius: var(--radius-card, var(--radius)); }
   [data-slot="alert"].rounded { border-radius: var(--radius-alert, var(--radius)); }
   [data-slot="media-frame"].rounded { border-radius: var(--radius-media, var(--radius)); }
@@ -80,7 +80,7 @@
   [data-slot="card"]:not(.ui-card).p-6 { padding: var(--pad-card, calc(var(--spacing) * 6)); }
   [data-slot="alert"].px-2 { padding-inline: var(--pad-alert, calc(var(--spacing) * 2)); }
   [data-slot="alert"].min-h-8 { min-height: var(--min-alert, calc(var(--spacing) * 8)); }
-  [data-slot="button"]:not(.ui-button, .ui-link-button).px-4.h-10 { padding-inline: var(--pad-button, calc(var(--spacing) * 4)); height: var(--h-button, calc(var(--spacing) * 10)); }
+  [data-slot="button"]:not(.ui-button).px-4.h-10 { padding-inline: var(--pad-button, calc(var(--spacing) * 4)); height: var(--h-button, calc(var(--spacing) * 10)); }
   [data-slot="badge"]:not(.ui-badge).px-3.h-6 { padding-inline: var(--pad-badge, calc(var(--spacing) * 3)); height: var(--h-badge, calc(var(--spacing) * 6)); }
   [data-density-card="compact"] { --pad-card: 16px; }
   [data-density-card="comfortable"] { --pad-card: 32px; }

@@ -1,0 +1,215 @@
+package screens
+
+import (
+	"github.com/fastygo/market/internal/editorial"
+	"github.com/fastygo/market/ui/design"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/form"
+	"github.com/ui8kit/codegen/generated/templ/ui/input"
+)
+
+// StudioArticlesPage lists the author's articles (design screen market.journal).
+templ StudioArticlesPage(s Shell, as []editorial.Article) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "studio", Current: "articles"}) {
+			@Head(s.T("ui.studio.title"), []string{s.T("ui.studio.meta")}, LinkButton("/studio/articles/new", s.T("ui.studio.new"), "dark", "plus"))
+			@Rows(articleRows(s, as, true), s.T("ui.studio.empty"), nil)
+		}
+	}
+}
+
+// StudioArticlePage writes or edits an article in Markdown.
+templ StudioArticlePage(s Shell, v ArticleForm) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "studio", Current: pickStr(v.New, "new", "articles")}) {
+			if v.New {
+				@Head(s.T("ui.studio.new"), []string{s.T("ui.studio.new_meta")}, LinkButton("/studio/articles", s.T("ui.seller.back"), "outline", "arrow-left"))
+			} else {
+				@Head(v.A.Title, []string{s.T("ui.status." + v.A.Status), fmtDate(v.A.Updated)}, LinkButton("/studio/articles", s.T("ui.seller.back"), "outline", "arrow-left"))
+				if v.A.ReviewNote != "" {
+					@Flash(s.T("ui.seller.review_note")+": "+v.A.ReviewNote, true)
+				}
+			}
+			@Panel("", "") {
+				@PostForm(pickStr(v.New, "/studio/articles/new", ArticleHref(v.A.ID)), v.CSRF, s.T("ui.studio.editor")) {
+					@Hidden("version", itoa(v.A.Version))
+					@Field(F{ID: "a-title", Name: "title", Label: s.T("ui.seller.f_title"), Value: v.A.Title, Required: true})
+					@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}) {
+						@Field(F{ID: "a-slug", Name: "slug", Label: s.T("ui.seller.f_slug"), Value: v.A.Slug, Hint: s.T("ui.seller.f_slug_hint")})
+						@Choice(F{ID: "a-kind", Name: "kind", Label: s.T("ui.article.kind"), Value: v.A.Kind, Options: kindOptions(s)})
+					}
+					@Area(F{ID: "a-excerpt", Name: "excerpt", Label: s.T("ui.seller.f_excerpt"), Value: v.A.Excerpt, Rows: "2"})
+					@Area(F{ID: "a-body", Name: "body", Label: s.T("ui.studio.body"), Value: v.A.Body, Rows: "18", Hint: s.T("ui.studio.body_hint")})
+					@Submit(s.T("ui.studio.save_draft")) {
+						@Act("submit", "1", s.T("ui.studio.submit"), "primary")
+					}
+				}
+			}
+		}
+	}
+}
+
+// PartnerPage is the partner overview (design screen market.partners).
+templ PartnerPage(s Shell, v PartnerView) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "partner", Current: "overview"}) {
+			@Head(s.T("ui.partner.title"), []string{s.T("ui.partner.code") + ": " + v.Partner.Code, s.T("ui.partner.rate") + ": " + bps(v.Partner.RateBPS)}, nil)
+			@design.CopyField(design.CopyFieldProps{Title: s.T("ui.partner.link"), Label: s.T("ui.partner.link_label"), Value: v.Link, Cta: s.T("ui.partner.copy")})
+			@design.StatGrid(design.StatGridProps{Items: balanceStats(s, v.Balance, true), Label: s.T("ui.partner.title")})
+			@design.OrdersTable(design.OrdersTableProps{Title: s.T("ui.partner.referred"), Columns: []string{s.T("ui.finance.col_order"), s.T("ui.finance.col_date"), s.T("ui.finance.col_status"), s.T("ui.finance.col_amount")}, Keys: []string{"number", "date", "status", "amount"}, Rows: saleRows(s, v.Orders, true)})
+			@Panel(s.T("ui.partner.settings"), s.T("ui.partner.settings_lead")) {
+				@PostForm("/partner", v.CSRF, s.T("ui.partner.settings")) {
+					@Area(F{ID: "payout-method", Name: "payout_method", Label: s.T("ui.partner.payout_method"), Value: v.PayoutMethod, Rows: "3", Hint: s.T("ui.partner.payout_method_hint")})
+					@Submit(s.T("ui.common.save"))
+				}
+			}
+			@design.InfoCard(design.InfoCardProps{Title: s.T("ui.partner.rules"), Text: s.T("ui.partner.rules_text"), Cta: s.T("ui.common.open"), Href: "/pages/rules", Icon: "file-text", Size: "sm"})
+		}
+	}
+}
+
+// EditorHomePage is the moderation overview (design screen market.editor).
+templ EditorHomePage(s Shell, v EditorHome) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "editor", Current: "queue"}) {
+			@Head(s.T("ui.editor.title"), []string{s.T("ui.editor.meta")}, nil)
+			@design.StatGrid(design.StatGridProps{Items: editorStats(s, v.Counts), Label: s.T("ui.editor.title")})
+			@design.TaskList(design.TaskListProps{Title: s.T("ui.editor.queues"), HeadingId: "queues-title", Items: editorTasks(s, v.Counts)})
+		}
+	}
+}
+
+templ modForm(s Shell, csrf, action, id string, buttons [][2]string, note bool) {
+	@design.Form(design.FormProps{FormProps: form.FormProps{Action: action, Method: "post", Class: "flex flex-wrap items-center gap-2"}}) {
+		@Hidden("csrf", csrf)
+		@Hidden("id", id)
+		if note {
+			@design.Input(design.InputProps{InputProps: input.InputProps{Name: "note", Placeholder: s.T("ui.editor.note"), Class: "h-8 w-44", Attrs: templ.Attributes{"aria-label": s.T("ui.editor.note")}}})
+		}
+		for _, b := range buttons {
+			@Act("status", b[0], s.T(b[1]), actTone(b[0]))
+		}
+	}
+}
+
+// EditorProductsPage moderates products.
+templ EditorProductsPage(s Shell, v ModView) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "editor", Current: "products"}) {
+			@Head(s.T("ui.editor.products"), []string{s.T("ui.editor.products_meta")}, nil)
+			@Rows(productModRows(s, v.Products), s.T("ui.editor.empty"), modActions(s, v.CSRF, "/editor/products", productIDs(v.Products), [][2]string{{"published", "ui.editor.publish"}, {"draft", "ui.editor.return"}, {"unlisted", "ui.editor.unlist"}}, true))
+		}
+	}
+}
+
+// EditorArticlesPage moderates articles.
+templ EditorArticlesPage(s Shell, v ModView) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "editor", Current: "articles"}) {
+			@Head(s.T("ui.editor.articles"), []string{s.T("ui.editor.articles_meta")}, nil)
+			@design.Tabs(design.TabsProps{Label: s.T("ui.a11y.tabs"), Current: v.Status, Items: statusTabs(s, "/editor/articles", v.Status, "in_review", "published", "rejected", "draft")})
+			@Rows(articleRows(s, v.Articles, false), s.T("ui.editor.empty"), modActions(s, v.CSRF, "/editor/articles", articleIDs(v.Articles), [][2]string{{"published", "ui.editor.publish"}, {"rejected", "ui.editor.reject"}, {"archived", "ui.editor.archive"}}, true))
+		}
+	}
+}
+
+// EditorReviewsPage moderates reviews and replies.
+templ EditorReviewsPage(s Shell, v ModView) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "editor", Current: "reviews"}) {
+			@Head(s.T("ui.editor.reviews"), []string{s.T("ui.editor.reviews_meta")}, nil)
+			@design.Tabs(design.TabsProps{Label: s.T("ui.a11y.tabs"), Current: v.Status, Items: statusTabs(s, "/editor/reviews", v.Status, "pending", "published", "rejected")})
+			@Rows(reviewModRows(s, v.Reviews), s.T("ui.editor.empty"), modActions(s, v.CSRF, "/editor/reviews", reviewIDs(v.Reviews), [][2]string{{"published", "ui.editor.publish"}, {"rejected", "ui.editor.reject"}}, true))
+		}
+	}
+}
+
+// EditorApplicationsPage decides role applications.
+templ EditorApplicationsPage(s Shell, v ModView) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "editor", Current: "applications"}) {
+			@Head(s.T("ui.editor.applications"), []string{s.T("ui.editor.applications_meta")}, nil)
+			@design.Tabs(design.TabsProps{Label: s.T("ui.a11y.tabs"), Current: v.Status, Items: statusTabs(s, "/editor/applications", v.Status, "pending", "approved", "rejected")})
+			@Rows(appModRows(s, v.Applications), s.T("ui.editor.empty"), modActions(s, v.CSRF, "/editor/applications", appIDs(v.Applications), [][2]string{{"approved", "ui.editor.approve"}, {"rejected", "ui.editor.reject"}}, true))
+		}
+	}
+}
+
+// EditorPayoutsPage marks payout requests (no money moves here).
+templ EditorPayoutsPage(s Shell, v ModView) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "editor", Current: "payouts"}) {
+			@Head(s.T("ui.editor.payouts"), []string{s.T("ui.editor.payouts_meta")}, nil)
+			@Rows(payoutModRows(s, v.Payouts), s.T("ui.editor.empty"), modActions(s, v.CSRF, "/editor/payouts", payoutIDs(v.Payouts), [][2]string{{"approved", "ui.editor.approve"}, {"paid", "ui.editor.mark_paid"}, {"rejected", "ui.editor.reject"}}, true))
+		}
+	}
+}
+
+// EditorPagesPage lists legal and info pages.
+templ EditorPagesPage(s Shell, v ModView) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "editor", Current: "pages"}) {
+			@Head(s.T("ui.editor.pages"), []string{s.T("ui.editor.pages_meta")}, LinkButton("/editor/pages/new", s.T("ui.editor.new_page"), "dark", "plus"))
+			@Rows(pageRows(s, v.Pages), s.T("ui.editor.empty"), nil)
+		}
+	}
+}
+
+// EditorPageEdit edits one page in Markdown.
+templ EditorPageEdit(s Shell, v PageForm) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "editor", Current: "pages"}) {
+			@Head(or(v.P.Title, s.T("ui.editor.new_page")), []string{"/pages/" + v.P.Slug}, LinkButton("/editor/pages", s.T("ui.seller.back"), "outline", "arrow-left"))
+			@Panel("", "") {
+				@PostForm(pickStr(v.New, "/editor/pages/new", "/editor/pages/"+v.P.Slug), v.CSRF, s.T("ui.editor.pages")) {
+					@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}) {
+						@Field(F{ID: "p-title", Name: "title", Label: s.T("ui.seller.f_title"), Value: v.P.Title, Required: true})
+						@Field(F{ID: "p-slug", Name: "slug", Label: s.T("ui.seller.f_slug"), Value: v.P.Slug, Required: true, ReadOnly: !v.New})
+					}
+					@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-3"}}) {
+						@Choice(F{ID: "p-kind", Name: "kind", Label: s.T("ui.page.kind"), Value: v.P.Kind, Options: pageKindOptions(s)})
+						@Field(F{ID: "p-version", Name: "version", Label: s.T("ui.page.version"), Value: v.P.Version})
+						@Choice(F{ID: "p-status", Name: "status", Label: s.T("ui.seller.col_status"), Value: v.P.Status, Options: statusOptions(s, "published", "draft")})
+					}
+					@Area(F{ID: "p-body", Name: "body", Label: s.T("ui.studio.body"), Value: v.P.Body, Rows: "22", Hint: s.T("ui.studio.body_hint")})
+					@Submit(s.T("ui.common.save"))
+				}
+			}
+		}
+	}
+}
+
+// EditorCollectionsPage lists collections.
+templ EditorCollectionsPage(s Shell, v ModView) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "editor", Current: "collections"}) {
+			@Head(s.T("ui.editor.collections"), []string{s.T("ui.editor.collections_meta")}, LinkButton("/editor/collections/new", s.T("ui.editor.new_collection"), "dark", "plus"))
+			@Rows(collectionRows(s, v.Collections), s.T("ui.editor.empty"), nil)
+		}
+	}
+}
+
+// EditorCollectionEdit edits one collection.
+templ EditorCollectionEdit(s Shell, v CollectionForm) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "editor", Current: "collections"}) {
+			@Head(or(v.C.Title, s.T("ui.editor.new_collection")), []string{"/collections/" + v.C.Slug}, LinkButton("/editor/collections", s.T("ui.seller.back"), "outline", "arrow-left"))
+			@Panel("", "") {
+				@PostForm(pickStr(v.New, "/editor/collections/new", "/editor/collections/"+v.C.Slug), v.CSRF, s.T("ui.editor.collections")) {
+					@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 sm:grid-cols-2"}}) {
+						@Field(F{ID: "c-title", Name: "title", Label: s.T("ui.seller.f_title"), Value: v.C.Title, Required: true})
+						@Field(F{ID: "c-slug", Name: "slug", Label: s.T("ui.seller.f_slug"), Value: v.C.Slug, ReadOnly: !v.New})
+						@Field(F{ID: "c-eyebrow", Name: "eyebrow", Label: s.T("ui.collections.eyebrow"), Value: v.C.Eyebrow})
+						@Field(F{ID: "c-cta", Name: "cta", Label: s.T("ui.collections.cta"), Value: v.C.Cta})
+						@Choice(F{ID: "c-tone", Name: "tone", Label: s.T("ui.collections.tone"), Value: v.C.Tone, Options: toneOptions(s)})
+						@Choice(F{ID: "c-status", Name: "status", Label: s.T("ui.seller.col_status"), Value: v.C.Status, Options: statusOptions(s, "published", "draft")})
+						@Field(F{ID: "c-sort", Name: "sort", Label: s.T("ui.collections.sort"), Type: "number", Value: itoa(v.C.Sort)})
+					}
+					@Area(F{ID: "c-lead", Name: "lead", Label: s.T("ui.seller.f_excerpt"), Value: v.C.Lead, Rows: "2"})
+					@Area(F{ID: "c-products", Name: "products", Label: s.T("ui.collections.products"), Value: v.Products, Rows: "6", Hint: s.T("ui.collections.products_hint")})
+					@Submit(s.T("ui.common.save"))
+				}
+			}
+		}
+	}
+}

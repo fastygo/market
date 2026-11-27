@@ -97,11 +97,9 @@ func TestCatalogHeadingAndLCPHints(t *testing.T) {
 	if rec.Code != 200 {
 		t.Fatal(rec.Code)
 	}
-	if !strings.Contains(body, `fetchpriority="high"`) || !strings.Contains(body, `loading="eager"`) {
-		t.Fatal("first catalog card should be the LCP image")
-	}
-	if !strings.Contains(body, `type="image/webp"`) || !strings.Contains(body, `w800.webp`) {
-		t.Fatal("catalog should expose the WebP srcset")
+	// design cards are lazy; the first cover is preloaded with its WebP srcset instead
+	if !strings.Contains(body, `rel="preload" as="image" type="image/webp"`) || !strings.Contains(body, `w800.webp`) {
+		t.Fatal("first catalog cover should be preloaded as the LCP image")
 	}
 	// page h1 is the catalog title; with an empty grid heading, card titles are h2
 	if !strings.Contains(body, `>Product one</`) {

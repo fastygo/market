@@ -38,6 +38,10 @@ func TestSemanticClassesHaveRules(t *testing.T) {
 		for _, c := range classAttr.FindAllStringSubmatch(body, -1) {
 			for _, name := range strings.Fields(c[1]) {
 				if !strings.HasPrefix(name, "ui-") {
+					// design block classes (ADR-0034) count when their rule ships in the skin
+					if regexp.MustCompile(`\.` + regexp.QuoteMeta(name) + `[^a-z0-9-]`).Match(css) {
+						seen++
+					}
 					continue
 				}
 				seen++
@@ -49,6 +53,6 @@ func TestSemanticClassesHaveRules(t *testing.T) {
 		}
 	}
 	if seen == 0 {
-		t.Fatal("no ui-* classes rendered: semantic class mode is off")
+		t.Fatal("no semantic or design classes with rules rendered")
 	}
 }

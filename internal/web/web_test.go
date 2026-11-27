@@ -93,8 +93,7 @@ func TestProductPageRendersPlainTypeActions(t *testing.T) {
 		t.Fatalf("code %d", rec.Code)
 	}
 	for _, want := range []string{
-		`<h1`, "Product one", `href="/products/p1/download"`, `href="https://example.com/demo"`,
-		`target="_blank"`, `data-product-type="plain"`, `id="main-content"`, `aria-current="page"`,
+		`<h1`, "Product one", `href="https://example.com/demo"`, `id="gallery-main"`, `id="main-content"`,
 		"\u00a9 2026 Brand.",
 	} {
 		if !strings.Contains(body, want) {
@@ -159,8 +158,8 @@ func TestBrandMetaFromConfig(t *testing.T) {
 func TestHomeShowsSearchCategoriesAndAuthors(t *testing.T) {
 	body := get(handler(t), "/").Body.String()
 	for _, want := range []string{
-		`<search`, `action="/catalog"`, `name="q"`, `type="search"`, "Brand tagline", "Browse categories",
-		`href="/catalog/themes"`, "New items", `data-slot="item-card"`, `href="/authors/seller"`,
+		`role="search"`, `action="/catalog"`, `name="q"`, `type="search"`, "Brand tagline",
+		`href="/catalog/themes"`, "New in the catalog", `href="/products/p1"`, `href="/authors/seller"`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("missing %q", want)
@@ -174,7 +173,7 @@ func TestCatalogSearchKeepsQuery(t *testing.T) {
 	if rec.Code != 200 || lastFilter.Query != "dark theme" || lastFilter.Category != "themes" {
 		t.Fatalf("code %d filter %+v", rec.Code, *lastFilter)
 	}
-	for _, want := range []string{`value="dark theme"`, `href="/catalog/themes?q=dark+theme"`, "Results for: dark theme"} {
+	for _, want := range []string{`value="dark theme"`, `action="/catalog/themes"`, "1 items"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("missing %q", want)
 		}
@@ -183,7 +182,7 @@ func TestCatalogSearchKeepsQuery(t *testing.T) {
 
 func TestProductPageAuthorBlock(t *testing.T) {
 	body := get(handler(t), "/products/p1").Body.String()
-	for _, want := range []string{`data-slot="author-card"`, `href="/authors/seller"`, "Seller headline", "More from Seller", "1 item"} {
+	for _, want := range []string{`href="/authors/seller"`, "Seller headline", "More from the author", "Author page"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("missing %q", want)
 		}
@@ -202,7 +201,7 @@ func TestAuthorProfile(t *testing.T) {
 	}
 	for _, want := range []string{
 		"<title>Seller | Brand</title>", `<h1`, "Seller headline", "First paragraph.", "Second paragraph.",
-		"Portfolio", "1 item", "Member since 2026-11-01", `href="/products/p1"`, `<meta name="description" content="Seller headline">`,
+		"Items by this author", "1 item", "Member since 2026-11-01", `href="/products/p1"`, `<meta name="description" content="Seller headline">`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("missing %q", want)
@@ -259,7 +258,7 @@ func TestObserverGetsRoutePatternAndStatus(t *testing.T) {
 
 func TestCatalogPages(t *testing.T) {
 	h := handler(t)
-	if rec := get(h, "/catalog?page=1"); rec.Code != http.StatusOK || lastFilter.Offset != 0 || lastFilter.Limit != catalog.PageSize {
+	if rec := get(h, "/catalog?page=1"); rec.Code != http.StatusOK || lastFilter.Offset != 0 || lastFilter.Limit != catalog.PageSize+1 {
 		t.Fatalf("page 1: %d %+v", rec.Code, *lastFilter)
 	}
 	get(h, "/catalog?page=x")

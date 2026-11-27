@@ -15,6 +15,7 @@ import (
 
 	"github.com/fastygo/market/internal/account"
 	"github.com/fastygo/market/internal/authoring"
+	"github.com/fastygo/market/internal/cabinet"
 	"github.com/fastygo/market/internal/ordering"
 	"github.com/fastygo/market/internal/platform/ratelimit"
 	"github.com/fastygo/market/internal/web/screens"
@@ -40,6 +41,9 @@ type Cabinet struct {
 	Method string
 	// Items is the seller authoring store (ADR-0031); nil hides those routes.
 	Items authoring.Store
+	// Roles is the four-role cabinet store (ADR-0035); nil hides the
+	// profile, roles, seller, studio, partner and editor routes.
+	Roles cabinet.Store
 }
 
 // AccountReader reads the cabinet data (platform/pb.Account).
@@ -60,15 +64,75 @@ var AccountPatterns = []string{
 	"POST /account/link",
 	"GET /account/magic/{token}",
 	"POST /account/logout",
+	"POST /account/register",
+	"GET /account/purchases",
 	"GET /account/orders",
 	"GET /account/orders/{number}",
+	"GET /account/saved",
+	"GET /account/profile",
+	"POST /account/profile",
+	"GET /account/security",
+	"POST /account/security",
+	"GET /account/roles",
+	"POST /account/roles",
 	"GET /account/items",
 	"GET /account/items/{id}",
 	"POST /account/items/{id}",
 	"PATCH /account/items/{id}",
 	"POST /account/items/{id}/images",
+	"GET /checkout/{slug}",
 	"POST /checkout/form",
+	"POST /products/{slug}/reviews",
 	"GET /fakepay/{id}",
+	"GET /seller",
+	"GET /seller/items",
+	"GET /seller/items/new",
+	"POST /seller/items/new",
+	"GET /seller/items/{id}",
+	"POST /seller/items/{id}",
+	"POST /seller/items/{id}/status",
+	"POST /seller/items/{id}/cover",
+	"POST /seller/items/{id}/gallery",
+	"GET /seller/media",
+	"POST /seller/media",
+	"GET /seller/finance",
+	"POST /seller/finance",
+	"GET /seller/reviews",
+	"GET /seller/team",
+	"POST /seller/team",
+	"POST /seller/team/remove",
+	"GET /seller/store",
+	"POST /seller/store",
+	"GET /studio/articles",
+	"GET /studio/articles/new",
+	"POST /studio/articles/new",
+	"GET /studio/articles/{id}",
+	"POST /studio/articles/{id}",
+	"GET /partner",
+	"POST /partner",
+	"GET /partner/payouts",
+	"POST /partner/payouts",
+	"GET /editor",
+	"GET /editor/products",
+	"POST /editor/products",
+	"GET /editor/articles",
+	"POST /editor/articles",
+	"GET /editor/reviews",
+	"POST /editor/reviews",
+	"GET /editor/applications",
+	"POST /editor/applications",
+	"GET /editor/payouts",
+	"POST /editor/payouts",
+	"GET /editor/pages",
+	"GET /editor/pages/new",
+	"POST /editor/pages/new",
+	"GET /editor/pages/{slug}",
+	"POST /editor/pages/{slug}",
+	"GET /editor/collections",
+	"GET /editor/collections/new",
+	"POST /editor/collections/new",
+	"GET /editor/collections/{slug}",
+	"POST /editor/collections/{slug}",
 }
 
 const (
@@ -85,8 +149,11 @@ func (h *Handler) mountAccount(m *http.ServeMux) {
 	m.HandleFunc("POST /account/link", h.accountLink)
 	m.HandleFunc("GET /account/magic/{token}", h.accountMagic)
 	m.HandleFunc("POST /account/logout", h.accountLogout)
-	m.HandleFunc("GET /account/orders", h.accountOrders)
+	m.HandleFunc("POST /account/register", h.accountRegister)
+	m.HandleFunc("GET /account/purchases", h.accountPurchases)
+	m.HandleFunc("GET /account/orders", h.accountPurchases)
 	m.HandleFunc("GET /account/orders/{number}", h.accountOrder)
+	m.HandleFunc("GET /account/saved", h.accountSaved)
 	if h.Commerce.Cabinet.Items != nil {
 		m.HandleFunc("GET /account/items", h.accountItems)
 		m.HandleFunc("GET /account/items/{id}", h.accountItemEdit)
@@ -94,6 +161,13 @@ func (h *Handler) mountAccount(m *http.ServeMux) {
 		m.HandleFunc("PATCH /account/items/{id}", h.accountItemAutosave)
 		m.HandleFunc("POST /account/items/{id}/images", h.accountItemImage)
 	}
+	if h.Commerce.Cabinet.Roles != nil {
+		h.mountRoles(m)
+	}
+	if h.Editorial != nil {
+		m.HandleFunc("POST /products/{slug}/reviews", h.productReview)
+	}
+	m.HandleFunc("GET /checkout/{slug}", h.checkoutPage)
 	m.HandleFunc("POST /checkout/form", h.checkoutForm)
 	if h.Commerce.FakePay != nil {
 		m.HandleFunc("GET /fakepay/{id}", h.fakePayPage)
@@ -203,10 +277,11 @@ func (h *Handler) signInPage(w http.ResponseWriter, r *http.Request, status int,
 
 func (h *Handler) accountHome(w http.ResponseWriter, r *http.Request) {
 	if _, ok := h.Commerce.buyer(r); ok {
-		http.Redirect(w, r, "/account/orders", http.StatusSeeOther)
+		http.Redirect(w, r, "/account/purchases", http.StatusSeeOther)
 		return
 	}
-	h.signInPage(w, r, http.StatusOK, screens.SignInView{Next: account.SafeNext(r.URL.Query().Get("next"))})
+	h.signInPage(w, r, http.StatusOK, screens.SignInView{Next: account.SafeNext(r.URL.Query().Get("next")),
+		Register: r.URL.Query().Get("register") == "1"})
 }
 
 func (h *Handler) startSession(w http.ResponseWriter, r *http.Request, userID, next string) {
@@ -313,24 +388,6 @@ func (h *Handler) requireBuyer(w http.ResponseWriter, r *http.Request) (Buyer, b
 	return b, ok
 }
 
-func (h *Handler) accountOrders(w http.ResponseWriter, r *http.Request) {
-	b, ok := h.requireBuyer(w, r)
-	if !ok {
-		return
-	}
-	os, err := h.Commerce.Cabinet.Orders.Orders(r.Context(), b.ID)
-	if err != nil {
-		h.fail(w, r, err)
-		return
-	}
-	s, ok := h.accountShell(w, r, "ui.account.orders")
-	if !ok {
-		return
-	}
-	w.Header().Set("Cache-Control", "no-store")
-	h.render(w, r, http.StatusOK, screens.OrdersPage(s, h.accountView(w, r, b), os))
-}
-
 func (h *Handler) accountOrder(w http.ResponseWriter, r *http.Request) {
 	b, ok := h.requireBuyer(w, r)
 	if !ok {
@@ -345,12 +402,11 @@ func (h *Handler) accountOrder(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, r, err)
 		return
 	}
-	s, ok := h.accountShell(w, r, h.Dict.T("ui.account.order")+" "+o.Number)
+	s, ok := h.cabinetShell(w, r, h.Dict.T("ui.account.order")+" "+o.Number, false)
 	if !ok {
 		return
 	}
-	w.Header().Set("Cache-Control", "no-store")
-	h.render(w, r, http.StatusOK, screens.OrderPage(s, h.accountView(w, r, b), o))
+	h.render(w, r, http.StatusOK, screens.OrderPage(s, o))
 }
 
 // checkoutView is the product page buy form state.
@@ -376,14 +432,7 @@ func (h *Handler) checkoutForm(w http.ResponseWriter, r *http.Request) {
 	c := h.Commerce
 	slug := r.PostFormValue("product")
 	again := func(key string) {
-		s, p, ok := h.loadProduct(w, r)
-		if !ok {
-			return
-		}
-		v := h.checkoutView(w, r)
-		v.ErrorKey, v.Email = key, firstNonEmpty(v.Email, r.PostFormValue("email"))
-		author, more := h.authorOf(r.Context(), p)
-		h.render(w, r, http.StatusUnprocessableEntity, screens.ProductPage(s, p, v, author, more))
+		h.renderCheckout(w, r, http.StatusUnprocessableEntity, r.PostFormValue("license"), key)
 	}
 	r.SetPathValue("slug", slug)
 	_, prod, ok := h.loadProduct(w, r)
@@ -392,7 +441,7 @@ func (h *Handler) checkoutForm(w http.ResponseWriter, r *http.Request) {
 	}
 	b, signed := c.buyer(r)
 	if prod.HasOffer && prod.Price.Minor == 0 && !signed {
-		http.Redirect(w, r, "/account?next="+url.QueryEscape("/products/"+slug), http.StatusSeeOther)
+		http.Redirect(w, r, "/account?next="+url.QueryEscape(screens.CheckoutHref(slug, r.PostFormValue("license"))), http.StatusSeeOther)
 		return
 	}
 	if r.PostFormValue("terms") != "1" {
@@ -419,6 +468,7 @@ func (h *Handler) checkoutForm(w http.ResponseWriter, r *http.Request) {
 		StorefrontCode: h.StorefrontCode, BuyerID: b.ID, BuyerEmail: b.Email, IdempotencyKey: "form:" + key,
 		ProductSlug: slug, LicenseType: firstNonEmpty(r.PostFormValue("license"), "regular"), Method: c.Cabinet.Method,
 		Consents: []ordering.Consent{{Document: "terms", Version: c.Cabinet.TermsVersion}}, IPHash: c.hash(c.clientIP(r)),
+		Referral: h.referral(r, b.ID),
 	})
 	switch {
 	case errors.Is(err, ordering.ErrMethod):

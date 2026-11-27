@@ -38,7 +38,6 @@
   .ui-card-compact { @apply gap-4 p-4; }
   .ui-card-ghost { @apply bg-transparent; }
   .ui-card-muted { @apply bg-muted; }
-  .ui-form { @apply grid gap-4; }
   .ui-grid { @apply grid; }
   .ui-grid:where(:not(.ui-grid-cols-1-2, .ui-grid-cols-1-3, .ui-grid-cols-1-4, .ui-grid-cols-10, .ui-grid-cols-11, .ui-grid-cols-12, .ui-grid-cols-2, .ui-grid-cols-2-3, .ui-grid-cols-2-4, .ui-grid-cols-2-6, .ui-grid-cols-3, .ui-grid-cols-3-6, .ui-grid-cols-4, .ui-grid-cols-5, .ui-grid-cols-6, .ui-grid-cols-7, .ui-grid-cols-8, .ui-grid-cols-9)) { @apply grid-cols-1; }
   .ui-grid-cols-1-2 { @apply grid-cols-1 md:grid-cols-2; }
@@ -113,12 +112,6 @@
   .ui-image-size-xl { @apply size-20; }
   .ui-image-size-xs { @apply size-6; }
   .ui-image-logo { @apply object-contain; }
-  .ui-input { @apply w-full min-w-0 bg-background text-foreground inset-ring inset-ring-input outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 focus-visible:inset-ring-ring rounded aria-invalid:inset-ring-destructive; }
-  .ui-input:where(:not(.ui-input-size-lg, .ui-input-size-sm)) { @apply h-10 px-3 text-base md:text-sm; }
-  .ui-input-size-lg { @apply h-12 px-4 text-base; }
-  .ui-input-size-sm { @apply h-8 px-3 text-base md:text-sm; }
-  .ui-input-ghost { @apply bg-muted inset-ring-transparent; }
-  .ui-input-state-error { @apply inset-ring-destructive focus-visible:inset-ring-destructive; }
   .ui-label { @apply text-xs font-bold text-foreground; }
   .ui-link { @apply inline-flex items-center underline-offset-4; }
   .ui-link:where(:not(.ui-link-size-lg, .ui-link-size-md, .ui-link-size-sm)) { @apply gap-2 text-base font-semibold; }
@@ -130,15 +123,6 @@
   .ui-link-external { @apply text-primary hover:underline; }
   .ui-link-muted { @apply text-muted-foreground hover:text-foreground; }
   .ui-link-nav { @apply text-foreground hover:text-primary; }
-  .ui-link-button { @apply inline-flex shrink-0 items-center justify-center whitespace-nowrap font-medium inset-ring transition-colors rounded; }
-  .ui-link-button:where([data-slot="button"]) { border-radius: var(--radius-button, var(--radius)); }
-  .ui-link-button:where(:not(.ui-link-button-outline, .ui-link-button-secondary)) { @apply bg-primary text-primary-foreground inset-ring-primary hover:bg-primary/90; }
-  .ui-link-button-outline { @apply bg-card text-foreground inset-ring-border hover:bg-accent hover:text-accent-foreground; }
-  .ui-link-button-secondary { @apply bg-secondary text-secondary-foreground inset-ring-border hover:bg-secondary/80; }
-  .ui-link-button:where(:not(.ui-link-button-size-lg, .ui-link-button-size-sm)) { @apply h-10 px-4 text-sm; }
-  .ui-link-button:where(:not(.ui-link-button-size-lg, .ui-link-button-size-sm)):where([data-slot="button"]) { padding-inline: var(--pad-button, calc(var(--spacing) * 4)); height: var(--h-button, calc(var(--spacing) * 10)); }
-  .ui-link-button-size-lg { @apply h-12 px-6 text-base; }
-  .ui-link-button-size-sm { @apply h-8 px-3 text-sm; }
   .ui-stack { @apply flex flex-col; }
   .ui-stack-gap-0 { @apply gap-0; }
   .ui-stack-gap-10 { @apply gap-10; }

@@ -136,10 +136,6 @@
     "ui-card-muted": [
       "bg-muted"
     ],
-    "ui-form": [
-      "grid",
-      "gap-4"
-    ],
     "ui-grid": [
       "grid",
       "grid-cols-1"
@@ -375,44 +371,6 @@
     "ui-image-size-xs": [
       "size-6"
     ],
-    "ui-input": [
-      "w-full",
-      "min-w-0",
-      "bg-background",
-      "text-foreground",
-      "inset-ring",
-      "inset-ring-input",
-      "outline-none",
-      "placeholder:text-muted-foreground",
-      "disabled:cursor-not-allowed",
-      "disabled:opacity-50",
-      "focus-visible:inset-ring-ring",
-      "rounded",
-      "aria-invalid:inset-ring-destructive",
-      "h-10",
-      "px-3",
-      "text-base",
-      "md:text-sm"
-    ],
-    "ui-input-ghost": [
-      "bg-muted",
-      "inset-ring-transparent"
-    ],
-    "ui-input-size-lg": [
-      "h-12",
-      "px-4",
-      "text-base"
-    ],
-    "ui-input-size-sm": [
-      "h-8",
-      "px-3",
-      "text-base",
-      "md:text-sm"
-    ],
-    "ui-input-state-error": [
-      "inset-ring-destructive",
-      "focus-visible:inset-ring-destructive"
-    ],
     "ui-label": [
       "text-xs",
       "font-bold",
@@ -433,47 +391,6 @@
       "w-full",
       "text-foreground",
       "hover:text-primary"
-    ],
-    "ui-link-button": [
-      "inline-flex",
-      "shrink-0",
-      "items-center",
-      "justify-center",
-      "whitespace-nowrap",
-      "font-medium",
-      "inset-ring",
-      "transition-colors",
-      "rounded",
-      "bg-primary",
-      "text-primary-foreground",
-      "inset-ring-primary",
-      "hover:bg-primary/90",
-      "h-10",
-      "px-4",
-      "text-sm"
-    ],
-    "ui-link-button-outline": [
-      "bg-card",
-      "text-foreground",
-      "inset-ring-border",
-      "hover:bg-accent",
-      "hover:text-accent-foreground"
-    ],
-    "ui-link-button-secondary": [
-      "bg-secondary",
-      "text-secondary-foreground",
-      "inset-ring-border",
-      "hover:bg-secondary/80"
-    ],
-    "ui-link-button-size-lg": [
-      "h-12",
-      "px-6",
-      "text-base"
-    ],
-    "ui-link-button-size-sm": [
-      "h-8",
-      "px-3",
-      "text-sm"
     ],
     "ui-link-external": [
       "text-primary",

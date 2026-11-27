@@ -1,0 +1,383 @@
+package screens
+
+import (
+	"github.com/fastygo/market/internal/catalog"
+	"github.com/fastygo/market/internal/editorial"
+	"github.com/fastygo/market/ui/design"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/button"
+	"github.com/ui8kit/codegen/generated/templ/ui/form"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+)
+
+// HomePage is the storefront home (design screen market.home).
+templ HomePage(s Shell, v HomeView) {
+	@Layout(s) {
+		@design.Block(design.BlockProps{BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "home"}}}) {
+			@design.HomeHero(homeHero(s, v, ""))
+			@design.CategoryStrip(design.CategoryStripProps{Items: navCategories(s.Categories), Label: s.T("ui.nav.catalog")})
+			@Page("flex flex-col gap-14 pb-14 pt-10 md:gap-16") {
+				@design.ProductShelf(design.ProductShelfProps{Title: s.T("ui.home.latest"), HeadingId: "latest-title", More: s.T("ui.home.latest_more"), Href: "/catalog", Items: cards(s, v.Latest)})
+				if len(v.Collections) > 0 {
+					@design.CollectionGrid(design.CollectionGridProps{Title: s.T("ui.home.collections"), HeadingId: "collections-title", More: s.T("ui.home.collections_more"), Href: "/collections", Items: homeCollections(s, v.Collections)})
+				}
+				if v.Author.Slug != "" {
+					@design.AuthorPromo(authorPromo(s, v))
+				}
+				@design.PurchaseSteps(design.PurchaseStepsProps{Title: s.T("ui.home.steps"), HeadingId: "steps-title", Items: purchaseSteps(s)})
+				if len(v.Articles) > 0 {
+					@design.Stack(design.StackProps{Tag: "section", BoxProps: box.BoxProps{Class: "gap-6"}}) {
+						@design.SectionHead(design.SectionHeadProps{Title: s.T("ui.home.journal"), HeadingId: "journal-title", More: s.T("ui.home.journal_more"), Href: "/blog"})
+						@ArticleGrid(s, v.Articles)
+					}
+				}
+				@design.SellBanner(design.SellBannerProps{Title: s.T("ui.home.sell_title"), Text: s.T("ui.home.sell_text"), Cta: s.T("ui.home.sell_cta"), Href: "/pages/sell", Image: "/static/art/authors.webp", ImageAlt: ""})
+			}
+		}
+	}
+}
+
+// CatalogPage: filters on the left, results on the right; one GET form so
+// every control works without JavaScript (design screen market.catalog).
+templ CatalogPage(s Shell, v CatalogView) {
+	@Layout(s) {
+		@Page("flex flex-col gap-6 pb-14 pt-6 md:pt-8") {
+			@design.Breadcrumbs(design.BreadcrumbsProps{Items: []design.Crumb{{Label: s.T("ui.nav.home"), Href: "/"}, {Label: s.T("ui.catalog.title"), Href: "/catalog"}}, Current: or(v.Active.Title, s.T("ui.catalog.all")), Label: s.T("ui.a11y.breadcrumbs")})
+			@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4"}}) {
+				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
+					{ or(v.Active.Title, s.T("ui.catalog.title")) }
+				}
+				@design.Text(design.TextProps{Tone: "muted", TextProps: text.TextProps{}}) {
+					{ s.T("ui.catalog.lead") }
+				}
+			}
+			@design.Form(design.FormProps{FormProps: form.FormProps{ID: "catalog-form", Action: catalogHref(v), Method: "get", Class: "flex flex-col gap-6 md:flex-row md:gap-0", Attrs: templ.Attributes{"data-page": "catalog", "role": "search"}}}) {
+				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "md:w-56 md:shrink-0 md:border-r md:border-border md:pr-6"}}) {
+					@design.CatalogFilters(catalogFilters(s, v))
+					@design.Button(design.ButtonProps{Variant: "dark", Size: "sm", ButtonProps: button.ButtonProps{Type: "submit", Class: "mt-4 w-full"}}) {
+						{ s.T("ui.catalog.apply") }
+					}
+				}
+				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "min-w-0 flex-1 md:pl-6"}}) {
+					@design.CatalogResults(catalogResults(s, v))
+					if v.Page > 1 || v.More {
+						@design.Group(design.GroupProps{Tag: "nav", BoxProps: box.BoxProps{Class: "mt-8 justify-between gap-4", Attrs: templ.Attributes{"aria-label": s.T("ui.a11y.pagination")}}}) {
+							if v.Page > 1 {
+								@LinkButton(pageHref(v, v.Page-1), s.T("ui.catalog.prev"), "outline", "arrow-left")
+							}
+							if v.More {
+								@LinkButton(pageHref(v, v.Page+1), s.T("ui.catalog.next"), "outline", "arrow-right")
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// ProductPage (design screen market.product).
+templ ProductPage(s Shell, v ProductView) {
+	@Layout(s) {
+		@Page("flex flex-col gap-8 pb-14 pt-6 md:pt-8") {
+			@design.Box(design.BoxProps{BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "product", "data-product": v.P.Slug}}}) {
+				@design.ProductHead(productHead(s, v))
+			}
+			@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-6 lg:grid-cols-7"}}) {
+				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "lg:col-span-5"}}) {
+					@design.ProductGallery(gallery(s, v.P))
+				}
+				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "flex flex-col gap-4 lg:sticky lg:top-24 lg:col-span-2"}}) {
+					if v.P.HasOffer {
+						@design.LicensePicker(licensePicker(s, v))
+					} else {
+						@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.product.unavailable")})
+					}
+					if v.Download {
+						@LinkButton(ProductHref(v.P.Slug)+"/download", s.T("ui.product.download"), "dark", "download")
+					}
+				}
+			}
+			@design.Tabs(design.TabsProps{Label: s.T("ui.a11y.tabs"), Current: "about", Items: []design.TabItem{
+				{ID: "about", Label: s.T("ui.product.tab_about"), Href: "#about"},
+				{ID: "updates", Label: s.T("ui.product.tab_updates"), Href: "#updates"},
+				{ID: "reviews", Label: s.T("ui.product.tab_reviews"), Href: "#reviews"},
+			}})
+			@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "items-start gap-10 lg:grid-cols-7 lg:gap-6"}}) {
+				@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-10 lg:col-span-5 lg:pr-10"}}) {
+					@design.Stack(design.StackProps{Tag: "section", BoxProps: box.BoxProps{Class: "gap-4", Attrs: templ.Attributes{"id": "about", "aria-labelledby": "about-title"}}}) {
+						@design.Title(design.TitleProps{Size: "section", As: 2, TextProps: text.TextProps{Attrs: templ.Attributes{"id": "about-title"}}}) {
+							{ s.T("ui.product.description") }
+						}
+						if v.P.DescriptionHTML != "" {
+							@Prose(v.P.DescriptionHTML)
+						} else {
+							for _, para := range paragraphs(v.P.Description) {
+								@design.Text(design.TextProps{TextProps: text.TextProps{}}) {
+									{ para }
+								}
+							}
+						}
+					}
+					if fs := files(s, v.P); len(fs) > 0 {
+						@design.FileList(design.FileListProps{Title: s.T("ui.product.files"), HeadingId: "files", Items: fs})
+					}
+					@design.Box(design.BoxProps{BoxProps: box.BoxProps{Attrs: templ.Attributes{"id": "updates"}}}) {
+						if us := updates(s, v.P); len(us) > 0 {
+							@design.UpdateList(design.UpdateListProps{Title: s.T("ui.product.updates"), HeadingId: "updates-title", Items: us})
+						} else {
+							@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.product.updates"), HeadingId: "updates-title", Text: s.T("ui.product.no_updates")})
+						}
+					}
+					@design.Stack(design.StackProps{Tag: "section", BoxProps: box.BoxProps{Class: "gap-4", Attrs: templ.Attributes{"id": "reviews"}}}) {
+						@design.Title(design.TitleProps{Size: "section", As: 2, TextProps: text.TextProps{}}) {
+							{ s.T("ui.product.reviews") }
+						}
+						@Rows(reviewRows(s, v.Reviews), s.T("ui.product.no_reviews"), nil)
+						if v.CanReview {
+							@Panel(s.T("ui.review.write"), s.T("ui.review.write_lead")) {
+								@PostForm(ProductHref(v.P.Slug)+"/reviews", v.CSRF, s.T("ui.review.write")) {
+									@Choice(F{ID: "review-rating", Name: "rating", Label: s.T("ui.review.rating"), Value: "5", Options: ratingOptions()})
+									@Area(F{ID: "review-body", Name: "body", Label: s.T("ui.review.body"), Rows: "4"})
+									@Submit(s.T("ui.review.send"))
+								}
+							}
+						}
+					}
+				}
+				@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4 lg:col-span-2"}}) {
+					@design.SpecCard(design.SpecCardProps{Title: s.T("ui.product.specs"), Items: specRows(s, v.P)})
+					if v.Author.Slug != "" {
+						@design.AuthorCard(authorCard(s, v.Author))
+					}
+					@design.InfoCard(design.InfoCardProps{Title: s.T("ui.product.support"), HeadingId: "support-title", Text: s.T("ui.product.support_text"), Cta: s.T("ui.product.support_cta"), Href: "/pages/help", Icon: "mail", Size: "sm"})
+				}
+			}
+			if len(v.More) > 0 {
+				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "border-t border-border pt-10"}}) {
+					@design.ProductRail(design.ProductRailProps{Title: s.T("ui.product.more"), HeadingId: "more-title", More: s.T("ui.home.author_cta"), Href: AuthorHref(v.Author.Slug), Items: cards(s, v.More)})
+				}
+			}
+		}
+	}
+}
+
+// AuthorPage is the public seller profile (design screen market.author).
+templ AuthorPage(s Shell, a catalog.Seller, ps []catalog.Product) {
+	@Layout(s) {
+		@Page("flex flex-col gap-10 pb-14 pt-6 md:pt-8") {
+			@design.Box(design.BoxProps{BoxProps: box.BoxProps{Attrs: templ.Attributes{"data-page": "author"}}}) {
+				@design.AuthorHero(authorHero(s, a, ps))
+			}
+			if a.Website != "" {
+				@LinkButton(a.Website, s.T("ui.author.website"), "outline", "external-link")
+			}
+			@design.ProductShelf(design.ProductShelfProps{Title: s.T("ui.author.items_title"), HeadingId: "items-title", Items: cards(s, ps), Cols: "4"})
+		}
+	}
+}
+
+// CheckoutPage: item, recipient and summary in one POST form (design
+// screen market.checkout); the pay button submits /checkout/form.
+templ CheckoutPage(s Shell, v CheckoutPageView) {
+	@Layout(s) {
+		@Page("flex flex-col gap-6 pb-14 pt-6 md:pt-8") {
+			@design.Breadcrumbs(design.BreadcrumbsProps{Items: []design.Crumb{{Label: s.T("ui.catalog.title"), Href: "/catalog"}, {Label: v.P.Title, Href: ProductHref(v.P.Slug)}}, Current: s.T("ui.checkout.title"), Label: s.T("ui.a11y.breadcrumbs")})
+			@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4"}}) {
+				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
+					{ s.T("ui.checkout.title") }
+				}
+				@design.Text(design.TextProps{Tone: "muted", TextProps: text.TextProps{}}) {
+					{ s.T("ui.checkout.lead") }
+				}
+			}
+			if v.CV.ErrorKey != "" {
+				@Flash(s.T(v.CV.ErrorKey), true)
+			}
+			@design.Form(design.FormProps{FormProps: form.FormProps{Action: "/checkout/form", Method: "post", Class: "grid items-start gap-4 lg:grid-cols-2 lg:gap-6", Attrs: templ.Attributes{"data-page": "checkout"}}}) {
+				@Hidden("csrf", v.CV.CSRF)
+				@Hidden("key", v.CV.Key)
+				@Hidden("product", v.P.Slug)
+				@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-6"}}) {
+					@design.CheckoutItem(checkoutItem(s, v))
+					if v.CV.Signed {
+						@Hidden("email", v.CV.Email)
+						@design.InfoCard(design.InfoCardProps{Title: s.T("ui.checkout.recipient"), Text: v.CV.Email, Icon: "mail", Size: "sm"})
+					} else {
+						@design.RecipientCard(design.RecipientCardProps{Title: s.T("ui.checkout.recipient"), Text: s.T("ui.checkout.recipient_text"), Label: s.T("ui.account.email"), Email: v.CV.Email, Error: s.T("ui.account.bad_email")})
+					}
+				}
+				@design.Box(design.BoxProps{BoxProps: box.BoxProps{Class: "lg:sticky lg:top-24"}}) {
+					@design.OrderSummary(orderSummary(s, v))
+				}
+			}
+		}
+	}
+}
+
+// ReturnPage is the browser return from the payment provider.
+templ ReturnPage(s Shell, v ReturnView) {
+	@Layout(s) {
+		@Page("flex flex-col items-center gap-6 py-20 text-center") {
+			@design.Title(design.TitleProps{Size: "section", As: 1, TextProps: text.TextProps{Attrs: templ.Attributes{"data-state": v.State}}}) {
+				{ s.T(returnKey(v.State)) }
+			}
+			@design.Text(design.TextProps{Tone: "muted", TextProps: text.TextProps{}}) {
+				{ s.T(returnKey(v.State) + "_lead") }
+			}
+			if v.OrderHref != "" {
+				@LinkButton(v.OrderHref, s.T("ui.checkout.view_order"), "dark", "receipt")
+			} else {
+				@LinkButton("/account", s.T("ui.checkout.open_cabinet"), "outline", "log-in")
+			}
+		}
+	}
+}
+
+// FakePayPage is the development payment page (no real money).
+templ FakePayPage(s Shell, v FakePayView) {
+	@Layout(s) {
+		@Page("flex max-w-lg flex-col gap-6 py-16") {
+			@Panel(s.T("ui.fakepay.title"), s.T("ui.fakepay.lead")) {
+				@design.Text(design.TextProps{Size: "lg", Tone: "strong", TextProps: text.TextProps{}}) {
+					{ Money(v.Amount) }
+				}
+				@design.Group(design.GroupProps{BoxProps: box.BoxProps{Class: "gap-3", Attrs: templ.Attributes{"data-page": "fakepay"}}}) {
+					@design.Form(design.FormProps{FormProps: form.FormProps{Action: "/fakepay/" + v.ID + "/succeed", Method: "post", Class: "flex"}}) {
+						@Submit(s.T("ui.fakepay.pay"))
+					}
+					@design.Form(design.FormProps{FormProps: form.FormProps{Action: "/fakepay/" + v.ID + "/cancel", Method: "post", Class: "flex"}}) {
+						@design.Button(design.ButtonProps{Variant: "outline", Size: "md", ButtonProps: button.ButtonProps{Type: "submit"}}) {
+							{ s.T("ui.fakepay.cancel") }
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// ArticleGrid lists article cards.
+templ ArticleGrid(s Shell, as []editorial.Article) {
+	@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 md:grid-cols-3"}}) {
+		for _, a := range as {
+			@design.InfoCard(design.InfoCardProps{Title: a.Title, Text: or(a.Excerpt, fmtDate(a.PublishedAt)), Cta: s.T("ui.blog.read"), Href: "/blog/" + a.Slug, Icon: "newspaper", Size: "sm"})
+		}
+	}
+}
+
+// BlogPage lists published articles.
+templ BlogPage(s Shell, as []editorial.Article) {
+	@Layout(s) {
+		@Page("flex flex-col gap-8 pb-14 pt-6 md:pt-8") {
+			@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4", Attrs: templ.Attributes{"data-page": "blog"}}}) {
+				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
+					{ s.T("ui.blog.title") }
+				}
+				@design.Text(design.TextProps{Tone: "muted", TextProps: text.TextProps{}}) {
+					{ s.T("ui.blog.lead") }
+				}
+			}
+			if len(as) == 0 {
+				@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.blog.empty")})
+			} else {
+				@ArticleGrid(s, as)
+			}
+		}
+	}
+}
+
+// ArticlePage renders one article.
+templ ArticlePage(s Shell, a editorial.Article) {
+	@Layout(s) {
+		@Page("flex max-w-3xl flex-col gap-6 pb-14 pt-6 md:pt-8") {
+			@design.Breadcrumbs(design.BreadcrumbsProps{Items: []design.Crumb{{Label: s.T("ui.blog.title"), Href: "/blog"}}, Current: a.Title, Label: s.T("ui.a11y.breadcrumbs")})
+			@design.Stack(design.StackProps{Tag: "header", BoxProps: box.BoxProps{Class: "gap-3", Attrs: templ.Attributes{"data-page": "article"}}}) {
+				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
+					{ a.Title }
+				}
+				@design.Text(design.TextProps{Size: "sm", Tone: "muted", TextProps: text.TextProps{}}) {
+					{ a.AuthorName + " \u00b7 " + fmtDate(a.PublishedAt) }
+				}
+				if a.Excerpt != "" {
+					@design.Text(design.TextProps{Size: "lg", TextProps: text.TextProps{}}) {
+						{ a.Excerpt }
+					}
+				}
+			}
+			@Prose(a.BodyHTML)
+		}
+	}
+}
+
+// InfoPage renders a legal or info page.
+templ InfoPage(s Shell, p editorial.Page) {
+	@Layout(s) {
+		@Page("flex max-w-3xl flex-col gap-6 pb-14 pt-6 md:pt-8") {
+			@design.Stack(design.StackProps{Tag: "header", BoxProps: box.BoxProps{Class: "gap-3", Attrs: templ.Attributes{"data-page": "page-" + p.Slug}}}) {
+				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
+					{ p.Title }
+				}
+				if p.Kind == "legal" {
+					@design.Text(design.TextProps{Size: "sm", Tone: "muted", TextProps: text.TextProps{}}) {
+						{ s.T("ui.page.version") + " " + p.Version + " \u00b7 " + fmtDate(p.Updated) }
+					}
+				}
+			}
+			@Prose(p.BodyHTML)
+			if p.Slug == "sell" {
+				@design.CalloutRow(design.CalloutRowProps{Title: s.T("ui.sell.cta_title"), Text: s.T("ui.sell.cta_text"), Cta: s.T("ui.sell.cta"), Href: "/account/roles"})
+			}
+		}
+	}
+}
+
+// CollectionsPage lists published collections.
+templ CollectionsPage(s Shell, cs []editorial.Collection) {
+	@Layout(s) {
+		@Page("flex flex-col gap-8 pb-14 pt-6 md:pt-8") {
+			@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-4", Attrs: templ.Attributes{"data-page": "collections"}}}) {
+				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
+					{ s.T("ui.collections.title") }
+				}
+				@design.Text(design.TextProps{Tone: "muted", TextProps: text.TextProps{}}) {
+					{ s.T("ui.collections.lead") }
+				}
+			}
+			if len(cs) == 0 {
+				@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.collections.empty")})
+			} else {
+				@design.Grid(design.GridProps{BoxProps: box.BoxProps{Class: "gap-4 md:grid-cols-2"}}) {
+					for _, c := range homeCollections(s, cs) {
+						@design.CollectionCard(design.CollectionCardProps{Item: c})
+					}
+				}
+			}
+		}
+	}
+}
+
+// CollectionPage shows one collection's products.
+templ CollectionPage(s Shell, c editorial.Collection, ps []catalog.Product) {
+	@Layout(s) {
+		@Page("flex flex-col gap-8 pb-14 pt-6 md:pt-8") {
+			@design.Breadcrumbs(design.BreadcrumbsProps{Items: []design.Crumb{{Label: s.T("ui.collections.title"), Href: "/collections"}}, Current: c.Title, Label: s.T("ui.a11y.breadcrumbs")})
+			@design.Stack(design.StackProps{BoxProps: box.BoxProps{Class: "gap-3", Attrs: templ.Attributes{"data-page": "collection"}}}) {
+				if c.Eyebrow != "" {
+					@design.Text(design.TextProps{Size: "xs", Tone: "muted", TextProps: text.TextProps{Class: "font-bold uppercase tracking-wide"}}) {
+						{ c.Eyebrow }
+					}
+				}
+				@design.Title(design.TitleProps{Size: "page", As: 1, TextProps: text.TextProps{}}) {
+					{ c.Title }
+				}
+				if c.Lead != "" {
+					@design.Text(design.TextProps{Tone: "muted", TextProps: text.TextProps{}}) {
+						{ c.Lead }
+					}
+				}
+			}
+			@design.ProductShelf(design.ProductShelfProps{Title: s.T("ui.collections.items"), HeadingId: "items-title", Items: cards(s, ps), Cols: "4"})
+		}
+	}
+}

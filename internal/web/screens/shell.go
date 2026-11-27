@@ -44,6 +44,8 @@ type Shell struct {
 	// EditorCSS and EditorJS are hashed island assets; empty on pages
 	// that do not mount the editor (ADR-0031).
 	EditorCSS, EditorJS string
+	// AppJS is the hashed progressive-enhancement script.
+	AppJS string
 	// EditorProps is the JSON blob for the island (#editory-props).
 	EditorProps any
 	// Image overrides og:image (product cover); empty uses the brand image.
@@ -54,6 +56,13 @@ type Shell struct {
 	LCPImage  string
 	LCPSrcset string
 	LCPSizes  string
+	// Viewer is the signed-in user (zero for guests); Workspace switches
+	// to the seller footer; Flash is a one-line form result.
+	Viewer     Viewer
+	Workspace  bool
+	Flash      string
+	FlashError bool
+	Toast      string
 }
 
 // T resolves a dictionary key.
