@@ -101,6 +101,7 @@ func main() {
 		return nil
 	})
 	migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{Automigrate: false})
+	registerCommands(app)
 
 	code := env("MARKET_STOREFRONT", "default")
 	fake := os.Getenv("MARKET_FAKE_GATEWAY") == "1"
@@ -170,8 +171,17 @@ func main() {
 		}
 		pb.RegisterAuthLimit(se.Router, authLimit, cfg.ClientIP)
 		pb.RegisterSecurityHeaders(se.Router)
-		h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: code, Dict: en, Log: se.App.Logger(), Commerce: commerce,
-			BaseURL: cfg.PublicURL, Observe: met, Covers: covers})
+		dictUI := en
+		if loc := os.Getenv("MARKET_LOCALE"); loc != "" && loc != en.Locale {
+			// ui_messages overlay (market i18n import); applied at start
+			if m, err := (&pb.Editorial{App: se.App}).Messages(context.Background(), loc); err != nil {
+				se.App.Logger().Warn("ui messages", "locale", loc, "err", err)
+			} else {
+				dictUI = en.Overlay(loc, m)
+			}
+		}
+		h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: code, Dict: dictUI, Log: se.App.Logger(), Commerce: commerce,
+			BaseURL: cfg.PublicURL, Observe: met, Covers: covers, Editorial: &pb.Editorial{App: se.App}})
 		deriveCover := func(src media.Source) {
 			if src.Path == "" {
 				return
@@ -357,7 +367,7 @@ func wire(app core.App, cfg config, fake bool, brand func(context.Context) strin
 	cab := &web.Cabinet{Users: users, Magic: magic, Orders: &pb.Account{App: app}, Mailer: note, CSRFKey: sessionKey,
 		Secure: strings.HasPrefix(publicURL, "https://"), AllowedOrigin: origin(publicURL),
 		TermsVersion: env("MARKET_TERMS_VERSION", "1"), Method: env("MARKET_CHECKOUT_METHOD", "card"),
-		Items: &pb.Authoring{App: app}}
+		Items: &pb.Authoring{App: app}, Roles: &pb.Cabinet{App: app}}
 	return &web.Commerce{Auth: auth(app), Operator: operator(app), Orders: svc, Licenses: lic, FakePay: fakeGW,
 		HashSalt: string(dlKey), Cabinet: cab, Files: files, ClientIP: ip.IP}, svc
 }

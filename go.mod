@@ -12,6 +12,7 @@ require (
 	github.com/pocketbase/dbx v1.12.0
 	github.com/pocketbase/pocketbase v0.40.6
 	github.com/prometheus/client_golang v1.25.0
+	github.com/spf13/cobra v1.10.2
 	github.com/ui8kit/codegen/generated/templ v0.0.0
 	github.com/yuin/goldmark v1.7.17
 	golang.org/x/image v0.47.0
@@ -43,7 +44,6 @@ require (
 	github.com/prometheus/procfs v0.22.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/spf13/cast v1.10.0 // indirect
-	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	golang.org/x/crypto v0.59.0 // indirect
 	golang.org/x/net v0.63.0 // indirect
