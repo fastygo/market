@@ -6,6 +6,7 @@ package i18n
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -63,5 +64,73 @@ func (d *Dict) Overlay(locale string, m map[string]string) *Dict {
 			out.Messages[k] = v
 		}
 	}
+	return out
+}
+
+// Report lists the gaps of a translation against the source dictionary:
+// keys the translation lacks (or leaves blank), keys the source does not
+// know, and keys whose {placeholders} differ from the source message.
+type Report struct {
+	Missing      []string
+	Extra        []string
+	Placeholders []string
+}
+
+// OK reports a translation that covers every source key.
+func (r Report) OK() bool {
+	return len(r.Missing) == 0 && len(r.Extra) == 0 && len(r.Placeholders) == 0
+}
+
+// Check compares translated messages m with the source dictionary d.
+func (d *Dict) Check(m map[string]string) Report {
+	var r Report
+	for k, v := range d.Messages {
+		t, ok := m[k]
+		switch {
+		case !ok || strings.TrimSpace(t) == "":
+			r.Missing = append(r.Missing, k)
+		case !samePlaceholders(v, t):
+			r.Placeholders = append(r.Placeholders, k)
+		}
+	}
+	for k := range m {
+		if _, ok := d.Messages[k]; !ok {
+			r.Extra = append(r.Extra, k)
+		}
+	}
+	sort.Strings(r.Missing)
+	sort.Strings(r.Extra)
+	sort.Strings(r.Placeholders)
+	return r
+}
+
+func samePlaceholders(a, b string) bool {
+	pa, pb := placeholders(a), placeholders(b)
+	if len(pa) != len(pb) {
+		return false
+	}
+	for i := range pa {
+		if pa[i] != pb[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func placeholders(s string) []string {
+	var out []string
+	for {
+		i := strings.IndexByte(s, '{')
+		if i < 0 {
+			break
+		}
+		j := strings.IndexByte(s[i:], '}')
+		if j < 0 {
+			break
+		}
+		out = append(out, s[i:i+j+1])
+		s = s[i+j+1:]
+	}
+	sort.Strings(out)
 	return out
 }

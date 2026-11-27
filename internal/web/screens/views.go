@@ -10,7 +10,6 @@ import (
 	"github.com/fastygo/market/internal/catalog"
 	"github.com/fastygo/market/internal/platform/money"
 
-	uiutils "github.com/ui8kit/codegen/generated/templ/orgutils"
 )
 
 // SignInView is the sign-in and register page state.
@@ -78,7 +77,7 @@ func PriceLabel(s Shell, p catalog.Product) string {
 	if p.Price.Minor == 0 {
 		return s.T("ui.checkout.free")
 	}
-	return uiutils.Money(float64(p.Price.Minor), p.Price.Currency)
+	return formatMinor(p.Price.Minor, p.Price.Currency)
 }
 
 // IsFree is true when the product has a 0-amount offer.

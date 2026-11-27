@@ -178,6 +178,9 @@ func main() {
 				se.App.Logger().Warn("ui messages", "locale", loc, "err", err)
 			} else {
 				dictUI = en.Overlay(loc, m)
+				if r := en.Check(m); len(r.Missing) > 0 {
+					se.App.Logger().Warn("ui messages: keys fall back to English", "locale", loc, "missing", len(r.Missing))
+				}
 			}
 		}
 		h := web.New(web.Handler{Catalog: repo, Storefronts: repo, StorefrontCode: code, Dict: dictUI, Log: se.App.Logger(), Commerce: commerce,

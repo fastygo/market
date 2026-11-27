@@ -12,7 +12,6 @@ import (
 	"github.com/fastygo/market/internal/platform/money"
 	"github.com/fastygo/market/ui/design"
 
-	uiutils "github.com/ui8kit/codegen/generated/templ/orgutils"
 )
 
 func or(a, b string) string {
@@ -23,10 +22,10 @@ func or(a, b string) string {
 }
 
 // Money formats minor units.
-func Money(m money.Money) string { return uiutils.Money(float64(m.Minor), m.Currency) }
+func Money(m money.Money) string { return formatMinor(m.Minor, m.Currency) }
 
 // MinorMoney formats minor units of a currency.
-func MinorMoney(minor int64, currency string) string { return uiutils.Money(float64(minor), currency) }
+func MinorMoney(minor int64, currency string) string { return formatMinor(minor, currency) }
 
 // HomeView is the storefront home.
 type HomeView struct {

@@ -16,6 +16,7 @@ import (
 	"github.com/fastygo/market/internal/editorial"
 	"github.com/fastygo/market/internal/i18n"
 	"github.com/fastygo/market/internal/platform/pb"
+	"github.com/fastygo/market/ui/dict"
 )
 
 // registerCommands adds the operator commands (ADR-0035): role grants,
@@ -39,6 +40,23 @@ func registerCommands(app *pocketbase.PocketBase) {
 
 	tr := &cobra.Command{Use: "i18n", Short: "UI dictionaries"}
 	tr.AddCommand(&cobra.Command{
+		Use:   "check <file.json>",
+		Short: "Report keys a DictionaryV04 file misses against the built-in English source",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			b, err := os.ReadFile(args[0])
+			if err != nil {
+				return err
+			}
+			d, err := i18n.Parse(b)
+			if err != nil {
+				return err
+			}
+			return reportCoverage(d)
+		},
+	})
+	var force bool
+	imp := &cobra.Command{
 		Use:   "import <locale> <file.json>",
 		Short: "Import a DictionaryV04 file into ui_messages (MARKET_LOCALE selects it at start)",
 		Args:  cobra.ExactArgs(2),
@@ -51,6 +69,9 @@ func registerCommands(app *pocketbase.PocketBase) {
 			if err != nil {
 				return err
 			}
+			if err := reportCoverage(d); err != nil && !force {
+				return fmt.Errorf("%w (use --force to import anyway)", err)
+			}
 			n, err := (&pb.Editorial{App: app}).ImportMessages(context.Background(), args[0], d.Messages)
 			if err != nil {
 				return err
@@ -58,7 +79,9 @@ func registerCommands(app *pocketbase.PocketBase) {
 			fmt.Println("imported", n, "messages for", args[0])
 			return nil
 		},
-	})
+	}
+	imp.Flags().BoolVar(&force, "force", false, "import even when keys are missing")
+	tr.AddCommand(imp)
 	app.RootCmd.AddCommand(tr)
 
 	demo := &cobra.Command{Use: "demo", Short: "Local demo data"}
@@ -220,5 +243,29 @@ func seedDemo(ctx context.Context, app *pocketbase.PocketBase, password string) 
 	}
 	out, _ := json.Marshal(demoUsers)
 	fmt.Println("demo seed: users", string(out), "(password from MARKET_DEMO_PASSWORD)")
+	return nil
+}
+
+// reportCoverage prints the gaps of d against the English source and fails
+// when any key is missing, unknown or has different placeholders.
+func reportCoverage(d *i18n.Dict) error {
+	src, err := i18n.Parse(dict.EN)
+	if err != nil {
+		return err
+	}
+	r := src.Check(d.Messages)
+	for _, k := range r.Missing {
+		fmt.Println("missing", k)
+	}
+	for _, k := range r.Extra {
+		fmt.Println("unknown", k)
+	}
+	for _, k := range r.Placeholders {
+		fmt.Println("placeholders differ", k)
+	}
+	fmt.Printf("%s: %d of %d keys translated\n", d.Locale, len(src.Messages)-len(r.Missing), len(src.Messages))
+	if !r.OK() {
+		return errors.New("i18n: dictionary does not match the source")
+	}
 	return nil
 }

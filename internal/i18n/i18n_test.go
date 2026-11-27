@@ -28,3 +28,15 @@ func TestOverlay(t *testing.T) {
 		t.Fatal("source changed")
 	}
 }
+
+func TestCheck(t *testing.T) {
+	d := &Dict{Locale: "en", Messages: map[string]string{"ui.a": "A {n}", "ui.b": "B", "ui.c": "C {0}"}}
+	r := d.Check(map[string]string{"ui.a": "AA {n}", "ui.b": " ", "ui.c": "CC", "ui.x": "X"})
+	if r.OK() || len(r.Missing) != 1 || r.Missing[0] != "ui.b" || len(r.Extra) != 1 || r.Extra[0] != "ui.x" ||
+		len(r.Placeholders) != 1 || r.Placeholders[0] != "ui.c" {
+		t.Fatalf("check: %+v", r)
+	}
+	if !d.Check(map[string]string{"ui.a": "{n} a", "ui.b": "b", "ui.c": "{0}"}).OK() {
+		t.Fatal("full translation reported gaps")
+	}
+}

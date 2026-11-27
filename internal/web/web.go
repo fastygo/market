@@ -117,6 +117,9 @@ func (w *statusWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
 
 // New builds the handler and its routes.
 func New(h Handler) *Handler {
+	if h.Dict != nil {
+		screens.SetMoneyLocale(h.Dict.Locale)
+	}
 	if h.Now == nil {
 		h.Now = time.Now
 	}
