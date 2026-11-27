@@ -81,6 +81,16 @@ HEAD first: a published release whose object is missing shows "file not
 uploaded yet" (404, logged as `download: release file missing`) instead of
 the storage's NoSuchKey page; the entitlement stays.
 
+Vendors upload releases on the item page (`/seller/items/{id}`, panel
+"Releases", ADR-0036) in both modes: the archive is streamed to disk,
+checked, stored under `<seller-slug>/<item-slug>/<item-slug>-<version>.zip`
+(local file or S3 `PUT`) and queued in `review`. Editors (and PocketBase
+superusers with a market account of the same e-mail) approve or reject at
+`/editor/releases`; only `published` releases are downloadable. With S3 the
+access key needs PutObject, DeleteObject and GetObject on the prefix.
+Executables and secret-looking files are flagged for the moderator, not
+refused (no antivirus).
+
 ### Return page and the order cookie
 
 The checkout form sets `market_order` (httpOnly, Lax, path

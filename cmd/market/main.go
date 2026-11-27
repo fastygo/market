@@ -233,7 +233,12 @@ func main() {
 		wrapped := apis.WrapStdHandler(h)
 		for _, p := range web.AllPatterns() {
 			method, path, _ := strings.Cut(p, " ")
-			se.Router.Route(method, path, wrapped)
+			rt := se.Router.Route(method, path, wrapped)
+			if web.LargeBody(p) {
+				// release archives (512 MB): the handler caps the body
+				// itself, PocketBase's default 32 MB limit would refuse it
+				rt.Unbind(apis.DefaultBodyLimitMiddlewareId)
+			}
 		}
 
 		// exactly one inbox and one outbox worker; reconciliation every 5 min.
@@ -367,14 +372,22 @@ func wire(app core.App, cfg config, fake bool, brand func(context.Context) strin
 		files = licensing.LocalFiles{Dir: cfg.FilesDir, Key: dlKey}
 	}
 	lic := &licensing.Service{Store: &pb.Downloads{App: app}, Signer: licensing.Signer{Key: dlKey}, Presigner: presigner, URLTTL: cfg.URLTTL}
+	rels := &pb.Releases{App: app}
 	cab := &web.Cabinet{Users: users, Magic: magic, Orders: &pb.Account{App: app}, Mailer: note, CSRFKey: sessionKey,
 		Secure: strings.HasPrefix(publicURL, "https://"), AllowedOrigin: origin(publicURL),
 		TermsVersion: env("MARKET_TERMS_VERSION", "1"), Method: env("MARKET_CHECKOUT_METHOD", "card"),
-		Items: &pb.Authoring{App: app}, Roles: &pb.Cabinet{App: app}, Releases: &pb.Releases{App: app},
+		Items: &pb.Authoring{App: app}, Roles: &pb.Cabinet{App: app}, Releases: rels, Moderation: rels,
 		SignupsOpen: env("MARKET_SIGNUPS", "closed") == "open"}
-	if cfg.S3 == nil {
-		cab.FilesDir = cfg.FilesDir
+	// vendor release uploads (ADR-0036): the temp file sits next to the
+	// final one in local mode (hard link, no copy), under pb_data with S3
+	if cfg.S3 != nil {
+		cab.ReleaseFiles = web.S3ReleaseStore{S3: *cfg.S3}
+		cab.UploadDir = filepath.Join(app.DataDir(), "uploads")
+	} else {
+		cab.ReleaseFiles = web.LocalReleaseStore{Dir: cfg.FilesDir}
+		cab.UploadDir = filepath.Join(cfg.FilesDir, ".uploads")
 	}
+	cleanUploads(app, cab.UploadDir)
 	return &web.Commerce{Auth: auth(app), Operator: operator(app), Orders: svc, Licenses: lic, FakePay: fakeGW,
 		HashSalt: string(dlKey), Cabinet: cab, Files: files, ClientIP: ip.IP}, svc
 }
@@ -524,4 +537,15 @@ func registry() *modules.Registry {
 		}
 	}
 	return r
+}
+
+// cleanUploads removes release temp files left by a crash (one process
+// per pb_data: nothing is in flight at start).
+func cleanUploads(app core.App, dir string) {
+	old, _ := filepath.Glob(filepath.Join(dir, ".release-*"))
+	for _, f := range old {
+		if err := os.Remove(f); err == nil {
+			app.Logger().Info("removed stale release upload", "file", filepath.Base(f))
+		}
+	}
 }

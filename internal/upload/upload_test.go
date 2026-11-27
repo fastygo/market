@@ -51,21 +51,24 @@ func TestCheckZip(t *testing.T) {
 	zeros := zipOf(t, entry{"zeros.bin", make([]byte, 2<<20)}) // ~1000:1, over the 1 MiB ratio floor
 	big := l
 	big.MaxRatio = 1e9
+	deny := l
+	deny.DenyExt = []string{".exe"}
 	for name, c := range map[string]struct {
 		b    []byte
 		l    Limits
 		want error
 	}{
-		"not a zip":         {[]byte("plain text"), l, ErrNotZip},
-		"too many entries":  {zipOf(t, many...), l, ErrZipBomb},
-		"high ratio":        {zeros, l, ErrZipBomb},
-		"over uncompressed": {zipOf(t, entry{"a.bin", make([]byte, 2<<20)}, entry{"b.bin", make([]byte, 2<<20)}), big, ErrZipBomb},
-		"path traversal":    {zipOf(t, entry{"../../etc/passwd", []byte("x")}), l, ErrEntry},
-		"absolute path":     {zipOf(t, entry{"/etc/passwd", []byte("x")}), l, ErrEntry},
-		"windows drive":     {zipOf(t, entry{`C:\x.txt`, []byte("x")}), l, ErrEntry},
-		"executable":        {zipOf(t, entry{"setup.EXE", []byte("MZ")}), l, ErrEntry},
+		"not a zip":          {[]byte("plain text"), l, ErrNotZip},
+		"too many entries":   {zipOf(t, many...), l, ErrZipBomb},
+		"high ratio":         {zeros, l, ErrZipBomb},
+		"over uncompressed":  {zipOf(t, entry{"a.bin", make([]byte, 2<<20)}, entry{"b.bin", make([]byte, 2<<20)}), big, ErrZipBomb},
+		"path traversal":     {zipOf(t, entry{"../../etc/passwd", []byte("x")}), l, ErrEntry},
+		"absolute path":      {zipOf(t, entry{"/etc/passwd", []byte("x")}), l, ErrEntry},
+		"windows drive":      {zipOf(t, entry{`C:\x.txt`, []byte("x")}), l, ErrEntry},
+		"denied executable":  {zipOf(t, entry{"setup.EXE", []byte("MZ")}), deny, ErrEntry},
+		"flagged executable": {zipOf(t, entry{"setup.EXE", []byte("MZ")}), l, nil},
 	} {
-		if err := check(c.b, c.l); !errors.Is(err, c.want) {
+		if err := check(c.b, c.l); !errors.Is(err, c.want) || (c.want == nil && err != nil) {
 			t.Errorf("%s: err = %v, want %v", name, err, c.want)
 		}
 	}
@@ -142,5 +145,46 @@ func TestReceive(t *testing.T) {
 	r.Header.Set("Content-Type", ct)
 	if _, err := Receive(httptest.NewRecorder(), r, "file", l, io.Discard); !errors.Is(err, ErrNoFile) {
 		t.Fatalf("missing field: %v", err)
+	}
+}
+
+// Executables and secrets are flagged, never refused; the listing keeps
+// every file with its size.
+func TestInspectFlags(t *testing.T) {
+	pe := make([]byte, 0x80)
+	copy(pe, "MZ")
+	pe[0x3c] = 0x40
+	copy(pe[0x40:], "PE\x00\x00")
+	b := zipOf(t,
+		entry{"kit/readme.txt", []byte("MZ is not a PE header")},
+		entry{"kit/tool.bin", append([]byte{0x7f, 'E', 'L', 'F'}, make([]byte, 16)...)},
+		entry{"kit/setup.exe", pe},
+		entry{"kit/run.sh", []byte("echo hi")},
+		entry{"kit/.env", []byte("X=1")},
+		entry{"kit/config.js", []byte(`const k = "AKIA` + strings.Repeat("Q", 16) + `"; password = "hunter2hunter2"`)},
+		entry{"kit/key.txt", []byte("-----BEGIN RSA " + "PRIVATE KEY-----\nx")},
+	)
+	rep, err := Inspect(bytes.NewReader(b), int64(len(b)), DefaultLimits)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rep.Files != 7 || len(rep.Entries) != 7 {
+		t.Fatalf("entries %+v", rep)
+	}
+	got := map[string]bool{}
+	for _, f := range rep.Flags {
+		got[f.Kind+"/"+f.Rule+"/"+f.Path] = true
+	}
+	for _, want := range []string{
+		"binary/elf/kit/tool.bin", "binary/pe/kit/setup.exe", "executable/exe/kit/setup.exe",
+		"executable/sh/kit/run.sh", "secret/env-file/kit/.env", "secret/aws-access-key/kit/config.js",
+		"secret/password-assignment/kit/config.js", "secret/private-key/kit/key.txt",
+	} {
+		if !got[want] {
+			t.Errorf("missing flag %s in %v", want, rep.Flags)
+		}
+	}
+	if got["binary/pe/kit/readme.txt"] {
+		t.Error("text starting with MZ flagged as PE")
 	}
 }

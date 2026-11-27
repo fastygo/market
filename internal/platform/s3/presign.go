@@ -1,6 +1,7 @@
 // Package s3 presigns GET URLs for S3-compatible storage with AWS
-// Signature Version 4 (query string auth). It needs no SDK and makes no
-// network call: the buyer's browser fetches the object (ADR-0009).
+// Signature Version 4 (query string auth): the buyer's browser fetches the
+// object (ADR-0009). It also checks (HEAD), uploads (PUT) and deletes
+// release objects for the vendor cabinet (ADR-0036). No SDK.
 package s3
 
 import (
@@ -32,6 +33,9 @@ type Presigner struct {
 	// backups of the host. Storage keys in the database stay relative.
 	Prefix string
 	Now    func() time.Time
+	// HTTP is the client for Exists, Put and Delete (default
+	// http.DefaultClient; a caller sets timeouts through the context).
+	HTTP *http.Client
 }
 
 // ErrConfig is returned for incomplete configuration.
@@ -102,7 +106,7 @@ func (p Presigner) Exists(ctx context.Context, key string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	res, err := http.DefaultClient.Do(req)
+	res, err := p.client().Do(req)
 	if err != nil {
 		return false, fmt.Errorf("s3: head: %w", err)
 	}

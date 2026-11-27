@@ -1,6 +1,6 @@
-// Package upload is the seller file intake (ADR-0022 releases, ADR-0028
-// seller authoring; not wired to a route yet, the seller cabinet does not
-// exist). Limits are enforced while the file is received, not after:
+// Package upload is the seller file intake (ADR-0022 releases, ADR-0036
+// vendor uploads on POST /seller/items/{id}/releases). Limits are enforced
+// while the file is received, not after:
 //
 //   - Receive streams one multipart file through http.MaxBytesReader and
 //     a hard per-file limit into the caller's writer (temp file or S3
@@ -8,7 +8,8 @@
 //   - CheckZip rejects zip bombs and unsafe entries before the release is
 //     stored: entry count, total uncompressed size, compression ratio,
 //     decompressed bytes counted for real (headers can lie), path
-//     traversal and executable types.
+//     traversal, and executable types only when Limits.DenyExt lists
+//     them (the default flags them for the moderator instead, Inspect).
 //   - The per-seller quota (bytes and files) is checked in the same write
 //     transaction that inserts the release row: pb.Releases.Create.
 package upload
@@ -31,7 +32,10 @@ type Limits struct {
 	MaxEntries      int     // files and dirs inside the zip
 	MaxUncompressed int64   // sum of all entries after decompression
 	MaxRatio        float64 // uncompressed / compressed, per entry and in total
-	DenyExt         []string
+	// DenyExt rejects entries with these extensions; FlagExt only reports
+	// them (Inspect) so a moderator decides (ADR-0036).
+	DenyExt []string
+	FlagExt []string
 }
 
 // DefaultLimits suit design files (.fig, .zip with sources).
@@ -40,7 +44,7 @@ var DefaultLimits = Limits{
 	MaxEntries:      20000,
 	MaxUncompressed: 2 << 30,
 	MaxRatio:        100,
-	DenyExt:         []string{".exe", ".dll", ".msi", ".bat", ".cmd", ".com", ".scr", ".ps1", ".vbs", ".jar", ".apk", ".app", ".sh", ".so", ".dylib"},
+	FlagExt:         []string{".exe", ".dll", ".msi", ".bat", ".cmd", ".com", ".scr", ".ps1", ".vbs", ".jar", ".apk", ".app", ".sh", ".so", ".dylib", ".bin", ".elf"},
 }
 
 // Quota is the per-seller storage allowance.
@@ -117,45 +121,58 @@ func tooLarge(err error) error {
 	return fmt.Errorf("upload: %w", err)
 }
 
-// CheckZip validates an archive of `size` bytes. Declared sizes are
-// checked first (cheap); then every entry is decompressed into a counter
-// with a hard limit, because a crafted header can declare less than the
-// entry really expands to.
+// CheckZip validates an archive of `size` bytes (Inspect without the
+// report).
 func CheckZip(ra io.ReaderAt, size int64, l Limits) error {
+	_, err := Inspect(ra, size, l)
+	return err
+}
+
+// Inspect validates an archive of `size` bytes and reports its entries
+// and content flags. Declared sizes are checked first (cheap); then every
+// entry is decompressed into a counter with a hard limit, because a
+// crafted header can declare less than the entry really expands to. The
+// same pass looks for executables (extension and ELF, PE or Mach-O magic)
+// and secret patterns; those are flags for a moderator, never a refusal.
+func Inspect(ra io.ReaderAt, size int64, l Limits) (Report, error) {
+	var rep Report
 	zr, err := zip.NewReader(ra, size)
 	if err != nil {
-		return ErrNotZip
+		return rep, ErrNotZip
 	}
 	if len(zr.File) > l.MaxEntries {
-		return fmt.Errorf("%w: %d entries (max %d)", ErrZipBomb, len(zr.File), l.MaxEntries)
+		return rep, fmt.Errorf("%w: %d entries (max %d)", ErrZipBomb, len(zr.File), l.MaxEntries)
 	}
 	var declared uint64
 	for _, f := range zr.File {
 		if err := checkName(f.Name, l); err != nil {
-			return err
+			return rep, err
 		}
 		declared += f.UncompressedSize64
 		if declared > uint64(l.MaxUncompressed) {
-			return fmt.Errorf("%w: more than %d bytes uncompressed", ErrZipBomb, l.MaxUncompressed)
+			return rep, fmt.Errorf("%w: more than %d bytes uncompressed", ErrZipBomb, l.MaxUncompressed)
 		}
 		// ratio only matters for big entries: small text files compress
 		// well and cannot blow up the disk
 		if f.UncompressedSize64 > ratioFloor && f.CompressedSize64 > 0 &&
 			float64(f.UncompressedSize64)/float64(f.CompressedSize64) > l.MaxRatio {
-			return fmt.Errorf("%w: %s ratio over %.0f", ErrZipBomb, f.Name, l.MaxRatio)
+			return rep, fmt.Errorf("%w: %s ratio over %.0f", ErrZipBomb, f.Name, l.MaxRatio)
 		}
 	}
 	if declared > ratioFloor && size > 0 && float64(declared)/float64(size) > l.MaxRatio {
-		return fmt.Errorf("%w: total ratio over %.0f", ErrZipBomb, l.MaxRatio)
+		return rep, fmt.Errorf("%w: total ratio over %.0f", ErrZipBomb, l.MaxRatio)
 	}
 	budget := l.MaxUncompressed
 	for _, f := range zr.File {
 		if f.FileInfo().IsDir() {
 			continue
 		}
+		name := strings.ReplaceAll(f.Name, `\`, "/")
+		rep.addEntry(name, int64(f.UncompressedSize64))
+		rep.flagName(name, l)
 		rc, err := f.Open()
 		if err != nil {
-			return fmt.Errorf("%w: %s: %v", ErrNotZip, f.Name, err)
+			return rep, fmt.Errorf("%w: %s: %v", ErrNotZip, f.Name, err)
 		}
 		// at most what the header declared (+1 to detect a lie) and
 		// never more than the remaining total budget
@@ -163,19 +180,21 @@ func CheckZip(ra io.ReaderAt, size int64, l Limits) error {
 		if limit > budget+1 {
 			limit = budget + 1
 		}
-		n, err := io.Copy(io.Discard, io.LimitReader(rc, limit))
+		sc := newScanner(int64(f.UncompressedSize64))
+		n, err := io.Copy(sc, io.LimitReader(rc, limit))
 		_ = rc.Close()
 		// archive/zip itself fails with ErrFormat once an entry yields
 		// more than its header declares; the count is the second guard
 		if n > int64(f.UncompressedSize64) || n > budget || errors.Is(err, zip.ErrFormat) {
-			return fmt.Errorf("%w: %s expands beyond its header", ErrZipBomb, f.Name)
+			return rep, fmt.Errorf("%w: %s expands beyond its header", ErrZipBomb, f.Name)
 		}
 		if err != nil {
-			return fmt.Errorf("%w: %s: %v", ErrNotZip, f.Name, err)
+			return rep, fmt.Errorf("%w: %s: %v", ErrNotZip, f.Name, err)
 		}
+		sc.report(&rep, name)
 		budget -= n
 	}
-	return nil
+	return rep, nil
 }
 
 func checkName(name string, l Limits) error {

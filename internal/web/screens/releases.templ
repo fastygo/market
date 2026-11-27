@@ -1,0 +1,73 @@
+package screens
+
+import (
+	"github.com/fastygo/market/ui/design"
+	"github.com/ui8kit/codegen/generated/templ/ui/box"
+	"github.com/ui8kit/codegen/generated/templ/ui/button"
+	"github.com/ui8kit/codegen/generated/templ/ui/text"
+)
+
+// EditorReleasesPage is the release moderation queue (ADR-0036).
+templ EditorReleasesPage(s Shell, v ReleaseQueueView) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "editor", Current: "releases"}) {
+			@Head(s.T("ui.editor.releases"), []string{s.T("ui.editor.releases_meta")}, nil)
+			@design.Tabs(design.TabsProps{Label: s.T("ui.a11y.tabs"), Current: v.Status, Items: statusTabs(s, "/editor/releases", v.Status, "review", "published", "rejected", "yanked")[1:]})
+			@Rows(releaseQueueRows(s, v.Releases), s.T("ui.editor.empty"), releaseQueueActions(s, v.Releases))
+		}
+	}
+}
+
+// EditorReleasePage shows one release to the moderator: data, content
+// flags, the archive listing, the file and the decision.
+templ EditorReleasePage(s Shell, v ReleaseReviewView) {
+	@Layout(s) {
+		@Frame(s, Section{Kind: "editor", Current: "releases"}) {
+			@Head(v.R.ItemTitle+" "+v.R.Version, []string{v.R.SellerName, itemStatus(s, v.R.Status)}, LinkButton("/editor/releases", s.T("ui.release.back_queue"), "outline", "arrow-left"))
+			@design.Grid(design.GridProps{Class: "items-start gap-4 lg:grid-cols-5", BoxProps: box.BoxProps{}}) {
+				@design.Stack(design.StackProps{Class: "min-w-0 gap-4 lg:col-span-3", BoxProps: box.BoxProps{}}) {
+					@design.SpecCard(design.SpecCardProps{Title: s.T("ui.release.details"), Items: releaseSpecs(s, v)})
+					if len(v.Report.Flags) > 0 {
+						@design.FileList(design.FileListProps{HeadingId: "release-flags", Title: s.T("ui.release.flags_title"), Items: flagItems(s, v.Report.Flags)})
+					} else {
+						@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.release.no_flags")})
+					}
+					if len(v.Report.Entries) > 0 {
+						@design.FileList(design.FileListProps{HeadingId: "release-files", Title: listingTitle(s, v.Report), Items: entryItems(s, v.Report.Entries)})
+					} else {
+						@design.EmptyNote(design.EmptyNoteProps{Title: s.T("ui.release.no_listing")})
+					}
+				}
+				@design.Stack(design.StackProps{Class: "min-w-0 gap-4 lg:col-span-2", BoxProps: box.BoxProps{}}) {
+					@Panel(s.T("ui.release.decision"), s.T("ui.release.decision_lead")) {
+						@LinkButton(EditorReleaseHref(v.R.ID)+"/file", s.T("ui.release.download"), "outline", "download")
+						if releaseCanDecide(v.R) {
+							@PostForm(EditorReleaseHref(v.R.ID), v.CSRF, s.T("ui.release.approve")) {
+								@Hidden("status", "published")
+								@Submit(s.T("ui.release.approve"))
+							}
+							@PostForm(EditorReleaseHref(v.R.ID), v.CSRF, s.T("ui.release.reject")) {
+								@Hidden("status", "rejected")
+								@Area(F{ID: "reject-note", Name: "note", Label: s.T("ui.release.reject_note"), Rows: "3", Required: true, Hint: s.T("ui.release.reject_hint")})
+								@design.Button(design.ButtonProps{Variant: "outline", Size: "md", ButtonProps: button.ButtonProps{Type: "submit"}}) {
+									{ s.T("ui.release.reject") }
+								}
+							}
+						} else {
+							@design.Badge(design.BadgeProps{Tone: statusTone(v.R.Status), TextProps: text.TextProps{}}) {
+								{ s.T("ui.release.decided") }
+							}
+						}
+					}
+					if v.R.Changelog != "" {
+						@Panel(s.T("ui.release.changelog"), "") {
+							@design.Text(design.TextProps{Size: "sm", Tone: "muted", TextProps: text.TextProps{}}) {
+								{ stripTags(v.R.Changelog) }
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

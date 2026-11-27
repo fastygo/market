@@ -50,10 +50,13 @@ or the admin, not in the dictionary.
   status is recorded: `market seller vat <store-slug> yes|no` (the RU tax
   policy refuses offers otherwise). The editor sees a message when publishing
   an item of such a store.
-- An item goes on sale only with a published release. With local storage
-  (no `MARKET_S3_ENDPOINT`) vendors upload `.zip` releases in the cabinet
-  (512 MB, archive checks, per-store quota) into `MARKET_FILES_DIR`; include
-  that directory in the backup. With S3 the operator uploads release files.
+- An item goes on sale only with a published release. Vendors upload `.zip`
+  releases in the cabinet (512 MB, archive checks, per-store quota) into
+  `MARKET_FILES_DIR` (include it in the backup) or, with S3, into
+  `MARKET_S3_PREFIX` (the access key needs PutObject, DeleteObject and
+  GetObject there). Every upload waits in `/editor/releases` until an
+  editor approves it (ADR-0036). The edge must accept 513 MB request
+  bodies on `POST /seller/items/*/releases`.
 
 ## Edge (Caddy)
 

@@ -375,5 +375,5 @@ func seedRelease(ctx context.Context, app *pocketbase.PocketBase, userID, seller
 	if err != nil {
 		return err
 	}
-	return rels.PublishRelease(ctx, userID, itemID, rl.ID)
+	return rels.ModerateRelease(ctx, rl.ID, authoring.ReleasePublished, "", "demo seed")
 }

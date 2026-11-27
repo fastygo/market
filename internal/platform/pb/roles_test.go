@@ -108,17 +108,37 @@ func TestRoleApplicationsGrantRoles(t *testing.T) {
 		t.Fatalf("bad version: %v", err)
 	}
 	rl, err := rels.AddRelease(ctx, u.ID, it.ID, in)
-	if err != nil || rl.Status != "draft" || rl.Name != "night.zip" || rl.Changelog != "First &lt;b&gt;cut&lt;/b&gt;" {
+	if err != nil || rl.Status != "review" || rl.Name != "night.zip" || rl.Changelog != "First &lt;b&gt;cut&lt;/b&gt;" {
 		t.Fatalf("release %+v %v", rl, err)
 	}
 	if _, err := rels.AddRelease(ctx, u.ID, it.ID, in); !errors.Is(err, authoring.ErrConflict) {
 		t.Fatalf("duplicate version: %v", err)
 	}
-	if err := rels.PublishRelease(ctx, u.ID, it.ID, rl.ID); err != nil {
+	// a release in review is not a published release (ADR-0036)
+	if err := ed.ModerateProduct(ctx, it.ID, "published", ""); !errors.Is(err, editorial.ErrNoRelease) {
+		t.Fatalf("publish with a release in review: %v", err)
+	}
+	if n, _ := ed.Counts(ctx); n.Releases != 1 {
+		t.Fatalf("release queue count %+v", n)
+	}
+	if err := rels.ModerateRelease(ctx, rl.ID, "rejected", "  ", "editor@example.com"); !errors.Is(err, authoring.ErrInvalid) {
+		t.Fatalf("reject without a note: %v", err)
+	}
+	if err := rels.ModerateRelease(ctx, rl.ID, "yanked", "", "editor@example.com"); !errors.Is(err, authoring.ErrInvalid) {
+		t.Fatalf("bad decision: %v", err)
+	}
+	if err := rels.ModerateRelease(ctx, rl.ID, "published", "", "editor@example.com"); err != nil {
 		t.Fatal(err)
 	}
-	if list, err := rels.ItemReleases(ctx, u.ID, it.ID); err != nil || len(list) != 1 || list[0].Status != "published" {
+	if err := rels.ModerateRelease(ctx, rl.ID, "rejected", "late", "editor@example.com"); !errors.Is(err, authoring.ErrInvalid) {
+		t.Fatalf("decide twice: %v", err)
+	}
+	list, err := rels.ItemReleases(ctx, u.ID, it.ID)
+	if err != nil || len(list) != 1 || list[0].Status != "published" || list[0].ReviewedBy != "editor@example.com" || list[0].ReviewedAt.IsZero() {
 		t.Fatalf("releases %+v %v", list, err)
+	}
+	if _, err := rels.DeleteRelease(ctx, u.ID, it.ID, rl.ID); !errors.Is(err, authoring.ErrInvalid) {
+		t.Fatalf("delete a published release: %v", err)
 	}
 	if err := ed.ModerateProduct(ctx, it.ID, "published", ""); err != nil {
 		t.Fatal(err)

@@ -28,8 +28,8 @@ type ItemForm struct {
 	Categories []authoring.Category
 	New        bool
 	CSRF       string
-	// Releases of the item; ReleasesOn is false when files go to S3 and
-	// the operator uploads them.
+	// Releases of the item; ReleasesOn is false when no release storage
+	// is configured.
 	Releases   []authoring.Release
 	ReleasesOn bool
 }
@@ -295,8 +295,16 @@ func releaseRows(s Shell, rs []authoring.Release) []Row {
 	for _, r := range rs {
 		meta := r.Name + " \u00b7 " + sizeText(s, r.Size) + " \u00b7 " + fmtDate(r.Created)
 		row := Row{Title: r.Version, Meta: meta, Badge: itemStatus(s, r.Status), Tone: statusTone(r.Status)}
+		switch r.Status {
+		case authoring.ReleaseInReview, authoring.ReleaseDraft:
+			row.Lines = append(row.Lines, s.T("ui.release.waiting"))
+		case authoring.ReleaseRejected:
+			if r.ReviewNote != "" {
+				row.Lines = append(row.Lines, s.T("ui.release.moderator_note")+": "+r.ReviewNote)
+			}
+		}
 		if c := stripTags(r.Changelog); c != "" {
-			row.Lines = []string{c}
+			row.Lines = append(row.Lines, c)
 		}
 		out = append(out, row)
 	}
@@ -305,9 +313,16 @@ func releaseRows(s Shell, rs []authoring.Release) []Row {
 
 func releaseActions(s Shell, v ItemForm) func(i int) templ.Component {
 	return func(i int) templ.Component {
-		if i >= len(v.Releases) || v.Releases[i].Status != "draft" {
+		if i >= len(v.Releases) {
 			return nil
 		}
-		return ReleasePublish(SellerItemHref(v.Item.ID)+"/releases/"+v.Releases[i].ID+"/publish", v.CSRF, s.T("ui.release.publish"))
+		base := SellerItemHref(v.Item.ID) + "/releases/" + v.Releases[i].ID
+		switch v.Releases[i].Status {
+		case authoring.ReleasePublished:
+			return ReleaseAction(base+"/yank", v.CSRF, s.T("ui.release.yank"))
+		case authoring.ReleaseInReview, authoring.ReleaseRejected, authoring.ReleaseDraft:
+			return ReleaseAction(base+"/delete", v.CSRF, s.T("ui.release.delete"))
+		}
+		return nil
 	}
 }

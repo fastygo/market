@@ -20,6 +20,9 @@ var (
 	ErrInvalid  = errors.New("authoring: invalid content")
 	ErrBadImage = errors.New("authoring: image type not allowed")
 	ErrQuota    = errors.New("authoring: image quota exceeded")
+	// ErrLastRelease: the only published release of an item with buyers
+	// cannot be yanked; they would lose their download.
+	ErrLastRelease = errors.New("authoring: last published release of an item with buyers")
 )
 
 // Item is one product the seller can edit.
@@ -104,26 +107,77 @@ func ParseETag(s string) (int, bool) {
 	return n, true
 }
 
-// Release is a versioned file of an item (ADR-0022). Drafts are private;
-// a published release is what buyers download and cannot be changed.
+// Release statuses (ADR-0036). A vendor upload starts in review; only a
+// moderator publishes or rejects it. draft is legacy (rows written before
+// moderation existed and the demo seed).
+const (
+	ReleaseDraft     = "draft"
+	ReleaseInReview  = "review"
+	ReleasePublished = "published"
+	ReleaseRejected  = "rejected"
+	ReleaseYanked    = "yanked"
+)
+
+// Release is a versioned file of an item (ADR-0022). Unpublished releases
+// are private; a published release is what buyers download and cannot be
+// changed.
 type Release struct {
 	ID, Version, Status, Changelog, Name string
+	ReviewNote, ReviewedBy               string
 	Size                                 int64
-	Created                              time.Time
+	Flags                                int
+	Created, ReviewedAt                  time.Time
 }
 
-// NewRelease is a received, checked file to attach to an item.
+// NewRelease is a received, checked file to attach to an item. Manifest is
+// the archive report (upload.Report as JSON) shown to the moderator.
 type NewRelease struct {
 	Version, Changelog, StorageKey, SHA256 string
 	Size                                   int64
+	Manifest                               []byte
+	Flags                                  int
+}
+
+// ReleaseTarget names the store and item a release file belongs to; the
+// slugs build the storage key.
+type ReleaseTarget struct {
+	SellerID, SellerSlug, ItemSlug string
 }
 
 // Releases is the seller side of release files; every call checks that the
 // user is a member of the item's store.
 type Releases interface {
 	ItemReleases(ctx context.Context, userID, itemID string) ([]Release, error)
+	// AddRelease stores a row in review (moderation queue).
 	AddRelease(ctx context.Context, userID, itemID string, in NewRelease) (Release, error)
-	PublishRelease(ctx context.Context, userID, itemID, releaseID string) error
-	// ReleaseOwner returns the store of an item the user may edit.
-	ReleaseOwner(ctx context.Context, userID, itemID string) (sellerID string, err error)
+	// YankRelease withdraws a published release (ErrLastRelease when it
+	// is the only one and the item has buyers).
+	YankRelease(ctx context.Context, userID, itemID, releaseID string) error
+	// DeleteRelease removes an unpublished release (review, rejected or
+	// draft) and returns its storage key so the caller deletes the file.
+	DeleteRelease(ctx context.Context, userID, itemID, releaseID string) (storageKey string, err error)
+	// ReleaseTarget returns the store and slugs of an item the user may
+	// edit.
+	ReleaseTarget(ctx context.Context, userID, itemID string) (ReleaseTarget, error)
+}
+
+// ReleaseReview is a release as the moderator sees it.
+type ReleaseReview struct {
+	ID, ItemID, ItemTitle, ItemSlug, SellerName, SellerSlug string
+	Version, Status, Changelog, Name, StorageKey, SHA256    string
+	ReviewNote, ReviewedBy                                  string
+	Size                                                    int64
+	Flags                                                   int
+	Manifest                                                []byte
+	Created, ReviewedAt                                     time.Time
+}
+
+// ReleaseModeration is the moderator side (editor role, ADR-0036).
+type ReleaseModeration interface {
+	// ReleaseQueue lists releases with the status (review by default).
+	ReleaseQueue(ctx context.Context, status string) ([]ReleaseReview, error)
+	ReleaseForReview(ctx context.Context, id string) (ReleaseReview, error)
+	// ModerateRelease publishes or rejects a release in review and records
+	// who decided and when; a rejection needs a note.
+	ModerateRelease(ctx context.Context, id, decision, note, by string) error
 }

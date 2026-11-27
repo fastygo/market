@@ -27,6 +27,10 @@ func (h *Handler) mountEditorial(m *http.ServeMux) {
 		m.HandleFunc("GET /editor/"+q, h.editorQueue)
 		m.HandleFunc("POST /editor/"+q, h.editorDecide)
 	}
+	m.HandleFunc("GET /editor/releases", h.editorReleases)
+	m.HandleFunc("GET /editor/releases/{id}", h.editorRelease)
+	m.HandleFunc("POST /editor/releases/{id}", h.editorReleaseDecide)
+	m.HandleFunc("GET /editor/releases/{id}/file", h.editorReleaseFile)
 	m.HandleFunc("GET /editor/pages", h.editorPages)
 	m.HandleFunc("GET /editor/pages/new", h.editorPage)
 	m.HandleFunc("POST /editor/pages/new", h.editorPageSave)

@@ -536,6 +536,7 @@ func (e *Editorial) Counts(ctx context.Context) (editorial.Counts, error) {
 		sql string
 	}{
 		{&c.Products, `SELECT COUNT(*) FROM products WHERE status = 'in_review'`},
+		{&c.Releases, `SELECT COUNT(*) FROM product_releases WHERE status = 'review'`},
 		{&c.Articles, `SELECT COUNT(*) FROM articles WHERE status = 'in_review'`},
 		{&c.Reviews, `SELECT COUNT(*) FROM reviews WHERE status = 'pending'`},
 		{&c.Applications, `SELECT COUNT(*) FROM role_applications WHERE status = 'pending'`},

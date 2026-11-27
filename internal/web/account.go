@@ -44,10 +44,14 @@ type Cabinet struct {
 	// Roles is the four-role cabinet store (ADR-0035); nil hides the
 	// profile, roles, seller, studio, partner and editor routes.
 	Roles cabinet.Store
-	// Releases and FilesDir let vendors upload release archives into local
-	// file storage; empty FilesDir (S3) keeps uploads with the operator.
-	Releases authoring.Releases
-	FilesDir string
+	// Releases and ReleaseFiles let vendors upload release archives
+	// (local files or S3, ADR-0036); UploadDir holds the temporary file
+	// while an upload is checked (on disk, never in memory). Moderation
+	// is the editor queue of releases in review; nil hides it.
+	Releases     authoring.Releases
+	ReleaseFiles ReleaseStore
+	UploadDir    string
+	Moderation   authoring.ReleaseModeration
 	// SignupsOpen allows public account creation and role applications
 	// (MARKET_SIGNUPS=open). Closed by default: the operator adds users,
 	// vendors, authors and partners by hand (market user add, role grant,
@@ -103,7 +107,8 @@ var AccountPatterns = []string{
 	"POST /seller/items/{id}/cover",
 	"POST /seller/items/{id}/gallery",
 	"POST /seller/items/{id}/releases",
-	"POST /seller/items/{id}/releases/{rid}/publish",
+	"POST /seller/items/{id}/releases/{rid}/yank",
+	"POST /seller/items/{id}/releases/{rid}/delete",
 	"GET /seller/media",
 	"POST /seller/media",
 	"GET /seller/finance",
@@ -134,6 +139,10 @@ var AccountPatterns = []string{
 	"POST /editor/applications",
 	"GET /editor/payouts",
 	"POST /editor/payouts",
+	"GET /editor/releases",
+	"GET /editor/releases/{id}",
+	"POST /editor/releases/{id}",
+	"GET /editor/releases/{id}/file",
 	"GET /editor/pages",
 	"GET /editor/pages/new",
 	"POST /editor/pages/new",
@@ -248,6 +257,22 @@ func (c *Cabinet) checkCSRF(r *http.Request) bool {
 	tok := r.PostFormValue("csrf")
 	if tok == "" {
 		tok = r.Header.Get("X-CSRF-Token")
+	}
+	return hmac.Equal([]byte(tok), []byte(c.sign(ck.Value)))
+}
+
+// checkCSRFToken is checkCSRF for a token read from a streamed multipart
+// body (release uploads never parse the whole form).
+func (c *Cabinet) checkCSRFToken(r *http.Request, tok string) bool {
+	if o := r.Header.Get("Origin"); o != "" && o != "null" {
+		u, err := url.Parse(o)
+		if err != nil || (u.Host != r.Host && o != c.AllowedOrigin) {
+			return false
+		}
+	}
+	ck, err := r.Cookie(csrfCookie)
+	if err != nil || len(ck.Value) < 32 || tok == "" {
+		return false
 	}
 	return hmac.Equal([]byte(tok), []byte(c.sign(ck.Value)))
 }
@@ -592,6 +617,10 @@ func (h *Handler) fakePayPage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-store")
 	h.render(w, r, http.StatusOK, screens.FakePayPage(s, screens.FakePayView{ID: id, Amount: st.Amount}))
 }
+
+// LargeBody reports whether a route takes a request body over the
+// PocketBase default limit (release uploads); its handler caps the body.
+func LargeBody(pattern string) bool { return pattern == "POST /seller/items/{id}/releases" }
 
 // AllPatterns is every route the handler may mount; the host router must
 // forward all of them (storefront, commerce and cabinet).

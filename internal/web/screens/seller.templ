@@ -128,9 +128,17 @@ templ SellerItemPage(s Shell, v ItemForm) {
 									@Submit(s.T("ui.release.upload"))
 								}
 							} else {
-								@design.Badge(design.BadgeProps{Tone: "warning", TextProps: text.TextProps{}}) {
-									{ s.T("ui.release.operator") }
+								@design.Text(design.TextProps{Size: "sm", Tone: "muted", TextProps: text.TextProps{}}) {
+									{ s.T("ui.release.off") }
 								}
+							}
+						}
+					}
+				} else {
+					@design.Stack(design.StackProps{Class: "min-w-0 gap-4 lg:col-span-2", BoxProps: box.BoxProps{}}) {
+						@Panel(s.T("ui.seller.releases"), s.T("ui.seller.releases_lead")) {
+							@design.Text(design.TextProps{Size: "sm", Tone: "muted", TextProps: text.TextProps{}}) {
+								{ s.T("ui.release.after_save") }
 							}
 						}
 					}
@@ -140,10 +148,10 @@ templ SellerItemPage(s Shell, v ItemForm) {
 	}
 }
 
-// ReleasePublish is the publish button of a draft release.
-templ ReleasePublish(action, csrf, label string) {
+// ReleaseAction is a one-button form on a release row (yank, delete).
+templ ReleaseAction(action, csrf, label string) {
 	@InlineForm(action, csrf) {
-		@Act("action", "publish", label, "dark")
+		@Act("action", "go", label, "outline")
 	}
 }
 

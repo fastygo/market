@@ -61,6 +61,14 @@ func (c *Cabinet) Principal(ctx context.Context, userID string) (cabinet.Princip
 			p.Author = true
 		}
 	}
+	// A PocketBase superuser who signs in to the market with the same
+	// verified e-mail moderates like an editor (ADR-0036); the admin UI
+	// stays the fallback.
+	if !p.Editor && u.Verified() && p.Email != "" {
+		if _, err := c.App.FindAuthRecordByEmail(core.CollectionNameSuperusers, p.Email); err == nil {
+			p.Editor = true
+		}
+	}
 	var sellers []struct {
 		ID     string `db:"id"`
 		Slug   string `db:"slug"`

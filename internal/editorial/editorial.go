@@ -73,6 +73,7 @@ type ProductReview struct {
 // Counts summarises the editor queues.
 type Counts struct {
 	Products, Articles, Reviews, Applications int
+	Releases                                  int // product_releases in review (ADR-0036)
 }
 
 // Store is implemented by platform/pb.

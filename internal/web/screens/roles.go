@@ -94,6 +94,7 @@ func kindOptions(s Shell) []selectfield.SelectOptionItem {
 func editorStats(s Shell, c editorial.Counts) []design.Stat {
 	return []design.Stat{
 		{Label: s.T("ui.editor.q_products"), Value: itoa(c.Products)},
+		{Label: s.T("ui.editor.q_releases"), Value: itoa(c.Releases)},
 		{Label: s.T("ui.editor.q_articles"), Value: itoa(c.Articles)},
 		{Label: s.T("ui.editor.q_reviews"), Value: itoa(c.Reviews)},
 		{Label: s.T("ui.editor.q_applications"), Value: itoa(c.Applications)},
@@ -103,6 +104,7 @@ func editorStats(s Shell, c editorial.Counts) []design.Stat {
 func editorTasks(s Shell, c editorial.Counts) []design.Task {
 	return []design.Task{
 		{Icon: "package", Title: s.T("ui.editor.products"), Text: tpl(s.T("ui.editor.waiting"), itoa(c.Products)), Cta: s.T("ui.common.open"), Href: "/editor/products"},
+		{Icon: "archive", Title: s.T("ui.editor.releases"), Text: tpl(s.T("ui.editor.waiting"), itoa(c.Releases)), Cta: s.T("ui.common.open"), Href: "/editor/releases"},
 		{Icon: "newspaper", Title: s.T("ui.editor.articles"), Text: tpl(s.T("ui.editor.waiting"), itoa(c.Articles)), Cta: s.T("ui.common.open"), Href: "/editor/articles"},
 		{Icon: "message-square", Title: s.T("ui.editor.reviews"), Text: tpl(s.T("ui.editor.waiting"), itoa(c.Reviews)), Cta: s.T("ui.common.open"), Href: "/editor/reviews"},
 		{Icon: "badge-check", Title: s.T("ui.editor.applications"), Text: tpl(s.T("ui.editor.waiting"), itoa(c.Applications)), Cta: s.T("ui.common.open"), Href: "/editor/applications"},

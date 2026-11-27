@@ -189,7 +189,8 @@ func sectionNav(s Shell, sec Section) (string, []design.NavItem, []design.NavIte
 		}, []design.NavItem{n("rules", "file-text", "/pages/rules")}
 	case "editor":
 		return s.T("ui.section.editor"), []design.NavItem{
-			n("queue", "inbox", "/editor"), n("products", "package", "/editor/products"), n("articles", "newspaper", "/editor/articles"),
+			n("queue", "inbox", "/editor"), n("products", "package", "/editor/products"), n("releases", "archive", "/editor/releases"),
+			n("articles", "newspaper", "/editor/articles"),
 			n("reviews", "message-square", "/editor/reviews"), n("applications", "badge-check", "/editor/applications"),
 			n("pages", "scale", "/editor/pages"), n("collections", "layers", "/editor/collections"),
 		}, []design.NavItem{n("payouts", "wallet", "/editor/payouts")}

@@ -61,7 +61,7 @@ func statusTone(st string) string {
 	switch st {
 	case "published", "approved", "paid", "active", "fulfilled":
 		return "success"
-	case "in_review", "pending", "requested", "pending_review":
+	case "in_review", "pending", "requested", "pending_review", "review":
 		return "warning"
 	case "rejected", "cancelled", "suspended", "refunded", "disputed":
 		return "destructive"
