@@ -662,3 +662,32 @@ func (c *Cabinet) SetSellerVAT(ctx context.Context, slug string, payer bool) err
 	s.Set("tax_profile", prof)
 	return c.App.Save(s)
 }
+
+// AddSellerMember links an existing user to an existing store as owner or
+// staff (operator onboarding while sign-ups are closed). An existing link
+// gets the new role.
+func (c *Cabinet) AddSellerMember(ctx context.Context, slug, email, role string) error {
+	if role != "owner" && role != "staff" {
+		return cabinet.ErrInvalid
+	}
+	e, err := account.NormalizeEmail(email)
+	if err != nil {
+		return cabinet.ErrInvalid
+	}
+	u, err := c.App.FindAuthRecordByEmail("users", e)
+	if err != nil {
+		return fmt.Errorf("user %s: %w", e, cabinet.ErrNotFound)
+	}
+	s, err := c.App.FindFirstRecordByData("sellers", "slug", slug)
+	if err != nil {
+		return fmt.Errorf("store %s: %w", slug, cabinet.ErrNotFound)
+	}
+	return c.App.RunInTransaction(func(tx core.App) error {
+		if m, err := tx.FindFirstRecordByFilter("seller_members", "seller = {:s} && user = {:u}", dbx.Params{"s": s.Id, "u": u.Id}); err == nil {
+			m.Set("role", role)
+			return tx.Save(m)
+		}
+		_, err := newRecord(tx, "seller_members", map[string]any{"seller": s.Id, "user": u.Id, "role": role})
+		return err
+	})
+}

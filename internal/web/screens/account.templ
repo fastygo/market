@@ -29,7 +29,12 @@ templ OrderPage(s Shell, o account.Order) {
 				@design.Box(design.BoxProps{Class: "lg:col-span-2", BoxProps: box.BoxProps{}}) {
 					@Rows(itemRows(s, o), s.T("ui.account.no_items"), orderItemActions(s, o))
 				}
-				@design.SpecCard(design.SpecCardProps{Title: s.T("ui.account.order_details"), Items: orderRows(s, o)})
+				@design.Stack(design.StackProps{Class: "gap-4", BoxProps: box.BoxProps{}}) {
+					@design.SpecCard(design.SpecCardProps{Title: s.T("ui.account.order_details"), Items: orderRows(s, o)})
+					if o.PayURL != "" {
+						@LinkButton(o.PayURL, s.T("ui.account.pay_continue"), "dark", "arrow-right")
+					}
+				}
 			}
 		}
 	}
@@ -126,6 +131,10 @@ templ roleCard(s Shell, v RolesView, r cabinet.Role, icon string) {
 		} else if pendingRole(v.Apps, string(r)) {
 			@design.Badge(design.BadgeProps{Tone: "warning", TextProps: text.TextProps{}}) {
 				{ s.T("ui.status.pending") }
+			}
+		} else if v.Closed {
+			@design.Text(design.TextProps{Size: "sm", Tone: "muted", TextProps: text.TextProps{}}) {
+				{ s.T("ui.roles.closed") }
 			}
 		} else {
 			@PostForm("/account/roles", v.CSRF, s.T("ui.roles.apply")) {

@@ -191,7 +191,7 @@ func SignInPage(s Shell, v SignInView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						if v.Register {
+						if v.Register && !v.Closed {
 							templ_7745c5c3_Err = registerCard(s, v).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
@@ -319,7 +319,12 @@ func SignInPage(s Shell, v SignInView) templ.Component {
 							}()
 						}
 						ctx = templ.InitializeContext(ctx)
-						if !v.Register {
+						if v.Closed {
+							templ_7745c5c3_Err = Panel(s.T("ui.auth.register_title"), s.T("ui.auth.signups_closed")).Render(ctx, templ_7745c5c3_Buffer)
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						} else if !v.Register {
 							templ_7745c5c3_Err = registerCard(s, v).Render(ctx, templ_7745c5c3_Buffer)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err

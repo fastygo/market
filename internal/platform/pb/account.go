@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/pocketbase/dbx"
@@ -180,8 +181,25 @@ func (a *Account) load(where string, p dbx.Params) (account.Order, error) {
 		return account.Order{}, err
 	}
 	o := r.order()
+	if o.Status == "awaiting_payment" {
+		o.PayURL = a.payURL(o.ID)
+	}
 	o.Items, err = a.items(o.ID)
 	return o, err
+}
+
+// payURL is the confirmation page of the newest pending payment of an
+// order; only https provider URLs are returned.
+func (a *Account) payURL(orderID string) string {
+	var row struct {
+		URL string `db:"confirmation_url"`
+	}
+	err := a.App.DB().NewQuery(`SELECT confirmation_url FROM payments WHERE "order" = {:o} AND status = 'pending'
+		AND confirmation_url != '' ORDER BY created DESC LIMIT 1`).Bind(dbx.Params{"o": orderID}).One(&row)
+	if err != nil || !strings.HasPrefix(row.URL, "https://") {
+		return ""
+	}
+	return row.URL
 }
 
 // items are the lines of an order with their entitlement status.

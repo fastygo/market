@@ -64,7 +64,43 @@ func registerCommands(app *pocketbase.PocketBase) {
 			return nil
 		},
 	})
+	seller.AddCommand(&cobra.Command{
+		Use:   "add-member <store-slug> <email> [owner|staff]",
+		Short: "Make an existing user a vendor of an existing store (default role owner)",
+		Args:  cobra.RangeArgs(2, 3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			role := "owner"
+			if len(args) == 3 {
+				role = args[2]
+			}
+			if err := (&pb.Cabinet{App: app}).AddSellerMember(context.Background(), args[0], args[1], role); err != nil {
+				return fmt.Errorf("seller add-member: %w", err)
+			}
+			fmt.Println(role, "of", args[0])
+			return nil
+		},
+	})
 	app.RootCmd.AddCommand(seller)
+
+	user := &cobra.Command{Use: "user", Short: "Buyer accounts"}
+	user.AddCommand(&cobra.Command{
+		Use:   "add <email>",
+		Short: "Create a buyer account by hand (no email is sent; the user signs in with a link)",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			u, created, err := (&pb.Users{App: app}).Ensure(context.Background(), args[0])
+			if err != nil {
+				return fmt.Errorf("user add: %w", err)
+			}
+			if created {
+				fmt.Println("created", u.Email)
+			} else {
+				fmt.Println("exists", u.Email)
+			}
+			return nil
+		},
+	})
+	app.RootCmd.AddCommand(user)
 
 	tr := &cobra.Command{Use: "i18n", Short: "UI dictionaries"}
 	tr.AddCommand(&cobra.Command{

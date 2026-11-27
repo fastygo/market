@@ -370,7 +370,8 @@ func wire(app core.App, cfg config, fake bool, brand func(context.Context) strin
 	cab := &web.Cabinet{Users: users, Magic: magic, Orders: &pb.Account{App: app}, Mailer: note, CSRFKey: sessionKey,
 		Secure: strings.HasPrefix(publicURL, "https://"), AllowedOrigin: origin(publicURL),
 		TermsVersion: env("MARKET_TERMS_VERSION", "1"), Method: env("MARKET_CHECKOUT_METHOD", "card"),
-		Items: &pb.Authoring{App: app}, Roles: &pb.Cabinet{App: app}, Releases: &pb.Releases{App: app}}
+		Items: &pb.Authoring{App: app}, Roles: &pb.Cabinet{App: app}, Releases: &pb.Releases{App: app},
+		SignupsOpen: env("MARKET_SIGNUPS", "closed") == "open"}
 	if cfg.S3 == nil {
 		cab.FilesDir = cfg.FilesDir
 	}

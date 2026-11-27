@@ -157,6 +157,10 @@ func (h *Handler) accountRegister(w http.ResponseWriter, r *http.Request) {
 	}
 	c := h.Commerce.Cabinet
 	next := account.SafeNext(r.PostFormValue("next"))
+	if !c.SignupsOpen {
+		h.signInPage(w, r, http.StatusForbidden, screens.SignInView{Next: next, ErrorKey: "ui.auth.signups_closed"})
+		return
+	}
 	email, err := account.NormalizeEmail(r.PostFormValue("email"))
 	if err != nil {
 		h.signInPage(w, r, http.StatusUnprocessableEntity, screens.SignInView{Next: next, Register: true, ErrorKey: "ui.account.bad_email"})
@@ -271,6 +275,10 @@ func (h *Handler) accountRoles(w http.ResponseWriter, r *http.Request) {
 		if !h.parseForm(w, r) {
 			return
 		}
+		if !c.SignupsOpen {
+			failed(w, r, "/account/roles", "ui.roles.closed")
+			return
+		}
 		err := c.Roles.Apply(r.Context(), cabinet.Application{UserID: b.ID, Email: b.Email, Role: r.PostFormValue("role"),
 			StoreName: r.PostFormValue("store_name"), StoreSlug: r.PostFormValue("store_slug"),
 			Website: r.PostFormValue("website"), Message: r.PostFormValue("message")})
@@ -289,6 +297,6 @@ func (h *Handler) accountRoles(w http.ResponseWriter, r *http.Request) {
 	}
 	s, ok := h.cabinetShell(w, r, h.Dict.T("ui.roles.title"), false)
 	if ok {
-		h.render(w, r, http.StatusOK, screens.RolesPage(s, screens.RolesView{P: p, Apps: apps, CSRF: s.Viewer.CSRF}))
+		h.render(w, r, http.StatusOK, screens.RolesPage(s, screens.RolesView{P: p, Apps: apps, CSRF: s.Viewer.CSRF, Closed: !c.SignupsOpen}))
 	}
 }

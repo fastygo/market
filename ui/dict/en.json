@@ -724,6 +724,9 @@
     "ui.editor.release_missing": "The item has no published release: the vendor uploads and publishes one first.",
     "ui.size.mb": "{n} MB",
     "ui.size.kb": "{n} KB",
-    "ui.size.b": "{n} B"
+    "ui.size.b": "{n} B",
+    "ui.auth.signups_closed": "Sign-up is by invitation for now. If you already have an account, sign in with a link or a password.",
+    "ui.roles.closed": "Applications are closed for now. Write to the marketplace team and we will add the role by hand.",
+    "ui.account.pay_continue": "Continue payment"
   }
 }

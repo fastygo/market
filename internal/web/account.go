@@ -48,6 +48,11 @@ type Cabinet struct {
 	// file storage; empty FilesDir (S3) keeps uploads with the operator.
 	Releases authoring.Releases
 	FilesDir string
+	// SignupsOpen allows public account creation and role applications
+	// (MARKET_SIGNUPS=open). Closed by default: the operator adds users,
+	// vendors, authors and partners by hand (market user add, role grant,
+	// seller add-member); sign-in and guest checkout keep working.
+	SignupsOpen bool
 }
 
 // AccountReader reads the cabinet data (platform/pb.Account).
@@ -277,6 +282,9 @@ func (h *Handler) signInPage(w http.ResponseWriter, r *http.Request, status int,
 		return
 	}
 	v.CSRF = h.Commerce.Cabinet.csrf(w, r)
+	if !h.Commerce.Cabinet.SignupsOpen {
+		v.Closed, v.Register = true, false
+	}
 	w.Header().Set("Cache-Control", "no-store")
 	h.render(w, r, status, screens.SignInPage(s, v))
 }

@@ -17,6 +17,8 @@ type SignInView struct {
 	ErrorKey, InfoKey string
 	// Register shows the account creation form first.
 	Register bool
+	// Closed hides account creation (MARKET_SIGNUPS=closed).
+	Closed bool
 }
 
 // CheckoutView is the product page buy form.

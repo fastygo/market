@@ -12,6 +12,8 @@ type RolesView struct {
 	P    cabinet.Principal
 	Apps []cabinet.Application
 	CSRF string
+	// Closed: role applications are off (MARKET_SIGNUPS=closed).
+	Closed bool
 }
 
 func purchases(s Shell, os []account.Order) []design.Purchase {

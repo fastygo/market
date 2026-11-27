@@ -30,7 +30,8 @@ Production layout and every variable with comments:
 - Core: `MARKET_STOREFRONT`, `MARKET_PUBLIC_URL` (alias `MARKET_BASE_URL`;
   also canonical, `og:url` and JSON-LD links), `MARKET_TRUSTED_PROXIES`,
   `MARKET_CLIENT_IP_HEADER`, `MARKET_PAYMENT_TIMEOUT`, `MARKET_TERMS_VERSION`,
-  `MARKET_CHECKOUT_METHOD`, `MARKET_DEV`, `GOMEMLIMIT`.
+  `MARKET_CHECKOUT_METHOD`, `MARKET_SIGNUPS` (closed by default),
+  `MARKET_DEV`, `GOMEMLIMIT`.
 - Secrets (32+ characters, different from each other):
   `MARKET_SESSION_SECRET`, `MARKET_DOWNLOAD_SECRET`.
 - Files: local by default (`MARKET_FILES_DIR`, default `<pb_data>/files`);
@@ -85,6 +86,37 @@ segments are rejected.
 - Mail: `MARKET_MAIL_PROVIDER`, `MARKET_MAIL_FROM`, `MARKET_MAIL_FROM_NAME`,
   `MARKET_MAIL_SENDMAIL`, `MARKET_MAIL_DIR`, `MARKET_MAIL_API_KEY`,
   `MARKET_MAIL_API_URL`.
+
+## Manual onboarding (sign-ups closed)
+
+`MARKET_SIGNUPS=closed` (the default) removes the register form and the
+role application forms, and `POST /account/register` and
+`POST /account/roles` refuse with 403 / an error flash. Existing users still
+sign in with a password or a magic link (links go only to existing
+accounts). Guest checkout still creates the buyer account it needs to
+deliver the purchase. Set `MARKET_SIGNUPS=open` to restore self sign-up.
+
+Vendor, author and partner are not a single field on `users`: vendor is a
+`seller_members` row, author and editor are `user_roles` rows, partner is a
+`partners` row (ADR-0035). The CLI does all of it in one step; run it in
+the container as the service user with the service data dir, for example
+`runuser -u market -- /opt/market/market <command> --dir /var/lib/market/pb_data`:
+
+| Goal                               | Command                                          |
+|------------------------------------|--------------------------------------------------|
+| create a buyer account (no email)  | `market user add <email>`                        |
+| vendor of an existing store        | `market seller add-member <store-slug> <email> [owner\|staff]` |
+| vendor with a new store            | `market role grant <email> vendor` (store `<name>-store`, `pending_review`) |
+| author, partner, editor            | `market role grant <email> author\|partner\|editor` |
+| store VAT status (before first sale) | `market seller vat <store-slug> yes\|no`      |
+
+The user then signs in at `/account` with "Send link" and sets a password
+under `/account/security`. In the PocketBase admin (not public: open an SSH
+tunnel `ssh -L 8090:10.10.40.20:8090 <host>` and browse
+`http://127.0.0.1:8090/_/`) the same result is: a `users` record; then a
+`seller_members` record (`seller`, `user`, `role` owner or staff) for a
+vendor, or a `user_roles` record (`role` author or editor, `status` active).
+Prefer the CLI for partners: it generates the referral code.
 
 ## Real vs fake
 

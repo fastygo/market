@@ -33,7 +33,7 @@ templ SignInPage(s Shell, v SignInView) {
 			}
 			@design.Grid(design.GridProps{Class: "items-start gap-6 lg:grid-cols-2", BoxProps: box.BoxProps{}}) {
 				@design.Stack(design.StackProps{Class: "gap-6", BoxProps: box.BoxProps{}}) {
-					if v.Register {
+					if v.Register && !v.Closed {
 						@registerCard(s, v)
 					}
 					@Panel(s.T("ui.account.signin_link"), s.T("ui.auth.link_lead")) {
@@ -53,7 +53,9 @@ templ SignInPage(s Shell, v SignInView) {
 					}
 				}
 				@design.Stack(design.StackProps{Class: "gap-6", BoxProps: box.BoxProps{}}) {
-					if !v.Register {
+					if v.Closed {
+						@Panel(s.T("ui.auth.register_title"), s.T("ui.auth.signups_closed"))
+					} else if !v.Register {
 						@registerCard(s, v)
 					}
 					@design.CheckList(design.CheckListProps{Title: s.T("ui.auth.why_title"), Text: s.T("ui.auth.why_text"), Tone: "outline", HeadingId: "why-title",

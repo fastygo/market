@@ -44,6 +44,9 @@ type Order struct {
 	Total              money.Money
 	Created            time.Time
 	Items              []Item
+	// PayURL is the provider page of a pending payment, so a buyer who
+	// left it can come back and pay (awaiting_payment orders only).
+	PayURL string
 }
 
 // Item is an order line with its entitlement status.

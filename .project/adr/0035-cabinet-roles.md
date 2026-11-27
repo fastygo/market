@@ -20,6 +20,10 @@ on `users`, so a buyer who becomes a vendor keeps the purchases.
 | partner | `partners` (code, parent, level_path, rate_bps)  | editor approves an application               | `/partner`          |
 | editor  | `user_roles` role `editor`                       | CLI only: `market role grant <email> editor` | `/editor`           |
 
+- `MARKET_SIGNUPS=closed` (default since 2026-11-27) turns off the register
+  form and role applications; the operator onboards users with the CLI
+  (`market user add`, `market seller add-member`, `market role grant`), see
+  HANDOFF.md "Manual onboarding".
 - Vendor is per seller entity (a team): the owner adds staff by email at
   `/seller/team`; staff cannot remove the owner. An approved vendor
   application creates the seller in `pending_review` with commission 50 %
